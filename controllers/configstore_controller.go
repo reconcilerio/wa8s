@@ -25,12 +25,13 @@ import (
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"reconciler.io/runtime/reconcilers"
-	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
-	"reconciler.io/wa8s/components"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
+	"reconciler.io/wa8s/components"
 )
 
 // +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=configstores,verbs=get;list;watch;create;update;patch;delete

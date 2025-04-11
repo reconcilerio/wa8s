@@ -22,8 +22,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	"reconciler.io/runtime/apis"
-	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+
+	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 )
 
 // +die

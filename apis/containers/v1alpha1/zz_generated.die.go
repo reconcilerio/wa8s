@@ -38,9 +38,10 @@ import (
 	metav1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	"reconciler.io/runtime/apis"
+	yaml "sigs.k8s.io/yaml"
+
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
-	yaml "sigs.k8s.io/yaml"
 )
 
 var CronTriggerSpecBlank = (&CronTriggerSpecDie{}).DieFeed(CronTriggerSpec{})

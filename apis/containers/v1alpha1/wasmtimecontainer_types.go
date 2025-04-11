@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"reconciler.io/runtime/apis"
+
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 )

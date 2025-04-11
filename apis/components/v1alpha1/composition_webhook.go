@@ -25,11 +25,12 @@ import (
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apimachinery/pkg/util/validation/field"
-	"reconciler.io/wa8s/validation"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 	"sigs.k8s.io/json"
+
+	"reconciler.io/wa8s/validation"
 )
 
 //+kubebuilder:webhook:path=/validate-wa8s-reconciler-io-v1alpha1-composition,mutating=false,failurePolicy=fail,sideEffects=None,groups=wa8s.reconciler.io,resources=compositions,verbs=create;update,versions=v1alpha1,name=v1alpha1.compositions.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}

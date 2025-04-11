@@ -29,13 +29,14 @@ import (
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	"reconciler.io/runtime/apis"
 	"reconciler.io/runtime/reconcilers"
-	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
-	"reconciler.io/wa8s/registry"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
+	"reconciler.io/wa8s/registry"
 )
 
 // +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=components,verbs=get;list;watch;create;update;patch;delete

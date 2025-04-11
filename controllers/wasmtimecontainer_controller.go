@@ -26,13 +26,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"reconciler.io/runtime/apis"
 	"reconciler.io/runtime/reconcilers"
-	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
-	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
-	"reconciler.io/wa8s/registry"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
+	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
+	"reconciler.io/wa8s/registry"
 )
 
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers,verbs=get;list;watch;create;update;patch;delete

@@ -31,14 +31,15 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"reconciler.io/runtime/apis"
 	"reconciler.io/runtime/reconcilers"
-	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
-	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
-	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
-	"reconciler.io/wa8s/registry"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
+	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
+	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
+	"reconciler.io/wa8s/registry"
 
 	duckclient "reconciler.io/ducks/client"
 )

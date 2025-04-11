@@ -32,12 +32,13 @@ import (
 	"reconciler.io/runtime/reconcilers"
 	rtime "reconciler.io/runtime/time"
 	"reconciler.io/runtime/validation"
-	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
-	"reconciler.io/wa8s/components"
-	"reconciler.io/wa8s/registry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
+	"reconciler.io/wa8s/components"
+	"reconciler.io/wa8s/registry"
 )
 
 var (

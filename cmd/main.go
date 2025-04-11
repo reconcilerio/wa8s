@@ -27,12 +27,15 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"reconciler.io/runtime/reconcilers"
 
+	"github.com/go-logr/logr"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	apiregistrationv1 "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1"
+	duckv1 "reconciler.io/ducks/api/v1"
+	duckclient "reconciler.io/ducks/client"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -41,14 +44,11 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	duckv1 "reconciler.io/ducks/api/v1"
-	duckclient "reconciler.io/ducks/client"
+	"reconciler.io/wa8s/controllers"
 
-	"github.com/go-logr/logr"
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
 	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
-	"reconciler.io/wa8s/controllers"
 	// +kubebuilder:scaffold:imports
 )
 

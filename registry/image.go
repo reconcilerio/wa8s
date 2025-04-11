@@ -31,8 +31,9 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/types"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"reconciler.io/runtime/reconcilers"
-	"reconciler.io/wa8s/wit"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"reconciler.io/wa8s/wit"
 )
 
 const (

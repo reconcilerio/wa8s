@@ -26,6 +26,7 @@ import (
 	extism "github.com/extism/go-sdk"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/tetratelabs/wazero"
+
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 )
 

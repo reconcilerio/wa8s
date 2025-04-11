@@ -37,8 +37,9 @@ import (
 	v1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	"reconciler.io/runtime/apis"
-	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 	yaml "sigs.k8s.io/yaml"
+
+	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 )
 
 var ComponentReferenceBlank = (&ComponentReferenceDie{}).DieFeed(ComponentReference{})
