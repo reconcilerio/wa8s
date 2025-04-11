@@ -25,6 +25,9 @@ jobs:
     - uses: actions/setup-go@v5
       with:
         go-version: 1.24.x
+    - uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        target: wasm32-unknown-unknown
     - uses: actions/checkout@v4
     - name: Test
       run: make test
@@ -53,6 +56,9 @@ jobs:
     - uses: actions/setup-go@v5
       with:
         go-version: 1.24.x
+    - uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        target: wasm32-unknown-unknown
     - name: Generate certs
       run: |
         set -o errexit
