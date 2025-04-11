@@ -1,0 +1,7 @@
+## Append samples of your project ##
+resources:
+- components_v1alpha1_configstore.yaml
+- components_v1alpha1_component.yaml
+- components_v1alpha1_composition.yaml
+# - components_v1alpha1_repository.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

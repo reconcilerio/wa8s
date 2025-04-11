@@ -1,0 +1,6 @@
+apiVersion: registries.wa8s.reconciler.io/v1alpha1
+kind: Repository
+metadata:
+  name: hub
+spec:
+  template: scothis/wasm:{{ .Kind }}-{{ .UID }}

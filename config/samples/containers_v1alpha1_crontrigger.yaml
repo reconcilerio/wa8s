@@ -1,0 +1,21 @@
+apiVersion: containers.wa8s.reconciler.io/v1alpha1
+kind: CronTrigger
+metadata:
+  name: env
+spec:
+  schedule: "*/5 * * * *" # every 5 minutes
+  restartPolicy: Never
+  repositoryRef:
+    name: hub
+  hostCapabilities:
+    env:
+      inherit: true
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: Component
+metadata:
+  name: env
+spec:
+  oci:
+    image: scothis/wasm:env

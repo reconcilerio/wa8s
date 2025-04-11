@@ -1,0 +1,9 @@
+apiVersion: containers.wa8s.reconciler.io/v1alpha1
+kind: WrpcTrigger
+metadata:
+  name: logger
+spec:
+  ref:
+    name: logger
+  repositoryRef:
+    name: hub

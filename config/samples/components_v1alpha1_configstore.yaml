@@ -1,0 +1,15 @@
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: ConfigStore
+metadata:
+  name: logger-levels
+spec:
+  valuesFrom:
+  - name: logger-levels
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logger-levels
+data:
+  env: info

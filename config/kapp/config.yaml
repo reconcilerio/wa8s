@@ -1,0 +1,28 @@
+apiVersion: kapp.k14s.io/v1alpha1
+kind: Config
+rebaseRules:
+- path: [rules]
+  type: copy
+  sources: [existing]
+  resourceMatchers:
+  - andMatcher:
+      matchers:
+      - apiVersionKindMatcher: {apiVersion: rbac.authorization.k8s.io/v1, kind: ClusterRole}
+      - notMatcher:
+          matcher:
+            emptyFieldMatcher:
+              path: [aggregationRule]
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    kapp.k14s.io/exists: ""
+  name: componentducks.duck.wa8s.reconciler.io
+spec:
+  group: duck.wa8s.reconciler.io
+  versions:
+  - name: v1
+  names:
+    kind: ComponentDuck

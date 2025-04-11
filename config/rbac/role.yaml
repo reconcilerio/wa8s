@@ -1,0 +1,169 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wa8s-manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  - serviceaccounts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - containers.wa8s.reconciler.io
+  resources:
+  - crontriggers
+  - httptriggers
+  - wasmtimecontainers
+  - wrpctriggers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - containers.wa8s.reconciler.io
+  resources:
+  - crontriggers/finalizers
+  - httptriggers/finalizers
+  - wasmtimecontainers/finalizers
+  - wrpctriggers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - containers.wa8s.reconciler.io
+  resources:
+  - crontriggers/status
+  - httptriggers/status
+  - wasmtimecontainers/status
+  - wrpctriggers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - duck.wa8s.reconciler.io
+  resources:
+  - componentducks
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - registries.wa8s.reconciler.io
+  resources:
+  - clusterrepositories
+  - repositories
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - registries.wa8s.reconciler.io
+  resources:
+  - clusterrepositories/finalizers
+  - repositories/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - registries.wa8s.reconciler.io
+  resources:
+  - clusterrepositories/status
+  - repositories/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - clustercomponents
+  - components
+  - compositions
+  - configstores
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - clustercomponents/finalizers
+  - components/finalizers
+  - compositions/finalizers
+  - configstores/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - clustercomponents/status
+  - components/status
+  - compositions/status
+  - configstores/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - clusterrepositories
+  - repositories
+  verbs:
+  - get
+  - list
+  - watch

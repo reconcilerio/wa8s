@@ -1,0 +1,23 @@
+# permissions for end users to view components.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: wa8s
+    app.kubernetes.io/managed-by: kustomize
+  name: wa8s-component-viewer-role
+rules:
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - components
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - components/status
+  verbs:
+  - get

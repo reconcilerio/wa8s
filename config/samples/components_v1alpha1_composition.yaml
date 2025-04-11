@@ -1,0 +1,13 @@
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: Composition
+metadata:
+  name: configured-logger
+spec:
+  dependencies:
+  - component: reconcilerio:logger
+    ref:
+      name: logger
+  - component: reconcilerio:logger-levels
+    ref:
+      kind: ConfigStore
+      name: logger-levels

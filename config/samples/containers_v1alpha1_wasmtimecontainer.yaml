@@ -1,0 +1,5 @@
+apiVersion: containers.wa8s.reconciler.io/v1alpha1
+kind: WasmtimeContainer
+metadata:
+  name: logger
+spec: {}

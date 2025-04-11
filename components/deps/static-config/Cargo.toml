@@ -1,0 +1,31 @@
+[package]
+name = "static-config"
+version = "0.1.0"
+edition = "2021"
+default-run = "static-config"
+
+[[bin]]
+name = "static-config"
+path = "src/bin/main.rs"
+doc = false
+
+[workspace]
+members = [
+    "adapter",
+    "factory",
+]
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { version = "4.5.30", features = ["derive"] }
+java-properties = "2.0.0"
+serde = { version = "1", features = ["derive"] }
+walrus = "0.23.3"
+wasm-compose = "0.225.0"
+wasm-metadata = "0.225.0"
+wit-component = "0.225.0"
+
+[workspace.dependencies]
+anyhow = "1"
+static-config = { path = "." }
+wit-bindgen = "0.39.0"

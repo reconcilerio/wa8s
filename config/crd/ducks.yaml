@@ -1,0 +1,49 @@
+---
+apiVersion: duck.reconciler.io/v1
+kind: DuckType
+metadata:
+  name: componentducks.duck.wa8s.reconciler.io
+spec:
+  group: duck.wa8s.reconciler.io
+  plural: componentducks
+  kind: ComponentDuck
+
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: components.wa8s.reconciler.io
+spec:
+  group: wa8s.reconciler.io
+  version: v1alpha1
+  kind: Component
+
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: clustercomponents.wa8s.reconciler.io
+spec:
+  group: wa8s.reconciler.io
+  version: v1alpha1
+  kind: ClusterComponent
+
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: compositions.wa8s.reconciler.io
+spec:
+  group: wa8s.reconciler.io
+  version: v1alpha1
+  kind: Composition
+
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: configstores.wa8s.reconciler.io
+spec:
+  group: wa8s.reconciler.io
+  version: v1alpha1
+  kind: ConfigStore

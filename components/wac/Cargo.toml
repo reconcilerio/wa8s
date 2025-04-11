@@ -1,0 +1,16 @@
+[package]
+name = "wac"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+extism-pdk = "1.1.0"
+indexmap = "2.5.0"
+serde = "1.0.210"
+serde_json = "1.0.128"
+serde_with = { version = "3.9.0", features = [ "base64" ] }
+wac-graph = "0.6.0"
+wac-parser = "0.6.0"

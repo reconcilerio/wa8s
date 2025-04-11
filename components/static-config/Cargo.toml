@@ -1,0 +1,12 @@
+[package]
+name = "static-config-extism"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+extism-pdk = "1.1.0"
+static-config = { path = "../deps/static-config" }
+walrus = "=0.21.0"

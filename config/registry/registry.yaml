@@ -1,0 +1,51 @@
+---
+apiVersion: registries.wa8s.reconciler.io/v1alpha1
+kind: ClusterRepository
+metadata:
+  name: default
+spec:
+  template: registry.wa8s-system.svc.cluster.local/{{ .Kind }}/{{ .UID }}:{{ .ResourceVersion }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: registry
+spec:
+  selector:
+    app: registry
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: registry
+  template:
+    metadata:
+      labels:
+        app: registry
+    spec:
+      containers:
+      - name: registry
+        image: registry:2
+        env:
+        - name: REGISTRY_HTTP_ADDR
+          value: 0.0.0.0:8080
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: registry-data
+          mountPath: /var/lib/registry
+      volumes:
+      - name: registry-data
+        # TODO use something more durable
+        emptyDir: {}

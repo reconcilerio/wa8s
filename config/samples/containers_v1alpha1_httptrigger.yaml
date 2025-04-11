@@ -1,0 +1,19 @@
+apiVersion: containers.wa8s.reconciler.io/v1alpha1
+kind: HttpTrigger
+metadata:
+  name: hello
+spec:
+  ref:
+    name: http
+  repositoryRef:
+    name: hub
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: Component
+metadata:
+  name: http
+spec:
+  oci:
+    image: scothis/wasm:http
+

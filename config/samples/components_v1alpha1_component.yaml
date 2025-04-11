@@ -1,0 +1,8 @@
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: Component
+metadata:
+  name: logger
+spec:
+  oci:
+    image: scothis/logger
+

@@ -1,0 +1,3018 @@
+# Copyright 2025 the original author or authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: wa8s
+    control-plane: controller-manager
+  name: wa8s-system
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: clustercomponents.wa8s.reconciler.io
+spec:
+  group: wa8s.reconciler.io
+  names:
+    categories:
+    - wa8s
+    - wa8s-component
+    kind: ClusterComponent
+    listKind: ClusterComponentList
+    plural: clustercomponents
+    singular: clustercomponent
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ClusterComponent is the Schema for the components API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ComponentSpec defines the desired state of Component
+            properties:
+              oci:
+                description: OCI image to pull component from
+                properties:
+                  image:
+                    description: Image in an oci repository holding a wasm component
+                    type: string
+                  serviceAccountRef:
+                    description: ServiceAccountRef references the service account
+                      holding image pull secrets for the image
+                    properties:
+                      name:
+                        type: string
+                      namespace:
+                        description: Namespace containing the ServiceAccount, only
+                          allowed for ClusterRepository resources
+                        type: string
+                    required:
+                    - name
+                    type: object
+                type: object
+              ref:
+                description: Ref to another component
+                properties:
+                  apiVersion:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                type: object
+              repositoryRef:
+                properties:
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                type: object
+            type: object
+          status:
+            description: ComponentStatus defines the observed state of Component
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              image:
+                description: Image resolved from an oci repository holding the wasm
+                  component
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the 'Generation' of the resource that
+                  was last processed by the controller.
+                format: int64
+                type: integer
+              trace:
+                items:
+                  properties:
+                    cycleOmitted:
+                      type: boolean
+                    digest:
+                      type: string
+                    group:
+                      type: string
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                    namespace:
+                      type: string
+                    trace:
+                      x-kubernetes-preserve-unknown-fields: true
+                    uid:
+                      description: |-
+                        UID is a type that holds unique ID values, including UUIDs.  Because we
+                        don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+                        intent and helps make sure that UIDs and names do not get conflated.
+                      type: string
+                  required:
+                  - group
+                  - kind
+                  - name
+                  - uid
+                  type: object
+                type: array
+              wit:
+                properties:
+                  exports:
+                    items:
+                      type: string
+                    type: array
+                  imports:
+                    items:
+                      type: string
+                    type: array
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: clusterrepositories.registries.wa8s.reconciler.io
+spec:
+  group: registries.wa8s.reconciler.io
+  names:
+    categories:
+    - wa8s
+    - wa8s-registry
+    kind: ClusterRepository
+    listKind: ClusterRepositoryList
+    plural: clusterrepositories
+    singular: clusterrepository
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ClusterRepository is the Schema for the ClusterRepositories API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: RepositorySpec defines the desired state of Repository
+            properties:
+              serviceAccountRef:
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    description: Namespace containing the ServiceAccount, only allowed
+                      for ClusterRepository resources
+                    type: string
+                required:
+                - name
+                type: object
+              template:
+                type: string
+            required:
+            - template
+            type: object
+          status:
+            description: RepositoryStatus defines the observed state of Repository
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the 'Generation' of the resource that
+                  was last processed by the controller.
+                format: int64
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: components.wa8s.reconciler.io
+spec:
+  group: wa8s.reconciler.io
+  names:
+    categories:
+    - wa8s
+    - wa8s-component
+    kind: Component
+    listKind: ComponentList
+    plural: components
+    singular: component
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Component is the Schema for the components API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ComponentSpec defines the desired state of Component
+            properties:
+              oci:
+                description: OCI image to pull component from
+                properties:
+                  image:
+                    description: Image in an oci repository holding a wasm component
+                    type: string
+                  serviceAccountRef:
+                    description: ServiceAccountRef references the service account
+                      holding image pull secrets for the image
+                    properties:
+                      name:
+                        type: string
+                      namespace:
+                        description: Namespace containing the ServiceAccount, only
+                          allowed for ClusterRepository resources
+                        type: string
+                    required:
+                    - name
+                    type: object
+                type: object
+              ref:
+                description: Ref to another component
+                properties:
+                  apiVersion:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                type: object
+              repositoryRef:
+                properties:
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                type: object
+            type: object
+          status:
+            description: ComponentStatus defines the observed state of Component
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              image:
+                description: Image resolved from an oci repository holding the wasm
+                  component
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the 'Generation' of the resource that
+                  was last processed by the controller.
+                format: int64
+                type: integer
+              trace:
+                items:
+                  properties:
+                    cycleOmitted:
+                      type: boolean
+                    digest:
+                      type: string
+                    group:
+                      type: string
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                    namespace:
+                      type: string
+                    trace:
+                      x-kubernetes-preserve-unknown-fields: true
+                    uid:
+                      description: |-
+                        UID is a type that holds unique ID values, including UUIDs.  Because we
+                        don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+                        intent and helps make sure that UIDs and names do not get conflated.
+                      type: string
+                  required:
+                  - group
+                  - kind
+                  - name
+                  - uid
+                  type: object
+                type: array
+              wit:
+                properties:
+                  exports:
+                    items:
+                      type: string
+                    type: array
+                  imports:
+                    items:
+                      type: string
+                    type: array
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: compositions.wa8s.reconciler.io
+spec:
+  group: wa8s.reconciler.io
+  names:
+    categories:
+    - wa8s
+    - wa8s-component
+    kind: Composition
+    listKind: CompositionList
+    plural: compositions
+    singular: composition
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Composition is the Schema for the Compositions API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CompositionSpec defines the desired state of Composition
+            properties:
+              dependencies:
+                items:
+                  properties:
+                    component:
+                      type: string
+                    composition:
+                      description: Composition is schema equivalent to CompositionSpec,
+                        but schemaless to breaking out of recursive type nesting.
+                      x-kubernetes-preserve-unknown-fields: true
+                    config:
+                      description: ConfigStoreSpec defines the desired state of ConfigStore
+                      properties:
+                        values:
+                          items:
+                            properties:
+                              name:
+                                type: string
+                              value:
+                                type: string
+                              valueFrom:
+                                properties:
+                                  key:
+                                    type: string
+                                  name:
+                                    type: string
+                                required:
+                                - key
+                                - name
+                                type: object
+                            required:
+                            - name
+                            type: object
+                          type: array
+                        valuesFrom:
+                          items:
+                            properties:
+                              name:
+                                type: string
+                              prefix:
+                                type: string
+                            required:
+                            - name
+                            type: object
+                          type: array
+                      type: object
+                    oci:
+                      properties:
+                        image:
+                          description: Image in an oci repository holding a wasm component
+                          type: string
+                        serviceAccountRef:
+                          description: ServiceAccountRef references the service account
+                            holding image pull secrets for the image
+                          properties:
+                            name:
+                              type: string
+                            namespace:
+                              description: Namespace containing the ServiceAccount,
+                                only allowed for ClusterRepository resources
+                              type: string
+                          required:
+                          - name
+                          type: object
+                      type: object
+                    ref:
+                      properties:
+                        apiVersion:
+                          type: string
+                        kind:
+                          type: string
+                        name:
+                          type: string
+                        namespace:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                  required:
+                  - component
+                  type: object
+                type: array
+              plug:
+                type: object
+              repositoryRef:
+                properties:
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                type: object
+              wac:
+                type: string
+            type: object
+          status:
+            description: CompositionStatus defines the observed state of Composition
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              dependencies:
+                items:
+                  properties:
+                    component:
+                      type: string
+                    image:
+                      type: string
+                    wit:
+                      properties:
+                        exports:
+                          items:
+                            type: string
+                          type: array
+                        imports:
+                          items:
+                            type: string
+                          type: array
+                      type: object
+                  required:
+                  - component
+                  - image
+                  type: object
+                type: array
+              image:
+                description: Image resolved from an oci repository holding the wasm
+                  component
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the 'Generation' of the resource that
+                  was last processed by the controller.
+                format: int64
+                type: integer
+              trace:
+                items:
+                  properties:
+                    cycleOmitted:
+                      type: boolean
+                    digest:
+                      type: string
+                    group:
+                      type: string
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                    namespace:
+                      type: string
+                    trace:
+                      x-kubernetes-preserve-unknown-fields: true
+                    uid:
+                      description: |-
+                        UID is a type that holds unique ID values, including UUIDs.  Because we
+                        don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+                        intent and helps make sure that UIDs and names do not get conflated.
+                      type: string
+                  required:
+                  - group
+                  - kind
+                  - name
+                  - uid
+                  type: object
+                type: array
+              wit:
+                properties:
+                  exports:
+                    items:
+                      type: string
+                    type: array
+                  imports:
+                    items:
+                      type: string
+                    type: array
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: configstores.wa8s.reconciler.io
+spec:
+  group: wa8s.reconciler.io
+  names:
+    categories:
+    - wa8s
+    - wa8s-component
+    kind: ConfigStore
+    listKind: ConfigStoreList
+    plural: configstores
+    singular: configstore
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ConfigStore is the Schema for the ConfigStores API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ConfigStoreSpec defines the desired state of ConfigStore
+            properties:
+              repositoryRef:
+                properties:
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                type: object
+              values:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    value:
+                      type: string
+                    valueFrom:
+                      properties:
+                        key:
+                          type: string
+                        name:
+                          type: string
+                      required:
+                      - key
+                      - name
+                      type: object
+                  required:
+                  - name
+                  type: object
+                type: array
+              valuesFrom:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    prefix:
+                      type: string
+                  required:
+                  - name
+                  type: object
+                type: array
+            type: object
+          status:
+            description: ConfigStoreStatus defines the observed state of ConfigStore
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              image:
+                description: Image resolved from an oci repository holding the wasm
+                  component
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the 'Generation' of the resource that
+                  was last processed by the controller.
+                format: int64
+                type: integer
+              trace:
+                items:
+                  properties:
+                    cycleOmitted:
+                      type: boolean
+                    digest:
+                      type: string
+                    group:
+                      type: string
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                    namespace:
+                      type: string
+                    trace:
+                      x-kubernetes-preserve-unknown-fields: true
+                    uid:
+                      description: |-
+                        UID is a type that holds unique ID values, including UUIDs.  Because we
+                        don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+                        intent and helps make sure that UIDs and names do not get conflated.
+                      type: string
+                  required:
+                  - group
+                  - kind
+                  - name
+                  - uid
+                  type: object
+                type: array
+              wit:
+                properties:
+                  exports:
+                    items:
+                      type: string
+                    type: array
+                  imports:
+                    items:
+                      type: string
+                    type: array
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: crontriggers.containers.wa8s.reconciler.io
+spec:
+  group: containers.wa8s.reconciler.io
+  names:
+    categories:
+    - wa8s
+    - wa8s-container
+    kind: CronTrigger
+    listKind: CronTriggerList
+    plural: crontriggers
+    singular: crontrigger
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: CronTrigger is the Schema for the components API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CronTriggerSpec defines the desired state of CronTrigger
+            properties:
+              hostCapabilities:
+                properties:
+                  config:
+                    properties:
+                      vars:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                          - name
+                          - value
+                          type: object
+                        type: array
+                    type: object
+                  env:
+                    properties:
+                      inherit:
+                        type: boolean
+                      vars:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                          - name
+                          type: object
+                        type: array
+                    required:
+                    - inherit
+                    type: object
+                  network:
+                    properties:
+                      inherit:
+                        type: boolean
+                      ipNameLookup:
+                        type: boolean
+                    type: object
+                type: object
+              ref:
+                description: Ref references the component to convert to an image
+                properties:
+                  apiVersion:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                type: object
+              repositoryRef:
+                properties:
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                type: object
+              restartPolicy:
+                description: |-
+                  Restart policy for all containers within the pod.
+                  One of Always, OnFailure, Never. In some contexts, only a subset of those values may be permitted.
+                  Default to Always.
+                  More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
+                type: string
+              schedule:
+                description: The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.
+                type: string
+              serviceAccountRef:
+                description: ServiceAccountRef references the service account holding
+                  image pull secrets for the image
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    description: Namespace containing the ServiceAccount, only allowed
+                      for ClusterRepository resources
+                    type: string
+                required:
+                - name
+                type: object
+              timeZone:
+                description: |-
+                  The time zone name for the given schedule, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
+                  If not specified, this will default to the time zone of the kube-controller-manager process.
+                  The set of valid time zone names and the time zone offset is loaded from the system-wide time zone
+                  database by the API server during CronJob validation and the controller manager during execution.
+                  If no system-wide time zone database can be found a bundled version of the database is used instead.
+                  If the time zone name becomes invalid during the lifetime of a CronJob or due to a change in host
+                  configuration, the controller will stop creating new new Jobs and will create a system event with the
+                  reason UnknownTimeZone.
+                  More information can be found in https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#time-zones
+                type: string
+            required:
+            - schedule
+            type: object
+          status:
+            description: CronTriggerStatus defines the observed state of CronTrigger
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              image:
+                description: Image resolved from an oci repository holding the wasm
+                  component
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the 'Generation' of the resource that
+                  was last processed by the controller.
+                format: int64
+                type: integer
+              trace:
+                items:
+                  properties:
+                    cycleOmitted:
+                      type: boolean
+                    digest:
+                      type: string
+                    group:
+                      type: string
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                    namespace:
+                      type: string
+                    trace:
+                      x-kubernetes-preserve-unknown-fields: true
+                    uid:
+                      description: |-
+                        UID is a type that holds unique ID values, including UUIDs.  Because we
+                        don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+                        intent and helps make sure that UIDs and names do not get conflated.
+                      type: string
+                  required:
+                  - group
+                  - kind
+                  - name
+                  - uid
+                  type: object
+                type: array
+              wit:
+                properties:
+                  exports:
+                    items:
+                      type: string
+                    type: array
+                  imports:
+                    items:
+                      type: string
+                    type: array
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: httptriggers.containers.wa8s.reconciler.io
+spec:
+  group: containers.wa8s.reconciler.io
+  names:
+    categories:
+    - wa8s
+    - wa8s-container
+    kind: HttpTrigger
+    listKind: HttpTriggerList
+    plural: httptriggers
+    singular: httptrigger
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: HttpTrigger is the Schema for the components API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: HttpTriggerSpec defines the desired state of HttpTrigger
+            properties:
+              hostCapabilities:
+                properties:
+                  config:
+                    properties:
+                      vars:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                          - name
+                          - value
+                          type: object
+                        type: array
+                    type: object
+                  env:
+                    properties:
+                      inherit:
+                        type: boolean
+                      vars:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                          - name
+                          type: object
+                        type: array
+                    required:
+                    - inherit
+                    type: object
+                  network:
+                    properties:
+                      inherit:
+                        type: boolean
+                      ipNameLookup:
+                        type: boolean
+                    type: object
+                type: object
+              ref:
+                description: Ref references the component to convert to an image
+                properties:
+                  apiVersion:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                type: object
+              repositoryRef:
+                properties:
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                type: object
+              serviceAccountRef:
+                description: ServiceAccountRef references the service account holding
+                  image pull secrets for the image
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    description: Namespace containing the ServiceAccount, only allowed
+                      for ClusterRepository resources
+                    type: string
+                required:
+                - name
+                type: object
+            type: object
+          status:
+            description: HttpTriggerStatus defines the observed state of HttpTrigger
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              image:
+                description: Image resolved from an oci repository holding the wasm
+                  component
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the 'Generation' of the resource that
+                  was last processed by the controller.
+                format: int64
+                type: integer
+              trace:
+                items:
+                  properties:
+                    cycleOmitted:
+                      type: boolean
+                    digest:
+                      type: string
+                    group:
+                      type: string
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                    namespace:
+                      type: string
+                    trace:
+                      x-kubernetes-preserve-unknown-fields: true
+                    uid:
+                      description: |-
+                        UID is a type that holds unique ID values, including UUIDs.  Because we
+                        don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+                        intent and helps make sure that UIDs and names do not get conflated.
+                      type: string
+                  required:
+                  - group
+                  - kind
+                  - name
+                  - uid
+                  type: object
+                type: array
+              url:
+                type: string
+              wit:
+                properties:
+                  exports:
+                    items:
+                      type: string
+                    type: array
+                  imports:
+                    items:
+                      type: string
+                    type: array
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: repositories.registries.wa8s.reconciler.io
+spec:
+  group: registries.wa8s.reconciler.io
+  names:
+    categories:
+    - wa8s
+    - wa8s-registry
+    kind: Repository
+    listKind: RepositoryList
+    plural: repositories
+    singular: repository
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Repository is the Schema for the Repositorys API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: RepositorySpec defines the desired state of Repository
+            properties:
+              serviceAccountRef:
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    description: Namespace containing the ServiceAccount, only allowed
+                      for ClusterRepository resources
+                    type: string
+                required:
+                - name
+                type: object
+              template:
+                type: string
+            required:
+            - template
+            type: object
+          status:
+            description: RepositoryStatus defines the observed state of Repository
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the 'Generation' of the resource that
+                  was last processed by the controller.
+                format: int64
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: wasmtimecontainers.containers.wa8s.reconciler.io
+spec:
+  group: containers.wa8s.reconciler.io
+  names:
+    categories:
+    - wa8s
+    - wa8s-container
+    kind: WasmtimeContainer
+    listKind: WasmtimeContainerList
+    plural: wasmtimecontainers
+    singular: wasmtimecontainer
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: WasmtimeContainer is the Schema for the components API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: WasmtimeContainerSpec defines the desired state of WasmtimeContainer
+            properties:
+              baseImage:
+                description: BaseImage in an oci repository holding wasmtime
+                type: string
+              ref:
+                description: Ref references the component to convert to an image
+                properties:
+                  apiVersion:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                type: object
+              repositoryRef:
+                properties:
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                type: object
+              serviceAccountRef:
+                description: ServiceAccountRef references the service account holding
+                  image pull secrets for the image
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    description: Namespace containing the ServiceAccount, only allowed
+                      for ClusterRepository resources
+                    type: string
+                required:
+                - name
+                type: object
+            type: object
+          status:
+            description: WasmtimeContainerStatus defines the observed state of WasmtimeContainer
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              image:
+                description: Image resolved from an oci repository holding the wasm
+                  component
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the 'Generation' of the resource that
+                  was last processed by the controller.
+                format: int64
+                type: integer
+              trace:
+                items:
+                  properties:
+                    cycleOmitted:
+                      type: boolean
+                    digest:
+                      type: string
+                    group:
+                      type: string
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                    namespace:
+                      type: string
+                    trace:
+                      x-kubernetes-preserve-unknown-fields: true
+                    uid:
+                      description: |-
+                        UID is a type that holds unique ID values, including UUIDs.  Because we
+                        don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+                        intent and helps make sure that UIDs and names do not get conflated.
+                      type: string
+                  required:
+                  - group
+                  - kind
+                  - name
+                  - uid
+                  type: object
+                type: array
+              wit:
+                properties:
+                  exports:
+                    items:
+                      type: string
+                    type: array
+                  imports:
+                    items:
+                      type: string
+                    type: array
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: wrpctriggers.containers.wa8s.reconciler.io
+spec:
+  group: containers.wa8s.reconciler.io
+  names:
+    categories:
+    - wa8s
+    - wa8s-container
+    kind: WrpcTrigger
+    listKind: WrpcTriggerList
+    plural: wrpctriggers
+    singular: wrpctrigger
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: WrpcTrigger is the Schema for the components API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: WrpcTriggerSpec defines the desired state of WrpcTrigger
+            properties:
+              hostCapabilities:
+                properties:
+                  config:
+                    properties:
+                      vars:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                          - name
+                          - value
+                          type: object
+                        type: array
+                    type: object
+                  env:
+                    properties:
+                      inherit:
+                        type: boolean
+                      vars:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                          - name
+                          type: object
+                        type: array
+                    required:
+                    - inherit
+                    type: object
+                  network:
+                    properties:
+                      inherit:
+                        type: boolean
+                      ipNameLookup:
+                        type: boolean
+                    type: object
+                type: object
+              ref:
+                description: Ref references the component to convert to an image
+                properties:
+                  apiVersion:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                type: object
+              repositoryRef:
+                properties:
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                type: object
+              serviceAccountRef:
+                description: ServiceAccountRef references the service account holding
+                  image pull secrets for the image
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    description: Namespace containing the ServiceAccount, only allowed
+                      for ClusterRepository resources
+                    type: string
+                required:
+                - name
+                type: object
+            type: object
+          status:
+            description: WrpcTriggerStatus defines the observed state of WrpcTrigger
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              image:
+                description: Image resolved from an oci repository holding the wasm
+                  component
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the 'Generation' of the resource that
+                  was last processed by the controller.
+                format: int64
+                type: integer
+              trace:
+                items:
+                  properties:
+                    cycleOmitted:
+                      type: boolean
+                    digest:
+                      type: string
+                    group:
+                      type: string
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                    namespace:
+                      type: string
+                    trace:
+                      x-kubernetes-preserve-unknown-fields: true
+                    uid:
+                      description: |-
+                        UID is a type that holds unique ID values, including UUIDs.  Because we
+                        don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+                        intent and helps make sure that UIDs and names do not get conflated.
+                      type: string
+                  required:
+                  - group
+                  - kind
+                  - name
+                  - uid
+                  type: object
+                type: array
+              url:
+                type: string
+              wit:
+                properties:
+                  exports:
+                    items:
+                      type: string
+                    type: array
+                  imports:
+                    items:
+                      type: string
+                    type: array
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: wa8s
+  name: controller-manager
+  namespace: wa8s-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: wa8s
+  name: leader-election-role
+  namespace: wa8s-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: wa8s
+  name: wa8s-component-editor-role
+rules:
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - components
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - components/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: wa8s
+  name: wa8s-component-viewer-role
+rules:
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - components
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - components/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wa8s-manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  - serviceaccounts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - containers.wa8s.reconciler.io
+  resources:
+  - crontriggers
+  - httptriggers
+  - wasmtimecontainers
+  - wrpctriggers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - containers.wa8s.reconciler.io
+  resources:
+  - crontriggers/finalizers
+  - httptriggers/finalizers
+  - wasmtimecontainers/finalizers
+  - wrpctriggers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - containers.wa8s.reconciler.io
+  resources:
+  - crontriggers/status
+  - httptriggers/status
+  - wasmtimecontainers/status
+  - wrpctriggers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - duck.wa8s.reconciler.io
+  resources:
+  - componentducks
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - registries.wa8s.reconciler.io
+  resources:
+  - clusterrepositories
+  - repositories
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - registries.wa8s.reconciler.io
+  resources:
+  - clusterrepositories/finalizers
+  - repositories/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - registries.wa8s.reconciler.io
+  resources:
+  - clusterrepositories/status
+  - repositories/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - clustercomponents
+  - components
+  - compositions
+  - configstores
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - clustercomponents/finalizers
+  - components/finalizers
+  - compositions/finalizers
+  - configstores/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - clustercomponents/status
+  - components/status
+  - compositions/status
+  - configstores/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - clusterrepositories
+  - repositories
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wa8s-metrics-auth-role
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wa8s-metrics-reader
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: wa8s
+  name: leader-election-rolebinding
+  namespace: wa8s-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: controller-manager
+  namespace: wa8s-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: wa8s
+  name: wa8s-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: wa8s-manager-role
+subjects:
+- kind: ServiceAccount
+  name: controller-manager
+  namespace: wa8s-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: wa8s-metrics-auth-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: wa8s-metrics-auth-role
+subjects:
+- kind: ServiceAccount
+  name: controller-manager
+  namespace: wa8s-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: wa8s
+    control-plane: controller-manager
+  name: controller-manager-metrics-service
+  namespace: wa8s-system
+spec:
+  ports:
+  - name: https
+    port: 8443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    control-plane: controller-manager
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: registry
+  namespace: wa8s-system
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: registry
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhook-service
+  namespace: wa8s-system
+spec:
+  ports:
+  - name: https
+    port: 443
+    targetPort: 9443
+  selector:
+    control-plane: controller-manager
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: wa8s
+    control-plane: controller-manager
+  name: controller-manager
+  namespace: wa8s-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        control-plane: controller-manager
+    spec:
+      containers:
+      - args:
+        - --leader-elect
+        - --health-probe-bind-address=:8081
+        image: ko://reconciler.io/wa8s/cmd
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 1
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: controller-manager
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: webhook-server-cert
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry
+  namespace: wa8s-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: registry
+  template:
+    metadata:
+      labels:
+        app: registry
+    spec:
+      containers:
+      - env:
+        - name: REGISTRY_HTTP_ADDR
+          value: 0.0.0.0:8080
+        image: registry:2
+        name: registry
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /var/lib/registry
+          name: registry-data
+      volumes:
+      - emptyDir: {}
+        name: registry-data
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: serving-cert
+  namespace: wa8s-system
+spec:
+  dnsNames:
+  - webhook-service.wa8s-system.svc
+  - webhook-service.wa8s-system.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: selfsigned-issuer
+  secretName: webhook-server-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned-issuer
+  namespace: wa8s-system
+spec:
+  selfSigned: {}
+---
+apiVersion: duck.reconciler.io/v1
+kind: DuckType
+metadata:
+  name: componentducks.duck.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: duck.wa8s.reconciler.io
+  kind: ComponentDuck
+  plural: componentducks
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: clustercomponents.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: wa8s.reconciler.io
+  kind: ClusterComponent
+  version: v1alpha1
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: components.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: wa8s.reconciler.io
+  kind: Component
+  version: v1alpha1
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: compositions.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: wa8s.reconciler.io
+  kind: Composition
+  version: v1alpha1
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: configstores.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: wa8s.reconciler.io
+  kind: ConfigStore
+  version: v1alpha1
+---
+apiVersion: registries.wa8s.reconciler.io/v1alpha1
+kind: ClusterRepository
+metadata:
+  name: default
+  namespace: wa8s-system
+spec:
+  template: registry.wa8s-system.svc.cluster.local/{{ .Kind }}/{{ .UID }}:{{ .ResourceVersion
+    }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+  name: wa8s-validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: wa8s-system
+      path: /validate-registries-wa8s-reconciler-io-v1alpha1-clusterrepository
+  failurePolicy: Fail
+  name: v1alpha1.clusterrepositories.registries.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - registries.wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - clusterrepositories
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: wa8s-system
+      path: /validate-registries-wa8s-reconciler-io-v1alpha1-repository
+  failurePolicy: Fail
+  name: v1alpha1.repositories.registries.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - registries.wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - repositories
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: wa8s-system
+      path: /validate-wa8s-reconciler-io-v1alpha1-clustercomponent
+  failurePolicy: Fail
+  name: v1alpha1.clustercomponents.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - clustercomponents
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: wa8s-system
+      path: /validate-wa8s-reconciler-io-v1alpha1-component
+  failurePolicy: Fail
+  name: v1alpha1.components.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - components
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: wa8s-system
+      path: /validate-wa8s-reconciler-io-v1alpha1-composition
+  failurePolicy: Fail
+  name: v1alpha1.compositions.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - compositions
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: wa8s-system
+      path: /validate-wa8s-reconciler-io-v1alpha1-configstore
+  failurePolicy: Fail
+  name: v1alpha1.configstores.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - configstores
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: wa8s-system
+      path: /validate-containers-wa8s-reconciler-io-v1alpha1-crontrigger
+  failurePolicy: Fail
+  name: v1alpha1.crontriggers.containers.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - containers.wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - crontriggers
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: wa8s-system
+      path: /validate-containers-wa8s-reconciler-io-v1alpha1-httptrigger
+  failurePolicy: Fail
+  name: v1alpha1.httptriggers.containers.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - containers.wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - httptriggers
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: wa8s-system
+      path: /validate-containers-wa8s-reconciler-io-v1alpha1-wasmtimecontainer
+  failurePolicy: Fail
+  name: v1alpha1.wasmtimecontainers.containers.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - containers.wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - wasmtimecontainers
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: wa8s-system
+      path: /validate-containers-wa8s-reconciler-io-v1alpha1-wrpctrigger
+  failurePolicy: Fail
+  name: v1alpha1.wrpctriggers.containers.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - containers.wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - wrpctriggers
+  sideEffects: None

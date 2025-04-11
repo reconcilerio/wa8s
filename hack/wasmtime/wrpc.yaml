@@ -1,0 +1,45 @@
+package:
+  name: wrpc
+  version: "0.14.0"
+  epoch: 1
+  description: "Component-native transport-agnostic RPC protocol and framework based on WebAssembly Interface Types (WIT)"
+  target-architecture:
+    - x86_64
+    - aarch64
+  copyright:
+    - license: Apache-2.0
+
+environment:
+  contents:
+    repositories:
+      - https://packages.wolfi.dev/os
+    packages:
+      - build-base
+      - busybox
+      - ca-certificates-bundle
+      - cargo-auditable
+      - cmake
+      - rust
+      - wolfi-base
+
+pipeline:
+  - uses: git-checkout
+    with:
+      repository: https://github.com/bytecodealliance/wrpc
+      tag: v${{package.version}}
+      expected-commit: cfd2e7c0354ed453d58f69108717c3e0bb91beb2
+
+  - name: Configure and build
+    runs: |
+      cargo auditable build --release -vv
+      mkdir -p ${{targets.destdir}}/usr/bin/
+      mv target/release/wrpc-wasmtime ${{targets.destdir}}/usr/bin/
+      mv target/release/wit-bindgen-wrpc ${{targets.destdir}}/usr/bin/
+
+  - uses: strip
+
+update:
+  enabled: true
+  github:
+    identifier: bytecodealliance/wrpc
+    strip-prefix: v
