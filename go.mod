@@ -3,7 +3,7 @@ module reconciler.io/wa8s
 go 1.23.0
 
 require (
-	github.com/extism/go-sdk v1.7.0
+	github.com/extism/go-sdk v1.7.1
 	github.com/go-logr/logr v1.4.2
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.20.3
