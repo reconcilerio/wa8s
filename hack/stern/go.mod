@@ -1,7 +1,6 @@
 module reconciler.io/wa8s/hack/stern
 
-go 1.22.0
-toolchain go1.24.1
+go 1.23.5
 
 require github.com/stern/stern v1.32.0
 
