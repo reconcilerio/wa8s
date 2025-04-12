@@ -25,7 +25,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: wa8s-system/serving-cert
-    controller-gen.kubebuilder.io/version: v0.17.2
+    controller-gen.kubebuilder.io/version: v0.17.3
   name: clustercomponents.wa8s.reconciler.io
 spec:
   group: wa8s.reconciler.io
@@ -240,7 +240,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: wa8s-system/serving-cert
-    controller-gen.kubebuilder.io/version: v0.17.2
+    controller-gen.kubebuilder.io/version: v0.17.3
   name: clusterrepositories.registries.wa8s.reconciler.io
 spec:
   group: registries.wa8s.reconciler.io
@@ -384,7 +384,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: wa8s-system/serving-cert
-    controller-gen.kubebuilder.io/version: v0.17.2
+    controller-gen.kubebuilder.io/version: v0.17.3
   name: components.wa8s.reconciler.io
 spec:
   group: wa8s.reconciler.io
@@ -599,7 +599,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: wa8s-system/serving-cert
-    controller-gen.kubebuilder.io/version: v0.17.2
+    controller-gen.kubebuilder.io/version: v0.17.3
   name: compositions.wa8s.reconciler.io
 spec:
   group: wa8s.reconciler.io
@@ -888,7 +888,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: wa8s-system/serving-cert
-    controller-gen.kubebuilder.io/version: v0.17.2
+    controller-gen.kubebuilder.io/version: v0.17.3
   name: configstores.wa8s.reconciler.io
 spec:
   group: wa8s.reconciler.io
@@ -1101,7 +1101,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: wa8s-system/serving-cert
-    controller-gen.kubebuilder.io/version: v0.17.2
+    controller-gen.kubebuilder.io/version: v0.17.3
   name: crontriggers.containers.wa8s.reconciler.io
 spec:
   group: containers.wa8s.reconciler.io
@@ -1376,7 +1376,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: wa8s-system/serving-cert
-    controller-gen.kubebuilder.io/version: v0.17.2
+    controller-gen.kubebuilder.io/version: v0.17.3
   name: httptriggers.containers.wa8s.reconciler.io
 spec:
   group: containers.wa8s.reconciler.io
@@ -1629,7 +1629,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: wa8s-system/serving-cert
-    controller-gen.kubebuilder.io/version: v0.17.2
+    controller-gen.kubebuilder.io/version: v0.17.3
   name: repositories.registries.wa8s.reconciler.io
 spec:
   group: registries.wa8s.reconciler.io
@@ -1773,7 +1773,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: wa8s-system/serving-cert
-    controller-gen.kubebuilder.io/version: v0.17.2
+    controller-gen.kubebuilder.io/version: v0.17.3
   name: wasmtimecontainers.containers.wa8s.reconciler.io
 spec:
   group: containers.wa8s.reconciler.io
@@ -1984,7 +1984,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: wa8s-system/serving-cert
-    controller-gen.kubebuilder.io/version: v0.17.2
+    controller-gen.kubebuilder.io/version: v0.17.3
   name: wrpctriggers.containers.wa8s.reconciler.io
 spec:
   group: containers.wa8s.reconciler.io
