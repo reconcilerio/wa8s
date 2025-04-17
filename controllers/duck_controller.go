@@ -28,7 +28,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"reconciler.io/runtime/apis"
 	"reconciler.io/runtime/reconcilers"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -50,15 +49,16 @@ var ErrNotComponent = errors.New("referenced apiVersion kind is not a component"
 // +kubebuilder:rbac:groups=duck.wa8s.reconciler.io,resources=componentducks,verbs=get;list;watch
 
 func ResolveComponentReference(ctx context.Context, ref componentsv1alpha1.ComponentReference) (*componentsv1alpha1.ComponentDuck, error) {
+	componentClient := duckclient.New(
+		"componentducks.duck.wa8s.reconciler.io",
+		reconcilers.RetrieveConfigOrDie(ctx),
+	)
+
 	component := &componentsv1alpha1.ComponentDuck{
 		TypeMeta: ref.TypeMeta(),
 	}
-	duck := schema.GroupKind{
-		Group: "duck.wa8s.reconciler.io",
-		Kind:  "ComponentDuck",
-	}
-	if err := duckclient.TrackAndGet(ctx, ref.NamespacedName(), component, duck); err != nil {
-		if errors.Is(err, duckclient.ErrNotDuck) {
+	if err := componentClient.TrackAndGet(ctx, ref.NamespacedName(), component); err != nil {
+		if errors.Is(err, duckclient.ErrUnknownDuck) {
 			return nil, ErrNotComponent
 		}
 		return nil, err

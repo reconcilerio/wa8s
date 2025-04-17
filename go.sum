@@ -401,8 +401,8 @@ k8s.io/utils v0.0.0-20241210054802-24370beab758 h1:sdbE21q2nlQtFh65saZY+rRM6x6aJ
 k8s.io/utils v0.0.0-20241210054802-24370beab758/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
 reconciler.io/dies v0.15.1 h1:pzEhkIbnoR7FcWOCvXVHpR1wQTKctj4Z+7AvpilLznc=
 reconciler.io/dies v0.15.1/go.mod h1:vEZ2Dksi9NVeBtwzbLwNWs12znergOUoYzR7hU0e60M=
-reconciler.io/ducks v0.1.0 h1:fQAVJ20jkMp1vMoR2PaAnvJeO3EIxJoB8A5nTWByuHo=
-reconciler.io/ducks v0.1.0/go.mod h1:LT/AmiBE6TO1QFC3x21UqDrxe6PscwupmFC3ckOYtls=
+reconciler.io/ducks v0.1.1-0.20250417142400-8dfbf527bb8b h1:nYkvUw5Vo5FvpWAEGGCLFxlGXs6L1K56jfzaCwmdEVo=
+reconciler.io/ducks v0.1.1-0.20250417142400-8dfbf527bb8b/go.mod h1:XIhXsypcnhlMNDayIQkhatv5sr26wQJ9l9aIXCkG/Fs=
 reconciler.io/runtime v0.23.1-0.20250410190329-a8e006d4ac6c h1:SEn7wRPf4gMKZ2rvx4dv1j9XlWZqVGJo66z4l74y0ag=
 reconciler.io/runtime v0.23.1-0.20250410190329-a8e006d4ac6c/go.mod h1:lK4J/wdn6So6FyYxW0GI/ud29hbj5aRNbBNZC75fHyk=
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.31.0 h1:CPT0ExVicCzcpeN4baWEV2ko2Z/AsiZgEdwgcfwLgMo=
