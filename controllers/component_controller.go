@@ -61,7 +61,7 @@ func genericComponentReconciler(c reconcilers.Config, t componentsv1alpha1.Gener
 	return &reconcilers.ResourceReconciler[componentsv1alpha1.GenericComponent]{
 		Type: t,
 
-		Reconciler: &DebounceTransientErrors[componentsv1alpha1.GenericComponent, client.ObjectList]{
+		Reconciler: &reconcilers.SuppressTransientErrors[componentsv1alpha1.GenericComponent, client.ObjectList]{
 			ListType: lt,
 			Reconciler: reconcilers.Sequence[componentsv1alpha1.GenericComponent]{
 				reconcilers.Always[componentsv1alpha1.GenericComponent]{

@@ -56,7 +56,7 @@ func genericRepositoryReconciler(c reconcilers.Config, t registriesv1alpha1.Gene
 	return &reconcilers.ResourceReconciler[registriesv1alpha1.GenericRepository]{
 		Type: t,
 
-		Reconciler: &DebounceTransientErrors[registriesv1alpha1.GenericRepository, client.ObjectList]{
+		Reconciler: &reconcilers.SuppressTransientErrors[registriesv1alpha1.GenericRepository, client.ObjectList]{
 			ListType: lt,
 			Reconciler: reconcilers.Sequence[registriesv1alpha1.GenericRepository]{
 				RefreshKeychain(),

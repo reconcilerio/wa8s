@@ -41,7 +41,7 @@ func WrpcTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler
 	wrpcPort := int32(7761)
 
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.WrpcTrigger]{
-		Reconciler: &DebounceTransientErrors[*containersv1alpha1.WrpcTrigger, *containersv1alpha1.WrpcTriggerList]{
+		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.WrpcTrigger, *containersv1alpha1.WrpcTriggerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.WrpcTrigger]{
 				WasmContainerChildReconciler[*containersv1alpha1.WrpcTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey),
 				WrpcDeploymentChildReconciler(childLabelKey, wrpcPort),
