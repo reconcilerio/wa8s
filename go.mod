@@ -16,7 +16,7 @@ require (
 	k8s.io/kube-aggregator v0.32.3
 	reconciler.io/dies v0.15.1
 	reconciler.io/ducks v0.1.1-0.20250417142400-8dfbf527bb8b
-	reconciler.io/runtime v0.23.1-0.20250410190329-a8e006d4ac6c
+	reconciler.io/runtime v0.23.1-0.20250418121106-60d164ebf149
 	sigs.k8s.io/controller-runtime v0.20.4
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8
 	sigs.k8s.io/yaml v1.4.0

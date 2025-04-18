@@ -38,7 +38,7 @@ func CronTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler
 	childLabelKey := fmt.Sprintf("%s/cron-trigger", containersv1alpha1.GroupVersion.Group)
 
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.CronTrigger]{
-		Reconciler: &DebounceTransientErrors[*containersv1alpha1.CronTrigger, *containersv1alpha1.CronTriggerList]{
+		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.CronTrigger, *containersv1alpha1.CronTriggerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.CronTrigger]{
 				WasmContainerChildReconciler[*containersv1alpha1.CronTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey),
 				CronJobChildReconciler(childLabelKey),

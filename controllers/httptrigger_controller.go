@@ -40,7 +40,7 @@ func HttpTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler
 	childLabelKey := fmt.Sprintf("%s/http-trigger", containersv1alpha1.GroupVersion.Group)
 
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.HttpTrigger]{
-		Reconciler: &DebounceTransientErrors[*containersv1alpha1.HttpTrigger, *containersv1alpha1.HttpTriggerList]{
+		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.HttpTrigger, *containersv1alpha1.HttpTriggerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.HttpTrigger]{
 				WasmContainerChildReconciler[*containersv1alpha1.HttpTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey),
 				HttpDeploymentChildReconciler(childLabelKey),

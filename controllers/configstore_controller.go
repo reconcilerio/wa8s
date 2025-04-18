@@ -43,7 +43,7 @@ func ConfigStoreReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler
 	childLabelKey := fmt.Sprintf("%s/config-store", componentsv1alpha1.GroupVersion.Group)
 
 	return &reconcilers.ResourceReconciler[*componentsv1alpha1.ConfigStore]{
-		Reconciler: &DebounceTransientErrors[*componentsv1alpha1.ConfigStore, *componentsv1alpha1.ConfigStoreList]{
+		Reconciler: &reconcilers.SuppressTransientErrors[*componentsv1alpha1.ConfigStore, *componentsv1alpha1.ConfigStoreList]{
 			Reconciler: reconcilers.Sequence[*componentsv1alpha1.ConfigStore]{
 				reconcilers.Always[*componentsv1alpha1.ConfigStore]{
 					CollectConfig(),

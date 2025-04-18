@@ -55,7 +55,7 @@ func CompositionReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler
 	}
 
 	return &reconcilers.ResourceReconciler[*componentsv1alpha1.Composition]{
-		Reconciler: &DebounceTransientErrors[*componentsv1alpha1.Composition, *componentsv1alpha1.CompositionList]{
+		Reconciler: &reconcilers.SuppressTransientErrors[*componentsv1alpha1.Composition, *componentsv1alpha1.CompositionList]{
 			Reconciler: reconcilers.Sequence[*componentsv1alpha1.Composition]{
 				reconcilers.Always[*componentsv1alpha1.Composition]{
 					ManageDependencies(childLabelKey),

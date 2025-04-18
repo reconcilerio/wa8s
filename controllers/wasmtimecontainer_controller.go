@@ -43,7 +43,7 @@ import (
 
 func WasmtimeContainerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.WasmtimeContainer] {
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.WasmtimeContainer]{
-		Reconciler: &DebounceTransientErrors[*containersv1alpha1.WasmtimeContainer, *containersv1alpha1.WasmtimeContainerList]{
+		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.WasmtimeContainer, *containersv1alpha1.WasmtimeContainerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.WasmtimeContainer]{
 				reconcilers.Always[*containersv1alpha1.WasmtimeContainer]{
 					ResolveComponent(),
