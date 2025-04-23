@@ -1,5 +1,0 @@
-interface factory {
-    type error = string;
-
-    build-component: func(values: list<tuple<string, string>>) -> result<list<u8>, error>;
-}

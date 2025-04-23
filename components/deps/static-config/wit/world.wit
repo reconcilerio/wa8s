@@ -1,9 +1,0 @@
-package reconcilerio:config;
-
-world adapter {
-    export wasi:config/store@0.2.0-draft;
-}
-
-world config-factory {
-    export factory;
-}
