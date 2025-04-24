@@ -1,7 +1,6 @@
 module reconciler.io/wa8s
 
-go 1.23.0
-toolchain go1.24.1
+go 1.24.0
 
 require (
 	github.com/extism/go-sdk v1.7.1
@@ -15,7 +14,7 @@ require (
 	k8s.io/apimachinery v0.33.0
 	k8s.io/client-go v0.33.0
 	k8s.io/kube-aggregator v0.33.0
-	reconciler.io/dies v0.15.1
+	reconciler.io/dies v0.16.0
 	reconciler.io/ducks v0.1.1-0.20250417142400-8dfbf527bb8b
 	reconciler.io/runtime v0.23.1-0.20250418121106-60d164ebf149
 	sigs.k8s.io/controller-runtime v0.20.4
