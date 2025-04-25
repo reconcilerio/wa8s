@@ -1,0 +1,40 @@
+---
+apiVersion: services.wa8s.reconciler.io/v1alpha1
+kind: ServiceLifecycle
+metadata:
+  name: valkey
+spec:
+  ref:
+    name: valkey-lifecycle
+  repositoryRef:
+    name: hub
+  hostCapabilities:
+    network:
+      inherit: true
+      ipNameLookup: true
+  clientRef:
+    name: valkey-client
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: Composition
+metadata:
+  name: valkey-lifecycle
+spec:
+  dependencies:
+  - component: componentized:lifecycle
+    oci:
+      image: ghcr.io/componentized/services/valkey-lifecycle:v0.0.2@sha256:67f4708cb20fbc9d7054e78a205e1ac8ca8d0b8acd0cfe149a8f0120d5cd4a62
+  - component: componentized:config
+    config:
+      valuesFrom:
+      - name: valkey
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: Component
+metadata:
+  name: valkey-client
+spec:
+  oci:
+    image: ghcr.io/componentized/valkey/valkey-client:v0.1.1@sha256:7b25f9c2074ea30afbb205b2c7a55693951ba83f183ef5d35b18f561abba2a05

@@ -49,6 +49,7 @@ import (
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
 	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
+	servicesv1alpha1 "reconciler.io/wa8s/apis/services/v1alpha1"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -67,6 +68,7 @@ func init() {
 	utilruntime.Must(componentsv1alpha1.AddToScheme(scheme))
 	utilruntime.Must(containersv1alpha1.AddToScheme(scheme))
 	utilruntime.Must(registriesv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(servicesv1alpha1.AddToScheme(scheme))
 
 	// +kubebuilder:scaffold:scheme
 }
@@ -256,6 +258,53 @@ func main() {
 		setupLog.Error(err, "unable to create webhook", "webhook", "WasmtimeContainer")
 		os.Exit(1)
 	}
+
+	if err := controllers.ServiceBindingReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ServiceBinding")
+		os.Exit(1)
+	}
+	if err = (&servicesv1alpha1.ServiceBinding{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "ServiceBinding")
+		os.Exit(1)
+	}
+
+	if err := controllers.ServiceClientReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ServiceClient")
+		os.Exit(1)
+	}
+	if err = (&servicesv1alpha1.ServiceClient{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "ServiceClient")
+		os.Exit(1)
+	}
+
+	if err := controllers.ServiceInstanceReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ServiceInstance")
+		os.Exit(1)
+	}
+	if err = (&servicesv1alpha1.ServiceInstance{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "ServiceInstance")
+		os.Exit(1)
+	}
+
+	if err := controllers.ServiceLifecycleReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ServiceLifecycle")
+		os.Exit(1)
+	}
+	if err = (&servicesv1alpha1.ServiceLifecycle{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "ServiceLifecycle")
+		os.Exit(1)
+	}
+
+	if err := controllers.ClusterServiceLifecycleReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ClusterServiceLifecycle")
+		os.Exit(1)
+	}
+	if err = (&servicesv1alpha1.ClusterServiceLifecycle{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "ClusterServiceLifecycle")
+		os.Exit(1)
+	}
+
+	mgr.Add(controllers.ServicesWebhook(mgr, config, ":9080"))
 
 	// +kubebuilder:scaffold:builder
 

@@ -46,6 +46,7 @@ import (
 var ComponentDuckBroker *duckclient.Broker
 var ErrNotComponent = errors.New("referenced apiVersion kind is not a component")
 
+// +kubebuilder:rbac:groups=duck.reconciler.io,resources=ducktypes,verbs=get;list;watch
 // +kubebuilder:rbac:groups=duck.wa8s.reconciler.io,resources=componentducks,verbs=get;list;watch
 
 func ResolveComponentReference(ctx context.Context, ref componentsv1alpha1.ComponentReference) (*componentsv1alpha1.ComponentDuck, error) {

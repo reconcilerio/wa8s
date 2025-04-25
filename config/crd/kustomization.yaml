@@ -12,6 +12,11 @@ resources:
 - bases/containers.wa8s.reconciler.io_wasmtimecontainers.yaml
 - bases/registries.wa8s.reconciler.io_clusterrepositories.yaml
 - bases/registries.wa8s.reconciler.io_repositories.yaml
+- bases/services.wa8s.reconciler.io_clusterservicelifecycles.yaml
+- bases/services.wa8s.reconciler.io_servicebindings.yaml
+- bases/services.wa8s.reconciler.io_serviceclients.yaml
+- bases/services.wa8s.reconciler.io_serviceinstances.yaml
+- bases/services.wa8s.reconciler.io_servicelifecycles.yaml
 - ducks.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
@@ -24,12 +29,17 @@ patches:
 # patches here are for enabling the CA injection for each CRD
 - path: patches/cainjection_in_clustercomponents.yaml
 - path: patches/cainjection_in_clusterrepositories.yaml
+- path: patches/cainjection_in_clusterservicelifecycles.yaml
 - path: patches/cainjection_in_components.yaml
 - path: patches/cainjection_in_compositions.yaml
 - path: patches/cainjection_in_configstores.yaml
 - path: patches/cainjection_in_crontriggers.yaml
 - path: patches/cainjection_in_httptriggers.yaml
 - path: patches/cainjection_in_repositories.yaml
+- path: patches/cainjection_in_servicebindings.yaml
+- path: patches/cainjection_in_serviceclients.yaml
+- path: patches/cainjection_in_serviceinstances.yaml
+- path: patches/cainjection_in_servicelifecycles.yaml
 - path: patches/cainjection_in_wasmtimecontainers.yaml
 - path: patches/cainjection_in_wrpctriggers.yaml
 # +kubebuilder:scaffold:crdkustomizecainjectionpatch

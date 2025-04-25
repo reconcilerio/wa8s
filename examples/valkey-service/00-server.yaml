@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: valkey
+data:
+  # TODO hack until we have a functioning credential-store
+  kind: valkey
+  hostname: valkey.default.svc.cluster.local
+  port: "6379"
+  username: default
+  password: ""
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: valkey
+spec:
+  selector:
+    matchLabels:
+      app: valkey
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: valkey
+    spec:
+      containers:
+      - name: server
+        image: valkey/valkey:8
+        command:
+        - valkey-server
+        ports:
+        - name: valkey
+          containerPort: 6379
+          protocol: TCP
+        startupProbe:
+          tcpSocket:
+            port: valkey
+        livenessProbe:
+          tcpSocket:
+            port: valkey
+        readinessProbe:
+          tcpSocket:
+            port: valkey
+        resources:
+          limits:
+            cpu: 1
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 128Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: valkey
+spec:
+  type: ClusterIP
+  selector:
+    app: valkey
+  ports:
+  - name: valkey
+    port: 6379
+    targetPort: valkey
+    protocol: TCP

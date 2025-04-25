@@ -1,0 +1,34 @@
+---
+apiVersion: containers.wa8s.reconciler.io/v1alpha1
+kind: HttpTrigger
+metadata:
+  name: incrementor
+spec:
+  ref:
+    name: http-incrementor
+  repositoryRef:
+    name: hub
+  hostCapabilities:
+    network:
+      inherit: true
+      ipNameLookup: true
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: Composition
+metadata:
+  name: http-incrementor
+spec:
+  dependencies:
+  - component: componentized:http-incrementor
+    oci:
+      image: ghcr.io/componentized/valkey/sample-http-incrementor:v0.1.1@sha256:9eb9ae66f633013e5e459ae89449cc49c4f1b0bccd5cdce810a8c7a5d7aaf39a
+  - component: componentized:valkey-client
+    ref:
+      apiVersion: services.wa8s.reconciler.io/v1alpha1
+      kind: ServiceClient
+      name: my-valkey
+  - component: componentized:logging
+    ref:
+      kind: ClusterComponent
+      name: wa8s-services-logging

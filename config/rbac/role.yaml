@@ -8,7 +8,6 @@ rules:
   - ""
   resources:
   - configmaps
-  - secrets
   - serviceaccounts
   verbs:
   - get
@@ -25,6 +24,17 @@ rules:
   - get
   - list
   - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
   - update
   - watch
 - apiGroups:
@@ -87,6 +97,14 @@ rules:
   - patch
   - update
 - apiGroups:
+  - duck.reconciler.io
+  resources:
+  - ducktypes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - duck.wa8s.reconciler.io
   resources:
   - componentducks
@@ -119,6 +137,44 @@ rules:
   resources:
   - clusterrepositories/status
   - repositories/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - services.wa8s.reconciler.io
+  resources:
+  - clusterservicelifecycles
+  - servicebindings
+  - serviceclients
+  - serviceinstances
+  - servicelifecycles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - services.wa8s.reconciler.io
+  resources:
+  - clusterservicelifecycles/finalizers
+  - servicebindings/finalizers
+  - serviceclients/finalizers
+  - serviceinstances/finalizers
+  - servicelifecycles/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - services.wa8s.reconciler.io
+  resources:
+  - clusterservicelifecycles/status
+  - servicebindings/status
+  - serviceclients/status
+  - serviceinstances/status
+  - servicelifecycles/status
   verbs:
   - get
   - patch
