@@ -332,6 +332,8 @@ jobs:
             --namespace wa8s-system \
             --type kubernetes.io/tls \
             --from-file ca.crt=${CERT_DIR}/ca.pem \
+            --from-literal tls.crt= \
+            --from-literal tls.key= \
             --dry-run=client \
             -oyaml > ca.yaml
 
