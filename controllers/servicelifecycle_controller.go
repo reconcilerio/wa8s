@@ -61,7 +61,7 @@ func genericServiceLifecycleReconciler(c reconcilers.Config, t servicesv1alpha1.
 
 		SyncStatusDuringFinalization: true,
 		Reconciler: &reconcilers.WithFinalizer[servicesv1alpha1.GenericServiceLifecycle]{
-			Finalizer: servicesv1alpha1.GroupVersion.Group,
+			Finalizer: fmt.Sprintf("%s/reconciler", servicesv1alpha1.GroupVersion.Group),
 			Reconciler: &reconcilers.SuppressTransientErrors[servicesv1alpha1.GenericServiceLifecycle, client.ObjectList]{
 				ListType: lt,
 				Reconciler: reconcilers.Sequence[servicesv1alpha1.GenericServiceLifecycle]{
@@ -177,13 +177,6 @@ func ServiceLifecycleCompositionChildReconciler(childLabelKey string) reconciler
 										{
 											Component: "componentized:services-lifecycle",
 											Ref:       &resource.GetSpec().Ref,
-										},
-										{
-											Component: "componentized:services-ids",
-											Ref: &componentsv1alpha1.ComponentReference{
-												Kind: "ClusterComponent",
-												Name: "wa8s-services-ids",
-											},
 										},
 										{
 											Component: "componentized:services-credential-admin",

@@ -97,8 +97,6 @@ spec:
                           - name
                           type: object
                         type: array
-                    required:
-                    - inherit
                     type: object
                   network:
                     properties:

@@ -19,27 +19,23 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	apierrs "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"reconciler.io/runtime/reconcilers"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	"reconciler.io/wa8s/services/lifecycle"
+	servicesv1alpha1 "reconciler.io/wa8s/apis/services/v1alpha1"
 )
 
-type CredentialType = string
+var ErrUnknownSecret = errors.New("unknown secret")
 
-const (
-	InstanceCredentials CredentialType = "instance"
-	BindingCredentials  CredentialType = "binding"
-)
+var ServiceCredentialFinalizer = fmt.Sprintf("%s/finalizer", servicesv1alpha1.GroupVersion.Group)
 
 func ServicesWebhook(mgr ctrl.Manager, c reconcilers.Config, addr string) manager.Runnable {
 	return &servicesWebhooks{
@@ -62,6 +58,7 @@ type servicesWebhooks struct {
 
 func (s *servicesWebhooks) Start(ctx context.Context) error {
 	ctx = reconcilers.StashConfig(ctx, s.Config)
+	ctx = reconcilers.StashOriginalConfig(ctx, s.Config)
 	log, err := logr.FromContext(ctx)
 	if err != nil {
 		log = s.mgr.GetLogger()
@@ -70,75 +67,11 @@ func (s *servicesWebhooks) Start(ctx context.Context) error {
 	ctx = logr.NewContext(ctx, log)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/services/ids/instance", s.generateInstanceID(ctx))
-	mux.HandleFunc("/services/ids/binding", s.generateBindingID(ctx))
-	mux.HandleFunc("/services/ids/lookup", s.lookupInstanceID(ctx))
 	mux.HandleFunc("/services/credentials/fetch", s.fetchCredentials(ctx))
 	mux.HandleFunc("/services/credentials/publish", s.publishCredentials(ctx))
 	mux.HandleFunc("/services/credentials/destroy", s.destroyCredentials(ctx))
 
 	return http.ListenAndServe(s.Addr, mux)
-}
-
-func (s *servicesWebhooks) generateInstanceID(ctx context.Context) func(w http.ResponseWriter, r *http.Request) {
-	log := logr.FromContextOrDiscard(ctx).WithName("generateInstanceID")
-	ctx = logr.NewContext(ctx, log)
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		log.Info("request", "method", r.Method, "path", r.RequestURI, "context", r.Header.Get("context"))
-
-		context, err := lifecycle.ParseContext(r.Header.Get("context"))
-		if err != nil {
-			log.Error(err, "context missing")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		instanceId, err := s.createInstanceId(ctx, context)
-		if err != nil {
-			log.Error(err, "failed to create service-instance-id")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Add("service-instance-id", instanceId)
-		w.WriteHeader(http.StatusNoContent)
-		log.Info("response", "service-instance-id", instanceId)
-	}
-}
-
-func (s *servicesWebhooks) generateBindingID(ctx context.Context) func(w http.ResponseWriter, r *http.Request) {
-	log := logr.FromContextOrDiscard(ctx).WithName("generateBindingID")
-	ctx = logr.NewContext(ctx, log)
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		log.Info("request", "method", r.Method, "path", r.RequestURI, "context", r.Header.Get("context"))
-
-		context, err := lifecycle.ParseContext(r.Header.Get("context"))
-		if err != nil {
-			log.Error(err, "context missing")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		instanceId := r.Header.Get("service-instance-id")
-		if instanceId == "" {
-			log.Error(fmt.Errorf("missing service-instance-id header"), "missing service-instance-id header")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		bindingId, err := s.createBindingCredentials(ctx, context, instanceId)
-		if err != nil {
-			log.Error(err, "failed to create service-binding-id")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Add("service-binding-id", bindingId)
-		w.WriteHeader(http.StatusNoContent)
-		log.Info("response", "service-binding-id", bindingId)
-	}
 }
 
 func (s *servicesWebhooks) lookupInstanceID(ctx context.Context) func(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +88,7 @@ func (s *servicesWebhooks) lookupInstanceID(ctx context.Context) func(w http.Res
 			return
 		}
 
-		secret, err := s.loadSecret(ctx, BindingCredentials, bindingId)
+		secret, err := s.loadSecret(ctx, bindingId)
 		if err != nil {
 			log.Error(err, "unable to load binding")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -186,7 +119,7 @@ func (s *servicesWebhooks) fetchCredentials(ctx context.Context) func(w http.Res
 			return
 		}
 
-		creds, err := s.retrieveCredentials(ctx, BindingCredentials, bindingId)
+		creds, err := s.retrieveCredentials(ctx, bindingId)
 		if err != nil {
 			log.Error(err, "unable to load creds")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -219,7 +152,7 @@ func (s *servicesWebhooks) publishCredentials(ctx context.Context) func(w http.R
 			return
 		}
 
-		err := s.updateCredentials(ctx, BindingCredentials, bindingId, creds)
+		err := s.updateCredentials(ctx, bindingId, creds)
 		if err != nil {
 			log.Error(err, "failed to update service-binding-id")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -244,8 +177,8 @@ func (s *servicesWebhooks) destroyCredentials(ctx context.Context) func(w http.R
 			return
 		}
 
-		err := s.deleteCredentials(ctx, BindingCredentials, bindingId)
-		if err != nil {
+		err := s.deleteCredentials(ctx, bindingId)
+		if err != nil && !errors.Is(err, ErrUnknownSecret) {
 			log.Error(err, "failed to destroy service-binding-id")
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -255,73 +188,13 @@ func (s *servicesWebhooks) destroyCredentials(ctx context.Context) func(w http.R
 	}
 }
 
-// +kubebuilder:rbac:groups=,resources=secrets,verbs=create
-
-func (s *servicesWebhooks) createInstanceId(ctx context.Context, context lifecycle.Context) (string, error) {
-	c := reconcilers.RetrieveConfigOrDie(ctx)
-	log := logr.FromContextOrDiscard(ctx)
-
-	secret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: context.Namespace,
-			Name:      fmt.Sprintf("service-%s-%s", InstanceCredentials, context.UID),
-			Labels: map[string]string{
-				"services.wa8s.reconciler.io/type":                                    InstanceCredentials,
-				fmt.Sprintf("services.wa8s.reconciler.io/%s-id", InstanceCredentials): string(context.UID),
-			},
-			OwnerReferences: []metav1.OwnerReference{context.OwnerReference},
-		},
-	}
-
-	// dry run will assign a UID, without creating a resource
-	if err := c.Create(ctx, secret); err != nil {
-		if apierrs.IsAlreadyExists(err) {
-			log.Error(nil, "attempted to recreate instance", "instanceId", context.UID, "err", err)
-			return string(context.UID), nil
-		}
-		return "", err
-	}
-
-	return string(context.UID), nil
-}
-
-// +kubebuilder:rbac:groups=,resources=secrets,verbs=create
-
-func (s *servicesWebhooks) createBindingCredentials(ctx context.Context, context lifecycle.Context, instanceId string) (string, error) {
-	c := reconcilers.RetrieveConfigOrDie(ctx)
-	log := logr.FromContextOrDiscard(ctx)
-
-	secret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: context.Namespace,
-			Name:      fmt.Sprintf("service-%s-%s", BindingCredentials, context.UID),
-			Labels: map[string]string{
-				"services.wa8s.reconciler.io/type":                                    BindingCredentials,
-				fmt.Sprintf("services.wa8s.reconciler.io/%s-id", BindingCredentials):  string(context.UID),
-				fmt.Sprintf("services.wa8s.reconciler.io/%s-id", InstanceCredentials): instanceId,
-			},
-			OwnerReferences: []metav1.OwnerReference{context.OwnerReference},
-		},
-	}
-	if err := c.Create(ctx, secret); err != nil {
-
-		if apierrs.IsAlreadyExists(err) {
-			log.Error(nil, "attempted to recreate binding", "instanceId", instanceId, "bindingId", context.UID, "err", err)
-			return string(context.UID), nil
-		}
-		return "", err
-	}
-
-	return string(context.UID), nil
-}
-
-func (s *servicesWebhooks) retrieveCredentials(ctx context.Context, secretType CredentialType, id string) (map[string]string, error) {
-	secret, err := s.loadSecret(ctx, secretType, id)
+func (s *servicesWebhooks) retrieveCredentials(ctx context.Context, id string) (map[string]string, error) {
+	secret, err := s.loadSecret(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	if secret == nil {
-		return nil, fmt.Errorf("unknown secret")
+		return nil, ErrUnknownSecret
 	}
 
 	credentials := map[string]string{}
@@ -332,17 +205,17 @@ func (s *servicesWebhooks) retrieveCredentials(ctx context.Context, secretType C
 	return credentials, nil
 }
 
-// +kubebuilder:rbac:groups=,resources=secrets,verbs=update
+// +kubebuilder:rbac:groups=core,resources=secrets,verbs=update
 
-func (s *servicesWebhooks) updateCredentials(ctx context.Context, secretType CredentialType, id string, creds map[string]string) error {
+func (s *servicesWebhooks) updateCredentials(ctx context.Context, id string, creds map[string]string) error {
 	c := reconcilers.RetrieveConfigOrDie(ctx)
 
-	secret, err := s.loadSecret(ctx, secretType, id)
+	secret, err := s.loadSecret(ctx, id)
 	if err != nil {
 		return err
 	}
 	if secret == nil {
-		return fmt.Errorf("unknown secret")
+		return ErrUnknownSecret
 	}
 
 	secret.Data = map[string][]byte{}
@@ -350,15 +223,15 @@ func (s *servicesWebhooks) updateCredentials(ctx context.Context, secretType Cre
 		secret.Data[key] = []byte(value)
 	}
 
+	// TODO use an ObjectManager
 	return c.Update(ctx, secret)
 }
 
-// +kubebuilder:rbac:groups=,resources=secrets,verbs=delete
+// +kubebuilder:rbac:groups=core,resources=secrets,verbs=patch
+// +kubebuilder:rbac:groups=core,resources=secrets/finalizers,verbs=update
 
-func (s *servicesWebhooks) deleteCredentials(ctx context.Context, secretType CredentialType, id string) error {
-	c := reconcilers.RetrieveConfigOrDie(ctx)
-
-	secret, err := s.loadSecret(ctx, secretType, id)
+func (s *servicesWebhooks) deleteCredentials(ctx context.Context, id string) error {
+	secret, err := s.loadSecret(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -367,18 +240,18 @@ func (s *servicesWebhooks) deleteCredentials(ctx context.Context, secretType Cre
 		return nil
 	}
 
-	return c.Delete(ctx, secret)
+	// the secret should already be marked for deletion, we just need to clear the finalizer
+	return reconcilers.ClearFinalizer(ctx, secret, ServiceCredentialFinalizer)
 }
 
-// +kubebuilder:rbac:groups=,resources=secrets,verbs=list
+// +kubebuilder:rbac:groups=core,resources=secrets,verbs=list
 
-func (s *servicesWebhooks) loadSecret(ctx context.Context, secretType CredentialType, id string) (*corev1.Secret, error) {
+func (s *servicesWebhooks) loadSecret(ctx context.Context, id string) (*corev1.Secret, error) {
 	c := reconcilers.RetrieveConfigOrDie(ctx)
 
 	secrets := &corev1.SecretList{}
 	labelSelector := client.MatchingLabels(map[string]string{
-		"services.wa8s.reconciler.io/type":                           secretType,
-		fmt.Sprintf("services.wa8s.reconciler.io/%s-id", secretType): id,
+		"services.wa8s.reconciler.io/id": id,
 	})
 
 	if err := c.List(ctx, secrets, labelSelector); err != nil {

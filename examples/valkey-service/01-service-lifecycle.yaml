@@ -5,10 +5,15 @@ metadata:
   name: valkey
 spec:
   ref:
+    kind: Composition
     name: valkey-lifecycle
   repositoryRef:
     name: hub
   hostCapabilities:
+    env:
+      vars:
+      - name: RUST_BACKTRACE
+        value: "1"
     network:
       inherit: true
       ipNameLookup: true
@@ -24,7 +29,7 @@ spec:
   dependencies:
   - component: componentized:lifecycle
     oci:
-      image: ghcr.io/componentized/services/valkey-lifecycle:v0.0.2@sha256:67f4708cb20fbc9d7054e78a205e1ac8ca8d0b8acd0cfe149a8f0120d5cd4a62
+      image: ghcr.io/componentized/services/valkey-lifecycle:v0.0.3@sha256:19996510d22d3ea2c98f9185726c9a3ea04e54862cd69b8298eb4fee2b729d3a
   - component: componentized:config
     config:
       valuesFrom:

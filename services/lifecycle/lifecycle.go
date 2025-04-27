@@ -21,10 +21,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
-	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
@@ -91,14 +89,14 @@ func NewLifecycle(address string) *lifecycle {
 	}
 }
 
-func (l *lifecycle) Provision(ctx context.Context, owner client.Object, type_ string, tier *string, requests []Request) (*ServiceInstanceId, error) {
+func (l *lifecycle) Provision(ctx context.Context, instanceId ServiceInstanceId, type_ string, tier *string, requests []Request) error {
 	u, err := url.Parse(l.address)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	u.Path = "/provision"
 	q := u.Query()
-	q.Set("context", encodeContext(ctx, owner))
+	q.Set("instance-id", instanceId)
 	q.Set("type", type_)
 	if tier != nil {
 		q.Set("tier", *tier)
@@ -110,14 +108,12 @@ func (l *lifecycle) Provision(ctx context.Context, owner client.Object, type_ st
 
 	resp, err := http.Get(u.String())
 	if err != nil {
-		return nil, err
+		return err
 	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
+		return fmt.Errorf("server returned http %d", resp.StatusCode)
 	}
-	instance_id := strings.TrimSpace(string(body))
-	return &instance_id, nil
+	return nil
 }
 
 func (l *lifecycle) Destroy(ctx context.Context, instanceId ServiceInstanceId, retain *bool) error {
@@ -133,21 +129,24 @@ func (l *lifecycle) Destroy(ctx context.Context, instanceId ServiceInstanceId, r
 	}
 	u.RawQuery = q.Encode()
 
-	_, err = http.Get(u.String())
+	resp, err := http.Get(u.String())
 	if err != nil {
 		return err
+	}
+	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
+		return fmt.Errorf("server returned http %d", resp.StatusCode)
 	}
 	return nil
 }
 
-func (l *lifecycle) Bind(ctx context.Context, owner client.Object, instanceId ServiceInstanceId, scopes []string) (*ServiceBindingId, error) {
+func (l *lifecycle) Bind(ctx context.Context, bindingId ServiceBindingId, instanceId ServiceInstanceId, scopes []string) error {
 	u, err := url.Parse(l.address)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	u.Path = "/bind"
 	q := u.Query()
-	q.Set("context", encodeContext(ctx, owner))
+	q.Set("binding-id", bindingId)
 	q.Set("instance-id", instanceId)
 	for _, scope := range scopes {
 		q.Add("scopes", scope)
@@ -156,17 +155,15 @@ func (l *lifecycle) Bind(ctx context.Context, owner client.Object, instanceId Se
 
 	resp, err := http.Get(u.String())
 	if err != nil {
-		return nil, err
+		return err
 	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
+		return fmt.Errorf("server returned http %d", resp.StatusCode)
 	}
-	binding_id := strings.TrimSpace(string(body))
-	return &binding_id, nil
+	return nil
 }
 
-func (l *lifecycle) Unbind(ctx context.Context, bindingId ServiceBindingId) error {
+func (l *lifecycle) Unbind(ctx context.Context, bindingId ServiceBindingId, instanceId ServiceInstanceId) error {
 	u, err := url.Parse(l.address)
 	if err != nil {
 		return err
@@ -174,11 +171,15 @@ func (l *lifecycle) Unbind(ctx context.Context, bindingId ServiceBindingId) erro
 	u.Path = "/unbind"
 	q := u.Query()
 	q.Set("binding-id", bindingId)
+	q.Set("instance-id", instanceId)
 	u.RawQuery = q.Encode()
 
-	_, err = http.Get(u.String())
+	resp, err := http.Get(u.String())
 	if err != nil {
 		return err
+	}
+	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
+		return fmt.Errorf("server returned http %d", resp.StatusCode)
 	}
 	return nil
 }

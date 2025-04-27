@@ -25,6 +25,7 @@ import (
 const (
 	ServiceBindingConditionReady         = apis.ConditionReady
 	ServiceBindingConditionInstanceReady = "InstanceReady"
+	ServiceBindingConditionSecret        = "Secret"
 	ServiceBindingConditionBound         = "Bound"
 	ServiceBindingConditionClientReady   = "ClientReady"
 )
@@ -41,6 +42,7 @@ func (s *ServiceBindingStatus) GetConditionSet() apis.ConditionSet {
 	return apis.NewLivingConditionSetWithHappyReason(
 		"Ready",
 		ServiceBindingConditionInstanceReady,
+		ServiceBindingConditionSecret,
 		ServiceBindingConditionBound,
 		ServiceBindingConditionClientReady,
 	)

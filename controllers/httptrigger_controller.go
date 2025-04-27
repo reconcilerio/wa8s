@@ -38,11 +38,12 @@ import (
 
 func HttpTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.HttpTrigger] {
 	childLabelKey := fmt.Sprintf("%s/http-trigger", containersv1alpha1.GroupVersion.Group)
+	baseImage := ""
 
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.HttpTrigger]{
 		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.HttpTrigger, *containersv1alpha1.HttpTriggerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.HttpTrigger]{
-				WasmContainerChildReconciler[*containersv1alpha1.HttpTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey),
+				WasmContainerChildReconciler[*containersv1alpha1.HttpTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey, baseImage),
 				HttpDeploymentChildReconciler(childLabelKey),
 				HttpServiceChildReconciler(childLabelKey),
 			},

@@ -24,6 +24,7 @@ import (
 var (
 	ServiceBindingConditionReadyBlank         = diemetav1.ConditionBlank.Type(ServiceBindingConditionReady).Status(metav1.ConditionUnknown).Reason("Initializing")
 	ServiceBindingConditionInstanceReadyBlank = diemetav1.ConditionBlank.Type(ServiceBindingConditionInstanceReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	ServiceBindingConditionSecretBlank        = diemetav1.ConditionBlank.Type(ServiceBindingConditionSecret).Status(metav1.ConditionUnknown).Reason("Initializing")
 	ServiceBindingConditionBoundBlank         = diemetav1.ConditionBlank.Type(ServiceBindingConditionBound).Status(metav1.ConditionUnknown).Reason("Initializing")
 	ServiceBindingConditionClientReadyBlank   = diemetav1.ConditionBlank.Type(ServiceBindingConditionClientReady).Status(metav1.ConditionUnknown).Reason("Initializing")
 )

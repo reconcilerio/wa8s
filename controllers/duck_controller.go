@@ -314,7 +314,7 @@ func DetectTraceCycle(trace []componentsv1alpha1.ComponentSpan, component client
 
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers,verbs=get;list;watch;create;update;patch;delete
 
-func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](conditionType, childLabelKey string) reconcilers.SubReconciler[GC] {
+func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](conditionType, childLabelKey, baseImage string) reconcilers.SubReconciler[GC] {
 	return &reconcilers.CastResource[GC, containersv1alpha1.GenericContainer]{
 		Reconciler: &reconcilers.ChildReconciler[containersv1alpha1.GenericContainer, *containersv1alpha1.WasmtimeContainer, *containersv1alpha1.WasmtimeContainerList]{
 			DesiredChild: func(ctx context.Context, resource containersv1alpha1.GenericContainer) (*containersv1alpha1.WasmtimeContainer, error) {
@@ -331,6 +331,7 @@ func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](condit
 					},
 					Spec: containersv1alpha1.WasmtimeContainerSpec{
 						Ref:                  resource.GetGenericContainerSpec().Ref,
+						BaseImage:            baseImage,
 						ServiceAccountRef:    resource.GetGenericContainerSpec().ServiceAccountRef,
 						GenericComponentSpec: resource.GetGenericContainerSpec().GenericComponentSpec,
 					},

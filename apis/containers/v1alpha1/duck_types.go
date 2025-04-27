@@ -84,7 +84,7 @@ func (c *HostCapabilities) WasmtimeArgs() []string {
 // +die
 // +die:field:name=Vars,die=HostEnvVarDie,listType=map
 type HostEnv struct {
-	Inherit bool         `json:"inherit"`
+	Inherit bool         `json:"inherit,omitempty"`
 	Vars    []HostEnvVar `json:"vars,omitempty"`
 }
 

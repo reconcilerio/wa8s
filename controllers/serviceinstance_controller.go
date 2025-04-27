@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
@@ -43,7 +44,7 @@ func ServiceInstanceReconciler(c reconcilers.Config) *reconcilers.ResourceReconc
 	return &reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceInstance]{
 		SyncStatusDuringFinalization: true,
 		Reconciler: &reconcilers.WithFinalizer[*servicesv1alpha1.ServiceInstance]{
-			Finalizer: servicesv1alpha1.GroupVersion.Group,
+			Finalizer: fmt.Sprintf("%s/reconciler", servicesv1alpha1.GroupVersion.Group),
 			Reconciler: &reconcilers.SuppressTransientErrors[*servicesv1alpha1.ServiceInstance, *servicesv1alpha1.ServiceInstanceList]{
 				Reconciler: reconcilers.Sequence[*servicesv1alpha1.ServiceInstance]{
 					ResolveServiceLifecycle(),
@@ -152,6 +153,7 @@ func ManageServiceInstance() reconcilers.SubReconciler[*servicesv1alpha1.Service
 			}
 
 			address := ServiceLifecycleAddressStasher.RetrieveOrDie(ctx)
+			instanceId := string(resource.UID)
 			type_ := resource.Spec.Type
 			var tier *string
 			if resource.Spec.Tier != "" {
@@ -159,17 +161,17 @@ func ManageServiceInstance() reconcilers.SubReconciler[*servicesv1alpha1.Service
 			}
 			requests := resource.Spec.Requests
 
-			instanceId, err := lifecycle.NewLifecycle(address).Provision(ctx, resource, type_, tier, requests)
+			err := lifecycle.NewLifecycle(address).Provision(ctx, instanceId, type_, tier, requests)
 			if err != nil {
 				c.Recorder.Eventf(resource, corev1.EventTypeWarning, "ProvisionFailed", "%s", err)
 				return err
 			}
 			c.Recorder.Eventf(resource, corev1.EventTypeNormal, "Provisioned", "")
 
-			resource.Status.ServiceInstanceId = *instanceId
+			resource.Status.ServiceInstanceId = instanceId
 			resource.GetConditionManager(ctx).MarkTrue(servicesv1alpha1.ServiceInstanceConditionProvisioned, "Provisioned", "")
 
-			return nil
+			return ErrUpdateStatusBeforeContinuingReconcile
 		},
 		Finalize: func(ctx context.Context, resource *servicesv1alpha1.ServiceInstance) error {
 			c := reconcilers.RetrieveConfigOrDie(ctx)

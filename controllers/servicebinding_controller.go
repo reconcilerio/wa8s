@@ -45,10 +45,11 @@ import (
 func ServiceBindingReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceBinding] {
 	return &reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceBinding]{
 		Reconciler: &reconcilers.WithFinalizer[*servicesv1alpha1.ServiceBinding]{
-			Finalizer: servicesv1alpha1.GroupVersion.Group,
+			Finalizer: fmt.Sprintf("%s/reconciler", servicesv1alpha1.GroupVersion.Group),
 			Reconciler: &reconcilers.SuppressTransientErrors[*servicesv1alpha1.ServiceBinding, *servicesv1alpha1.ServiceBindingList]{
 				Reconciler: reconcilers.Sequence[*servicesv1alpha1.ServiceBinding]{
 					ResolveServiceInstanceId(),
+					ServiceBindingSecret(),
 					ManageServiceBinding(),
 					ConfigureClientComponent(),
 					ExpirationRequeue(),
@@ -161,6 +162,55 @@ func ResolveServiceInstanceId() reconcilers.SubReconciler[*servicesv1alpha1.Serv
 	}
 }
 
+// +kubebuilder:rbac:groups=core,resources=secrets,verbs=get;list;watch;create;update;patch;delete
+
+func ServiceBindingSecret() reconcilers.SubReconciler[*servicesv1alpha1.ServiceBinding] {
+	return &reconcilers.ChildReconciler[*servicesv1alpha1.ServiceBinding, *corev1.Secret, *corev1.SecretList]{
+		DesiredChild: func(ctx context.Context, resource *servicesv1alpha1.ServiceBinding) (*corev1.Secret, error) {
+			return &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: resource.Namespace,
+					Name:      fmt.Sprintf("service-binding-%s", resource.UID),
+					Labels: map[string]string{
+						"services.wa8s.reconciler.io/type": "binding",
+						"services.wa8s.reconciler.io/id":   string(resource.UID),
+					},
+					// finalizer is cleared by the credential-admin
+					Finalizers: []string{ServiceCredentialFinalizer},
+				},
+			}, nil
+		},
+		ChildObjectManager: &reconcilers.UpdatingObjectManager[*corev1.Secret]{
+			MergeBeforeUpdate: func(current, desired *corev1.Secret) {
+				current.Labels = desired.Labels
+				// data values are set externally, don't overwrite
+			},
+		},
+		ReflectChildStatusOnParentWithError: func(ctx context.Context, parent *servicesv1alpha1.ServiceBinding, child *corev1.Secret, err error) error {
+			if err != nil {
+				if apierrs.IsInvalid(err) {
+					parent.GetConditionManager(ctx).MarkFalse(servicesv1alpha1.ServiceBindingConditionSecret, "Invalid", "%s", apierrs.ReasonForError(err))
+				} else if apierrs.IsAlreadyExists(err) {
+					parent.GetConditionManager(ctx).MarkFalse(servicesv1alpha1.ServiceBindingConditionSecret, "AlreadyExists", "%s", apierrs.ReasonForError(err))
+				} else {
+					parent.GetConditionManager(ctx).MarkUnknown(servicesv1alpha1.ServiceBindingConditionSecret, "Unknown", "")
+				}
+				return errors.Join(err, ErrTransient)
+			}
+
+			if child == nil {
+				parent.GetConditionManager(ctx).MarkFalse(servicesv1alpha1.ServiceBindingConditionSecret, "Missing", "")
+				return ErrDurable
+			}
+
+			ServiceBindingIdStasher.Store(ctx, string(parent.UID))
+			parent.GetConditionManager(ctx).MarkTrue(servicesv1alpha1.ServiceBindingConditionSecret, "Created", "")
+
+			return nil
+		},
+	}
+}
+
 func ManageServiceBinding() reconcilers.SubReconciler[*servicesv1alpha1.ServiceBinding] {
 	return &reconcilers.SyncReconciler[*servicesv1alpha1.ServiceBinding]{
 		Sync: func(ctx context.Context, resource *servicesv1alpha1.ServiceBinding) error {
@@ -179,9 +229,10 @@ func ManageServiceBinding() reconcilers.SubReconciler[*servicesv1alpha1.ServiceB
 					// newly expired, unbind
 
 					address := ServiceLifecycleAddressStasher.RetrieveOrDie(ctx)
-					bindingId := resource.Status.ServiceBindingId
+					bindingId := ServiceBindingIdStasher.RetrieveOrDie(ctx)
+					instanceId := ServiceInstanceIdStasher.RetrieveOrDie(ctx)
 
-					if err := lifecycle.NewLifecycle(address).Unbind(ctx, bindingId); err != nil {
+					if err := lifecycle.NewLifecycle(address).Unbind(ctx, bindingId, instanceId); err != nil {
 						// TODO handle case where the binding doesn't exist
 						c.Recorder.Eventf(resource, corev1.EventTypeWarning, "ExpireFailed", "%s", err)
 						return err
@@ -199,21 +250,21 @@ func ManageServiceBinding() reconcilers.SubReconciler[*servicesv1alpha1.ServiceB
 			}
 
 			address := ServiceLifecycleAddressStasher.RetrieveOrDie(ctx)
+			bindingId := ServiceBindingIdStasher.RetrieveOrDie(ctx)
 			instanceId := ServiceInstanceIdStasher.RetrieveOrDie(ctx)
 			scopes := resource.Spec.Scopes
 
-			bindingId, err := lifecycle.NewLifecycle(address).Bind(ctx, resource, instanceId, scopes)
-			if err != nil {
+			if err := lifecycle.NewLifecycle(address).Bind(ctx, bindingId, instanceId, scopes); err != nil {
 				c.Recorder.Eventf(resource, corev1.EventTypeWarning, "BindingFailed", "%s", err)
 				return err
 			}
 			c.Recorder.Eventf(resource, corev1.EventTypeNormal, "Bound", "")
 
-			resource.Status.Binding.Name = fmt.Sprintf("service-binding-%s", *bindingId)
-			resource.Status.ServiceBindingId = *bindingId
+			resource.Status.Binding.Name = fmt.Sprintf("service-binding-%s", bindingId)
+			resource.Status.ServiceBindingId = bindingId
 			resource.GetConditionManager(ctx).MarkTrue(servicesv1alpha1.ServiceBindingConditionBound, "Bound", "")
 
-			return nil
+			return ErrUpdateStatusBeforeContinuingReconcile
 		},
 		Finalize: func(ctx context.Context, resource *servicesv1alpha1.ServiceBinding) error {
 			c := reconcilers.RetrieveConfigOrDie(ctx)
@@ -225,8 +276,9 @@ func ManageServiceBinding() reconcilers.SubReconciler[*servicesv1alpha1.ServiceB
 
 			address := ServiceLifecycleAddressStasher.RetrieveOrDie(ctx)
 			bindingId := resource.Status.ServiceBindingId
+			instanceId := resource.Status.ServiceBindingId
 
-			if err := lifecycle.NewLifecycle(address).Unbind(ctx, bindingId); err != nil {
+			if err := lifecycle.NewLifecycle(address).Unbind(ctx, bindingId, instanceId); err != nil {
 				// TODO handle case where the binding doesn't exist
 				c.Recorder.Eventf(resource, corev1.EventTypeWarning, "UnbindFailed", "%s", err)
 				return err

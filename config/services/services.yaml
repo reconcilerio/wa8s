@@ -16,39 +16,12 @@ spec:
 apiVersion: wa8s.reconciler.io/v1alpha1
 kind: Composition
 metadata:
-  name: services-ids
-spec:
-  dependencies:
-  - component: componentized:services-ids
-    oci:
-      image: ghcr.io/componentized/services/webhook-ids:v0.0.2@sha256:d5e40e3268ccca10a254282aba1283311fb48721a4c157ff13b93c3cbd5d92ef
-  - component: componentized:webhook-config
-    ref:
-      kind: ConfigStore
-      name: services-webhook-config
-
----
-apiVersion: wa8s.reconciler.io/v1alpha1
-kind: ClusterComponent
-metadata:
-  name: wa8s-services-ids
-spec:
-  ref:
-    kind: Composition
-    # TODO set namespace via kustomize
-    namespace: wa8s-system
-    name: services-ids
-
----
-apiVersion: wa8s.reconciler.io/v1alpha1
-kind: Composition
-metadata:
   name: services-credential-admin
 spec:
   dependencies:
   - component: componentized:services-credential-admin
     oci:
-      image: ghcr.io/componentized/services/webhook-credential-admin:v0.0.2@sha256:81a486b9fe9aa36eb94e0123c15da7d3521f01996d2dd19aba447a15e393cf8d
+      image: ghcr.io/componentized/services/webhook-credential-admin:v0.0.3@sha256:38029cd83c79caa3bb0a358777de968cb30e0f897105b45efa772e44fc6b976e
   - component: componentized:webhook-config
     ref:
       kind: ConfigStore
@@ -75,7 +48,7 @@ spec:
   dependencies:
   - component: componentized:services-credential-store
     oci:
-      image: ghcr.io/componentized/services/webhook-credential-store:v0.0.2@sha256:c0bea28c25cf67235f6519e32ed044f0fd19e85b01e57e08101a0eabd731188f
+      image: ghcr.io/componentized/services/webhook-credential-store:v0.0.3@sha256:b132bd54b1f93ac578922f8d807ec94d6930e51493bb8440bd29130ab9fe0a92
   - component: componentized:webhook-config
     ref:
       kind: ConfigStore
@@ -100,7 +73,7 @@ metadata:
   name: wa8s-services-credential-config
 spec:
   oci:
-    image: ghcr.io/componentized/services/credential-config:v0.0.2@sha256:3ad249f02f6dc3683bba446bd4f3e107ec6027c1e4ad00128f3616bbbf02a56b
+    image: ghcr.io/componentized/services/credential-config:v0.0.3@sha256:b74bf9e2f7421f5ebc8e56011672f40c266f0f4697f6e92f3448fefdb98cef3c
     serviceAccountRef:
       # TODO set namespace via kustomize
       namespace: wa8s-system
@@ -113,7 +86,7 @@ metadata:
   name: wa8s-services-lifecycle-host-http
 spec:
   oci:
-    image: ghcr.io/componentized/services/lifecycle-host-http:v0.0.2@sha256:b7e0c8f953a207bda5c1aa31d7f7c0d21867b03f10d030f135710cb404e6a4ca
+    image: ghcr.io/componentized/services/lifecycle-host-http:v0.0.3@sha256:59b2c6b21a5c8da388d0751be64ff4e108d3f335ad1f8decc6b1d6ca30862e86
     serviceAccountRef:
       # TODO set namespace via kustomize
       namespace: wa8s-system

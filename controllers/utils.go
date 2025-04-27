@@ -41,6 +41,7 @@ var (
 	ServiceLifecycleCompositionStasher = reconcilers.NewStasher[string](reconcilers.StashKey("wa8s.reconciler.io/service-lifecycle-composition"))
 	ServiceLifecycleAddressStasher     = reconcilers.NewStasher[string](reconcilers.StashKey("wa8s.reconciler.io/service-lifecycle-address"))
 	ServiceLifecycleReferenceStasher   = reconcilers.NewStasher[servicesv1alpha1.ServiceLifecycleReference](reconcilers.StashKey("wa8s.reconciler.io/service-lifecycle-reference"))
+	ServiceBindingIdStasher            = reconcilers.NewStasher[string](reconcilers.StashKey("wa8s.reconciler.io/service-binding-id"))
 	ServiceInstanceIdStasher           = reconcilers.NewStasher[string](reconcilers.StashKey("wa8s.reconciler.io/service-instance-id"))
 )
 
@@ -51,4 +52,6 @@ var (
 	ErrDurable = reconcilers.ErrDurable
 	// ErrGenerationMismatch a referenced resource's .metadata.generation and .status.observedGeneration are out of sync. Treat as a transient error as this state is expected and we should avoid flapping
 	ErrGenerationMismatch = errors.Join(ErrTransient, reconcilers.ErrSkipStatusUpdate)
+	// ErrUpdateStatusBeforeContinuingReconcile halt this reconcile request and update the api server with the intermediate status
+	ErrUpdateStatusBeforeContinuingReconcile = errors.Join(errors.New("UpdateStatusBeforeContinuingReconcile"), ErrDurable)
 )

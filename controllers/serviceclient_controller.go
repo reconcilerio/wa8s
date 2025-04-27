@@ -40,13 +40,10 @@ import (
 
 func ServiceClientReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceClient] {
 	return &reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceClient]{
-		Reconciler: &reconcilers.WithFinalizer[*servicesv1alpha1.ServiceClient]{
-			Finalizer: servicesv1alpha1.GroupVersion.Group,
-			Reconciler: &reconcilers.SuppressTransientErrors[*servicesv1alpha1.ServiceClient, *servicesv1alpha1.ServiceClientList]{
-				Reconciler: reconcilers.Sequence[*servicesv1alpha1.ServiceClient]{
-					StampServiceBinding(),
-					RenewRequeue(),
-				},
+		Reconciler: &reconcilers.SuppressTransientErrors[*servicesv1alpha1.ServiceClient, *servicesv1alpha1.ServiceClientList]{
+			Reconciler: reconcilers.Sequence[*servicesv1alpha1.ServiceClient]{
+				StampServiceBinding(),
+				RenewRequeue(),
 			},
 		},
 
