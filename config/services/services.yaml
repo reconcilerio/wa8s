@@ -1,0 +1,106 @@
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: ConfigStore
+metadata:
+  name: services-webhook-config
+spec:
+  values:
+  - name: host
+    # TODO parameterize
+    value: webhook-service.wa8s-system.svc.cluster.local
+  - name: scheme
+    # TODO use https with a custom ca
+    value: http
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: Composition
+metadata:
+  name: services-credential-admin
+spec:
+  dependencies:
+  - component: componentized:services-credential-admin
+    oci:
+      image: ghcr.io/componentized/services/webhook-credential-admin:v0.0.3@sha256:38029cd83c79caa3bb0a358777de968cb30e0f897105b45efa772e44fc6b976e
+  - component: componentized:webhook-config
+    ref:
+      kind: ConfigStore
+      name: services-webhook-config
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: ClusterComponent
+metadata:
+  name: wa8s-services-credential-admin
+spec:
+  ref:
+    kind: Composition
+    # TODO set namespace via kustomize
+    namespace: wa8s-system
+    name: services-credential-admin
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: Composition
+metadata:
+  name: services-credential-store
+spec:
+  dependencies:
+  - component: componentized:services-credential-store
+    oci:
+      image: ghcr.io/componentized/services/webhook-credential-store:v0.0.3@sha256:b132bd54b1f93ac578922f8d807ec94d6930e51493bb8440bd29130ab9fe0a92
+  - component: componentized:webhook-config
+    ref:
+      kind: ConfigStore
+      name: services-webhook-config
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: ClusterComponent
+metadata:
+  name: wa8s-services-credential-store
+spec:
+  ref:
+    kind: Composition
+    # TODO set namespace via kustomize
+    namespace: wa8s-system
+    name: services-credential-store
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: ClusterComponent
+metadata:
+  name: wa8s-services-credential-config
+spec:
+  oci:
+    image: ghcr.io/componentized/services/credential-config:v0.0.3@sha256:b74bf9e2f7421f5ebc8e56011672f40c266f0f4697f6e92f3448fefdb98cef3c
+    serviceAccountRef:
+      # TODO set namespace via kustomize
+      namespace: wa8s-system
+      name: default
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: ClusterComponent
+metadata:
+  name: wa8s-services-lifecycle-host-http
+spec:
+  oci:
+    image: ghcr.io/componentized/services/lifecycle-host-http:v0.0.3@sha256:59b2c6b21a5c8da388d0751be64ff4e108d3f335ad1f8decc6b1d6ca30862e86
+    serviceAccountRef:
+      # TODO set namespace via kustomize
+      namespace: wa8s-system
+      name: default
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: ClusterComponent
+metadata:
+  name: wa8s-services-logging
+spec:
+  oci:
+    image: ghcr.io/componentized/logging/to-stdout:v0.1.0@sha256:28d0f577e81c2e32ab6a757ad636751de28331cd7d435b02f048ab3bf3b4ac1c
+    serviceAccountRef:
+      # TODO set namespace via kustomize
+      namespace: wa8s-system
+      name: default

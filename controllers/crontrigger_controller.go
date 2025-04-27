@@ -36,11 +36,12 @@ import (
 
 func CronTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.CronTrigger] {
 	childLabelKey := fmt.Sprintf("%s/cron-trigger", containersv1alpha1.GroupVersion.Group)
+	baseImage := ""
 
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.CronTrigger]{
 		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.CronTrigger, *containersv1alpha1.CronTriggerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.CronTrigger]{
-				WasmContainerChildReconciler[*containersv1alpha1.CronTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey),
+				WasmContainerChildReconciler[*containersv1alpha1.CronTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey, baseImage),
 				CronJobChildReconciler(childLabelKey),
 			},
 		},

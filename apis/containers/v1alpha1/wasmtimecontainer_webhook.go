@@ -57,7 +57,8 @@ func (r *WasmtimeContainerSpec) Default(ctx context.Context) error {
 	}
 	if r.BaseImage == "" {
 		// TODO sustainably build this image, for now check hack/wasmtime
-		r.BaseImage = "index.docker.io/scothis/wasmtime:30@sha256:eb367f58c270307812abe30c62d4248a28cd1368a27fe4a7db201379a13c0f7a"
+		r.BaseImage = "ghcr.io/reconcilerio/wa8s/wasmtime:30.0.0@sha256:eb367f58c270307812abe30c62d4248a28cd1368a27fe4a7db201379a13c0f7a"
+		// r.BaseImage = "ghcr.io/reconcilerio/wa8s/wasmtime:32.0.0@sha256:044ec10c535e78a93a51bbfc467eab5ec287ac0759fd16d771bc223edaac5dbb"
 	}
 	if err := r.Ref.Default(ctx); err != nil {
 		return err

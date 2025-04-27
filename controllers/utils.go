@@ -24,19 +24,25 @@ import (
 	"reconciler.io/runtime/reconcilers"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
+	servicesv1alpha1 "reconciler.io/wa8s/apis/services/v1alpha1"
 	"reconciler.io/wa8s/components"
 	"reconciler.io/wa8s/registry"
 )
 
 var (
-	ConfigStoreStasher             = reconcilers.NewStasher[map[string]string](reconcilers.StashKey("wa8s.reconciler.io/config-store"))
-	ComponentStasher               = reconcilers.NewStasher[[]byte](reconcilers.StashKey("wa8s.reconciler.io/component"))
-	ComponentConfigStasher         = reconcilers.NewStasher[registry.WasmConfigFile](reconcilers.StashKey("wa8s.reconciler.io/component-config"))
-	ComponentTraceStasher          = reconcilers.NewStasher[[]componentsv1alpha1.ComponentSpan](reconcilers.StashKey("wa8s.reconciler.io/component-trace"))
-	CompositionDependenciesStasher = reconcilers.NewStasher[[]components.ResolvedComponent](reconcilers.StashKey("wa8s.reconciler.io/composition-dependencies"))
-	RepositoryKeychainStasher      = reconcilers.NewStasher[authn.Keychain](reconcilers.StashKey("wa8s.reconciler.io/repository-keychain"))
-	RepositoryDigestStasher        = reconcilers.NewStasher[name.Digest](reconcilers.StashKey("wa8s.reconciler.io/repository-digest"))
-	RepositoryTagStasher           = reconcilers.NewStasher[name.Tag](reconcilers.StashKey("wa8s.reconciler.io/repository-tag"))
+	ConfigStoreStasher                 = reconcilers.NewStasher[map[string]string](reconcilers.StashKey("wa8s.reconciler.io/config-store"))
+	ComponentStasher                   = reconcilers.NewStasher[[]byte](reconcilers.StashKey("wa8s.reconciler.io/component"))
+	ComponentConfigStasher             = reconcilers.NewStasher[registry.WasmConfigFile](reconcilers.StashKey("wa8s.reconciler.io/component-config"))
+	ComponentTraceStasher              = reconcilers.NewStasher[[]componentsv1alpha1.ComponentSpan](reconcilers.StashKey("wa8s.reconciler.io/component-trace"))
+	CompositionDependenciesStasher     = reconcilers.NewStasher[[]components.ResolvedComponent](reconcilers.StashKey("wa8s.reconciler.io/composition-dependencies"))
+	RepositoryKeychainStasher          = reconcilers.NewStasher[authn.Keychain](reconcilers.StashKey("wa8s.reconciler.io/repository-keychain"))
+	RepositoryDigestStasher            = reconcilers.NewStasher[name.Digest](reconcilers.StashKey("wa8s.reconciler.io/repository-digest"))
+	RepositoryTagStasher               = reconcilers.NewStasher[name.Tag](reconcilers.StashKey("wa8s.reconciler.io/repository-tag"))
+	ServiceLifecycleCompositionStasher = reconcilers.NewStasher[string](reconcilers.StashKey("wa8s.reconciler.io/service-lifecycle-composition"))
+	ServiceLifecycleAddressStasher     = reconcilers.NewStasher[string](reconcilers.StashKey("wa8s.reconciler.io/service-lifecycle-address"))
+	ServiceLifecycleReferenceStasher   = reconcilers.NewStasher[servicesv1alpha1.ServiceLifecycleReference](reconcilers.StashKey("wa8s.reconciler.io/service-lifecycle-reference"))
+	ServiceBindingIdStasher            = reconcilers.NewStasher[string](reconcilers.StashKey("wa8s.reconciler.io/service-binding-id"))
+	ServiceInstanceIdStasher           = reconcilers.NewStasher[string](reconcilers.StashKey("wa8s.reconciler.io/service-instance-id"))
 )
 
 var (
@@ -46,4 +52,6 @@ var (
 	ErrDurable = reconcilers.ErrDurable
 	// ErrGenerationMismatch a referenced resource's .metadata.generation and .status.observedGeneration are out of sync. Treat as a transient error as this state is expected and we should avoid flapping
 	ErrGenerationMismatch = errors.Join(ErrTransient, reconcilers.ErrSkipStatusUpdate)
+	// ErrUpdateStatusBeforeContinuingReconcile halt this reconcile request and update the api server with the intermediate status
+	ErrUpdateStatusBeforeContinuingReconcile = errors.Join(errors.New("UpdateStatusBeforeContinuingReconcile"), ErrDurable)
 )

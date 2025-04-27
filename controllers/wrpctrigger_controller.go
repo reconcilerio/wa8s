@@ -38,12 +38,13 @@ import (
 
 func WrpcTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.WrpcTrigger] {
 	childLabelKey := fmt.Sprintf("%s/wrpc-trigger", containersv1alpha1.GroupVersion.Group)
+	baseImage := "ghcr.io/bytecodealliance/wrpc:0.14.0@sha256:53cae9137d162d235399f03ad2944c07790eb5f29ae5455e1f8c5865de8db0d8"
 	wrpcPort := int32(7761)
 
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.WrpcTrigger]{
 		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.WrpcTrigger, *containersv1alpha1.WrpcTriggerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.WrpcTrigger]{
-				WasmContainerChildReconciler[*containersv1alpha1.WrpcTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey),
+				WasmContainerChildReconciler[*containersv1alpha1.WrpcTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey, baseImage),
 				WrpcDeploymentChildReconciler(childLabelKey, wrpcPort),
 				WrpcServiceChildReconciler(childLabelKey, wrpcPort),
 			},

@@ -47,3 +47,53 @@ spec:
   group: wa8s.reconciler.io
   version: v1alpha1
   kind: ConfigStore
+
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: clusterservicelifecycles.services.wa8s.reconciler.io
+spec:
+  group: services.wa8s.reconciler.io
+  version: v1alpha1
+  kind: ClusterServiceLifecycle
+
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: servicebindings.services.wa8s.reconciler.io
+spec:
+  group: services.wa8s.reconciler.io
+  version: v1alpha1
+  kind: ServiceBinding
+
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: serviceclients.services.wa8s.reconciler.io
+spec:
+  group: services.wa8s.reconciler.io
+  version: v1alpha1
+  kind: ServiceClient
+
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: serviceinstances.services.wa8s.reconciler.io
+spec:
+  group: services.wa8s.reconciler.io
+  version: v1alpha1
+  kind: ServiceInstance
+
+---
+apiVersion: duck.wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: servicelifecycles.services.wa8s.reconciler.io
+spec:
+  group: services.wa8s.reconciler.io
+  version: v1alpha1
+  kind: ServiceLifecycle

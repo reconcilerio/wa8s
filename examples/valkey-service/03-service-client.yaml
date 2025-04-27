@@ -1,0 +1,14 @@
+---
+apiVersion: services.wa8s.reconciler.io/v1alpha1
+kind: ServiceClient
+metadata:
+  name: my-valkey
+spec:
+  # last 1h while rotating every 5m for demos
+  duration: 1h
+  renewBefore: 55m
+  ref:
+    name: my-valkey
+  scopes:
+  - read
+  - write
