@@ -337,7 +337,7 @@ jobs:
 
           ${KAPP} deploy -a reconcilerio-wa8s -n apps --wait-timeout 5m -y \
             -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config) \
-            -f bundle/kapp
+            -f bundle/kapp \
             -f ca.yaml
         echo "##[endgroup]"
 
