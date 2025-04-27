@@ -328,9 +328,17 @@ jobs:
             -f https://github.com/reconcilerio/ducks/releases/download/v0.1.0/reconcilerio-ducks-v0.1.0.yaml
         echo "##[endgroup]"
         echo "##[group]Deploy reconcilerio-wa8s"
+          kubectl create secret generic local-ca \
+            --namespace wa8s-system \
+            --type kubernetes.io/tls \
+            --from-file ca.crt=${CERT_DIR}/ca.pem \
+            --dry-run=client \
+            -oyaml > ca.yaml
+
           ${KAPP} deploy -a reconcilerio-wa8s -n apps --wait-timeout 5m -y \
             -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config) \
             -f bundle/kapp
+            -f ca.yaml
         echo "##[endgroup]"
 
     - name: Valkey service
@@ -354,25 +362,33 @@ jobs:
           kpf_pid=$!
 
           count=$(curl http://localhost:8080/hello)
-          if [ "${count}" != "1" ]; then
+          if [ "${count}" == "1" ]; then
+            echo "/hello count: ${count}"
+          else
             echo "Unexpected /hello count: got ${count}, wanted 1"
             exit 1
           fi
 
           count=$(curl http://localhost:8080/greeting)
-          if [ "${count}" != "1" ]; then
+          if [ "${count}" == "1" ]; then
+            echo "/greeting count: ${count}"
+          else
             echo "Unexpected /greeting count: got ${count}, wanted 1"
             exit 1
           fi
 
           count=$(curl http://localhost:8080/hello)
-          if [ "${count}" != "2" ]; then
+          if [ "${count}" == "2" ]; then
+            echo "/hello count: ${count}"
+          else
             echo "Unexpected /hello count: got ${count}, wanted 2"
             exit 1
           fi
 
           count=$(curl http://localhost:8080/greeting)
-          if [ "${count}" != "2" ]; then
+          if [ "${count}" == "2" ]; then
+            echo "/greeting count: ${count}"
+          else
             echo "Unexpected /greeting count: got ${count}, wanted 2"
             exit 1
           fi
