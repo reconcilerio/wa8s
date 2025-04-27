@@ -57,10 +57,13 @@ func CustomTransport(ctx context.Context) (http.RoundTripper, error) {
 
 	tlsSecrets := &corev1.SecretList{}
 	// TODO parameterize the namespace
-	if err := c.List(ctx, tlsSecrets, client.MatchingFields{"type": "kubernetes.io/tls"}, client.InNamespace("wa8s-system")); err != nil {
+	if err := c.List(ctx, tlsSecrets, client.InNamespace("wa8s-system")); err != nil {
 		return nil, err
 	}
 	for _, tlsSecret := range tlsSecrets.Items {
+		if tlsSecret.Type != "kubernetes.io/tls" {
+			continue
+		}
 		if ca, ok := tlsSecret.Data["ca.crt"]; ok {
 			rootCAs.AppendCertsFromPEM(ca)
 		}
