@@ -337,14 +337,15 @@ jobs:
             --dry-run=client \
             -oyaml > ca.yaml
 
-          cat > clusterrepository.yaml << EOF
-          apiVersion: registries.wa8s.reconciler.io/v1alpha1
-          kind: ClusterRepository
-          metadata:
-            name: default
-          spec:
-            template: ${REGISTRY_NAME}/{{ .Kind }}/{{ .UID }}:{{ .ResourceVersion }}
-          EOF
+          # unindent to preserve whitespace
+        cat << EOF > clusterrepository.yaml
+        apiVersion: registries.wa8s.reconciler.io/v1alpha1
+        kind: ClusterRepository
+        metadata:
+          name: default
+        spec:
+          template: ${REGISTRY_NAME}/{{ .Kind }}/{{ .UID }}:{{ .ResourceVersion }}
+        EOF
 
           ${KAPP} deploy -a reconcilerio-wa8s -n apps --wait-timeout 5m -y \
             -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config) \
