@@ -5,5 +5,3 @@ metadata:
 spec:
   ref:
     name: logger
-  repositoryRef:
-    name: hub

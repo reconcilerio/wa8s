@@ -7,8 +7,6 @@ spec:
   ref:
     kind: Composition
     name: valkey-lifecycle
-  repositoryRef:
-    name: hub
   hostCapabilities:
     env:
       vars:

@@ -337,17 +337,27 @@ jobs:
             --dry-run=client \
             -oyaml > ca.yaml
 
+          cat > clusterrepository.yaml << EOF
+          apiVersion: registries.wa8s.reconciler.io/v1alpha1
+          kind: ClusterRepository
+          metadata:
+            name: default
+          spec:
+            template: ${REGISTRY_NAME}/{{ .Kind }}/{{ .UID }}:{{ .ResourceVersion }}
+          EOF
+
           ${KAPP} deploy -a reconcilerio-wa8s -n apps --wait-timeout 5m -y \
             -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config) \
             -f bundle/kapp \
-            -f ca.yaml
+            -f ca.yaml \
+            -f clusterrepository.yaml
         echo "##[endgroup]"
 
     - name: Valkey service
       run: |
-        set +o errexit
+        set -o errexit
         set -o nounset
-        set +o pipefail
+        set -o pipefail
 
         echo "##[group]kubectl apply -f examples/valkey-service/prereq/"
           kubectl apply -f examples/valkey-service/prereq/

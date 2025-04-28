@@ -1,6 +1,6 @@
 apiVersion: registries.wa8s.reconciler.io/v1alpha1
-kind: Repository
+kind: ClusterRepository
 metadata:
-  name: hub
+  name: external
 spec:
   template: scothis/wasm:{{ .Kind }}-{{ .UID }}
