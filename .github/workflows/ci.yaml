@@ -375,7 +375,7 @@ jobs:
           kpf_pid=$!
           sleep 1
 
-          count=$(curl http://localhost:8080/hello)
+          count=$(curl -s http://localhost:8080/hello)
           if [ "${count}" == "1" ]; then
             echo "/hello count: ${count}"
           else
@@ -383,7 +383,7 @@ jobs:
             exit 1
           fi
 
-          count=$(curl http://localhost:8080/greeting)
+          count=$(curl -s http://localhost:8080/greeting)
           if [ "${count}" == "1" ]; then
             echo "/greeting count: ${count}"
           else
@@ -391,7 +391,7 @@ jobs:
             exit 1
           fi
 
-          count=$(curl http://localhost:8080/hello)
+          count=$(curl -s http://localhost:8080/hello)
           if [ "${count}" == "2" ]; then
             echo "/hello count: ${count}"
           else
@@ -399,7 +399,7 @@ jobs:
             exit 1
           fi
 
-          count=$(curl http://localhost:8080/greeting)
+          count=$(curl -s http://localhost:8080/greeting)
           if [ "${count}" == "2" ]; then
             echo "/greeting count: ${count}"
           else
