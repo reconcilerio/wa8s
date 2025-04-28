@@ -20,9 +20,18 @@ import (
 	"context"
 
 	"k8s.io/apimachinery/pkg/util/validation/field"
+
+	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 )
 
 func (r *GenericContainerSpec) Default(ctx context.Context) error {
+	if (r.RepositoryRef == registriesv1alpha1.RepositoryReference{}) {
+		r.RepositoryRef = registriesv1alpha1.RepositoryReference{
+			Kind: "ClusterRepository",
+			Name: "external",
+		}
+	}
+
 	if err := r.GenericComponentSpec.Default(ctx); err != nil {
 		return err
 	}

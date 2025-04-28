@@ -6,8 +6,6 @@ metadata:
 spec:
   ref:
     name: http-incrementor
-  repositoryRef:
-    name: hub
   hostCapabilities:
     network:
       inherit: true

@@ -5,8 +5,6 @@ metadata:
 spec:
   schedule: "*/5 * * * *" # every 5 minutes
   restartPolicy: Never
-  repositoryRef:
-    name: hub
   hostCapabilities:
     env:
       inherit: true

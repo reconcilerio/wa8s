@@ -34,6 +34,12 @@ import (
 )
 
 func ResolveDigest(ctx context.Context, image string, opts ...remote.Option) (name.Digest, error) {
+	transport, err := CustomTransport(ctx)
+	if err != nil {
+		return name.Digest{}, err
+	}
+	opts = append(opts, remote.WithContext(ctx), remote.WithTransport(transport))
+
 	if ref, err := name.NewDigest(image, name.WeakValidation); err == nil {
 		return ref, nil
 	}
@@ -43,7 +49,7 @@ func ResolveDigest(ctx context.Context, image string, opts ...remote.Option) (na
 		return name.Digest{}, fmt.Errorf("failed to parse image name %q into a tag: %w", image, err)
 	}
 
-	desc, err := remote.Head(tag, append(opts, remote.WithContext(ctx))...)
+	desc, err := remote.Head(tag, opts...)
 	if err != nil {
 		return name.Digest{}, err
 	}
@@ -51,6 +57,12 @@ func ResolveDigest(ctx context.Context, image string, opts ...remote.Option) (na
 }
 
 func Push(ctx context.Context, ref name.Reference, component []byte, opts ...remote.Option) (name.Digest, WasmConfigFile, error) {
+	transport, err := CustomTransport(ctx)
+	if err != nil {
+		return name.Digest{}, WasmConfigFile{}, err
+	}
+	opts = append(opts, remote.WithContext(ctx), remote.WithTransport(transport))
+
 	img, config, err := newWasmImage(ctx, component)
 	if err != nil {
 		return name.Digest{}, WasmConfigFile{}, err
@@ -59,7 +71,7 @@ func Push(ctx context.Context, ref name.Reference, component []byte, opts ...rem
 	if err != nil {
 		return name.Digest{}, WasmConfigFile{}, err
 	}
-	if err := remote.Push(ref, img, append(opts, remote.WithContext(ctx))...); err != nil {
+	if err := remote.Push(ref, img, opts...); err != nil {
 		return name.Digest{}, WasmConfigFile{}, err
 	}
 	published, err := name.NewDigest(fmt.Sprintf("%s@%s", ref, digest), name.WeakValidation)
@@ -70,7 +82,13 @@ func Push(ctx context.Context, ref name.Reference, component []byte, opts ...rem
 }
 
 func Pull(ctx context.Context, ref name.Digest, opts ...remote.Option) ([]byte, WasmConfigFile, error) {
-	d, err := remote.Get(ref, append(opts, remote.WithContext(ctx))...)
+	transport, err := CustomTransport(ctx)
+	if err != nil {
+		return nil, WasmConfigFile{}, err
+	}
+	opts = append(opts, remote.WithContext(ctx), remote.WithTransport(transport))
+
+	d, err := remote.Get(ref, opts...)
 	if err != nil {
 		return nil, WasmConfigFile{}, err
 	}
@@ -122,7 +140,13 @@ func Pull(ctx context.Context, ref name.Digest, opts ...remote.Option) ([]byte, 
 }
 
 func PullConfig(ctx context.Context, ref name.Digest, opts ...remote.Option) (WasmConfigFile, error) {
-	d, err := remote.Get(ref, append(opts, remote.WithContext(ctx))...)
+	transport, err := CustomTransport(ctx)
+	if err != nil {
+		return WasmConfigFile{}, err
+	}
+	opts = append(opts, remote.WithContext(ctx), remote.WithTransport(transport))
+
+	d, err := remote.Get(ref, opts...)
 	if err != nil {
 		return WasmConfigFile{}, err
 	}
@@ -150,6 +174,12 @@ func PullConfig(ctx context.Context, ref name.Digest, opts ...remote.Option) (Wa
 }
 
 func Copy(ctx context.Context, from name.Reference, to name.Tag, opts ...remote.Option) (name.Digest, error) {
+	transport, err := CustomTransport(ctx)
+	if err != nil {
+		return name.Digest{}, err
+	}
+	opts = append(opts, remote.WithContext(ctx), remote.WithTransport(transport))
+
 	pusher, err := remote.NewPusher(opts...)
 	if err != nil {
 		return name.Digest{}, err
@@ -193,6 +223,12 @@ func componentAsLayer(component []byte) (v1.Layer, error) {
 }
 
 func AppendComponent(ctx context.Context, base name.Reference, target name.Tag, component []byte, opts ...remote.Option) (name.Digest, error) {
+	transport, err := CustomTransport(ctx)
+	if err != nil {
+		return name.Digest{}, err
+	}
+	opts = append(opts, remote.WithContext(ctx), remote.WithTransport(transport))
+
 	// copy base image into the target repository
 	relocatedBase, err := Copy(ctx, base, target, opts...)
 	if err != nil {
@@ -204,7 +240,7 @@ func AppendComponent(ctx context.Context, base name.Reference, target name.Tag, 
 	if err != nil {
 		return name.Digest{}, err
 	}
-	baseImg, err := remote.Image(relocatedBase, append(opts, remote.WithContext(ctx))...)
+	baseImg, err := remote.Image(relocatedBase, opts...)
 	if err != nil {
 		return name.Digest{}, err
 	}

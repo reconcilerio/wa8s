@@ -328,10 +328,108 @@ jobs:
             -f https://github.com/reconcilerio/ducks/releases/download/v0.1.0/reconcilerio-ducks-v0.1.0.yaml
         echo "##[endgroup]"
         echo "##[group]Deploy reconcilerio-wa8s"
+          kubectl create secret generic local-ca \
+            --namespace wa8s-system \
+            --type kubernetes.io/tls \
+            --from-file ca.crt=${CERT_DIR}/ca.pem \
+            --from-file tls.crt=${CERT_DIR}/server.pem \
+            --from-file tls.key=${CERT_DIR}/server-key.pem \
+            --dry-run=client \
+            -oyaml > ca.yaml
+
+          # unindent to preserve whitespace
+        cat << EOF > clusterrepository.yaml
+        apiVersion: registries.wa8s.reconciler.io/v1alpha1
+        kind: ClusterRepository
+        metadata:
+          name: external
+        spec:
+          template: ${REGISTRY_NAME}/{{ .Kind }}/{{ .UID }}:{{ .ResourceVersion }}
+        EOF
+
           ${KAPP} deploy -a reconcilerio-wa8s -n apps --wait-timeout 5m -y \
             -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config) \
-            -f bundle/kapp
+            -f bundle/kapp \
+            -f ca.yaml \
+            -f clusterrepository.yaml
         echo "##[endgroup]"
+
+    - name: Valkey service
+      run: |
+        set -o errexit
+        set -o nounset
+        set -o pipefail
+
+        echo "##[group]kubectl apply -f examples/valkey-service/prereq/"
+          kubectl apply -f examples/valkey-service/prereq/
+          kubectl wait deployments.apps/valkey --for condition=available --timeout 1m
+        echo "##[endgroup]"
+
+        echo "##[group]kubectl apply -f examples/valkey-service/"
+          kubectl apply -f examples/valkey-service/
+          kubectl wait httptrigger.containers.wa8s.reconciler.io/incrementor --for condition=ready --timeout 5m
+        echo "##[endgroup]"
+
+        echo "##[group]invoke incrementor"
+          kubectl port-forward svc/incrementor-trigger 8080:80 &
+          kpf_pid=$!
+          sleep 1
+
+          count=$(curl -s http://localhost:8080/hello)
+          if [ "${count}" == "1" ]; then
+            echo "/hello count: ${count}"
+          else
+            echo "Unexpected /hello count: got ${count}, wanted 1"
+            exit 1
+          fi
+
+          count=$(curl -s http://localhost:8080/greeting)
+          if [ "${count}" == "1" ]; then
+            echo "/greeting count: ${count}"
+          else
+            echo "Unexpected /greeting count: got ${count}, wanted 1"
+            exit 1
+          fi
+
+          count=$(curl -s http://localhost:8080/hello)
+          if [ "${count}" == "2" ]; then
+            echo "/hello count: ${count}"
+          else
+            echo "Unexpected /hello count: got ${count}, wanted 2"
+            exit 1
+          fi
+
+          count=$(curl -s http://localhost:8080/greeting)
+          if [ "${count}" == "2" ]; then
+            echo "/greeting count: ${count}"
+          else
+            echo "Unexpected /greeting count: got ${count}, wanted 2"
+            exit 1
+          fi
+
+          kill ${kpf_pid}
+        echo "##[endgroup]"
+
+    - name: Collect diagnostics
+      run: |
+        set +o errexit
+        set -o nounset
+        set +o pipefail
+
+        echo "##[group]kubectl get wa8s --all-namespaces"
+          kubectl get wa8s --all-namespaces
+        echo "##[endgroup]"
+        echo "##[group]kubectl get wa8s --all-namespaces -oyaml"
+          kubectl get wa8s --all-namespaces -oyaml
+        echo "##[endgroup]"
+        echo "##[group]kubectl logs -n wa8s-system -l control-plane=controller-manager --tail 10000"
+          kubectl logs -n wa8s-system -l control-plane=controller-manager --tail 10000
+        echo "##[endgroup]"
+        echo "##[group]kubectl logs -n reconcilerio-system -l control-plane=controller-manager --tail 10000"
+          kubectl logs -n reconcilerio-system -l control-plane=controller-manager --tail 10000
+        echo "##[endgroup]"
+      if: always()
+      continue-on-error: true
 
     - name: Delete Gracefully
       run: |
@@ -339,6 +437,10 @@ jobs:
         set -o nounset
         set -o pipefail
 
+        echo "##[group]Delete Valkey service"
+          kubectl delete -f examples/valkey-service/ --timeout 1m
+          kubectl delete -f examples/valkey-service/prereq/ --timeout 1m
+        echo "##[endgroup]"
         echo "##[group]Delete reconcilerio-wa8s"
           ${KAPP} delete -a reconcilerio-wa8s -n apps --wait-timeout 5m -y
         echo "##[endgroup]"
