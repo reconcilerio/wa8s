@@ -1373,9 +1373,9 @@ dependencies = [
 
 [[package]]
 name = "wac-parser"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83eb40c28590dd36f789f49ac8c1118f00a975d54672c1abce6dc5f0f8783a03"
+checksum = "616ec0c4f63641fa095b4a551263fe35a15c72c9680b650b8f08f70db0fdbd19"
 dependencies = [
  "anyhow",
  "id-arena",
