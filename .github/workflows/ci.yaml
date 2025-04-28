@@ -332,8 +332,8 @@ jobs:
             --namespace wa8s-system \
             --type kubernetes.io/tls \
             --from-file ca.crt=${CERT_DIR}/ca.pem \
-            --from-literal tls.crt= \
-            --from-literal tls.key= \
+            --from-file tls.crt=${CERT_DIR}/server.pem \
+            --from-file tls.key=${CERT_DIR}/server-key.pem \
             --dry-run=client \
             -oyaml > ca.yaml
 
@@ -342,7 +342,7 @@ jobs:
         apiVersion: registries.wa8s.reconciler.io/v1alpha1
         kind: ClusterRepository
         metadata:
-          name: default
+          name: external
         spec:
           template: ${REGISTRY_NAME}/{{ .Kind }}/{{ .UID }}:{{ .ResourceVersion }}
         EOF
