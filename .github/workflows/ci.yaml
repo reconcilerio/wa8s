@@ -373,6 +373,7 @@ jobs:
         echo "##[group]invoke incrementor"
           kubectl port-forward svc/incrementor-trigger 8080:80 &
           kpf_pid=$!
+          sleep 1
 
           count=$(curl http://localhost:8080/hello)
           if [ "${count}" == "1" ]; then
