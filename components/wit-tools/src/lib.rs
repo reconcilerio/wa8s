@@ -30,5 +30,8 @@ pub fn extract(input: Vec<u8>) -> FnResult<String> {
         }
     }?;
 
-    Ok(WitPrinter::default().print(wit.resolve(), wit.package(), &vec![])?)
+    let mut printer = WitPrinter::default();
+    printer.print(wit.resolve(), wit.package(), &vec![])?;
+
+    Ok(printer.output.to_string())
 }
