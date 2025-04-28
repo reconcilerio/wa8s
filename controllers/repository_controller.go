@@ -122,7 +122,11 @@ func CheckRepositoryAuthentication() *reconcilers.SyncReconciler[registriesv1alp
 				return ErrDurable
 			}
 
-			if err := remote.CheckPushPermission(ref, keychain, remote.DefaultTransport); err != nil {
+			transport, err := registry.CustomTransport(ctx)
+			if err != nil {
+				return err
+			}
+			if err := remote.CheckPushPermission(ref, keychain, transport); err != nil {
 				resource.GetConditionManager(ctx).MarkFalse(registriesv1alpha1.RepositoryConditionAuthenticated, "Unauthorized", "%s", err)
 				return ErrDurable
 			}
