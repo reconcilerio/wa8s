@@ -3784,9 +3784,9 @@ metadata:
   namespace: wa8s-system
 spec:
   ports:
-  - port: 80
+  - port: 443
     protocol: TCP
-    targetPort: 8080
+    targetPort: 8443
   selector:
     app: registry
 ---
@@ -3893,17 +3893,41 @@ spec:
       containers:
       - env:
         - name: REGISTRY_HTTP_ADDR
-          value: 0.0.0.0:8080
+          value: 0.0.0.0:8443
+        - name: REGISTRY_HTTP_TLS_CERTIFICATE
+          value: /certs/tls.crt
+        - name: REGISTRY_HTTP_TLS_KEY
+          value: /certs/tls.key
         image: registry:2
         name: registry
         ports:
-        - containerPort: 8080
+        - containerPort: 8443
         volumeMounts:
+        - mountPath: /certs
+          name: registry-cert
+          readOnly: true
         - mountPath: /var/lib/registry
           name: registry-data
       volumes:
+      - name: registry-cert
+        secret:
+          secretName: registry-cert
       - emptyDir: {}
         name: registry-data
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: registry-cert
+  namespace: wa8s-system
+spec:
+  dnsNames:
+  - registry.wa8s-system.svc
+  - registry.wa8s-system.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: selfsigned-issuer
+  secretName: registry-cert
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
