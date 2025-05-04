@@ -1,12 +1,19 @@
 ---
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: wa8s-service-valkey
+  
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
+  namespace: wa8s-service-valkey
   name: valkey
 data:
   # TODO hack until we have a functioning credential-store
   kind: valkey
-  hostname: valkey.default.svc.cluster.local
+  hostname: valkey.wa8s-service-valkey.svc.cluster.local
   port: "6379"
   username: default
   password: ""
@@ -15,6 +22,7 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: wa8s-service-valkey
   name: valkey
 spec:
   selector:
@@ -56,6 +64,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: wa8s-service-valkey
   name: valkey
 spec:
   type: ClusterIP

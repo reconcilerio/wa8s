@@ -30,6 +30,8 @@ manifests: ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefin
 	$(CONTROLLER_GEN) rbac:roleName=wa8s-manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 	cat hack/boilerplate.yaml.txt > config/wa8s.yaml
 	$(KUSTOMIZE) build config/default >> config/wa8s.yaml
+	cp config/crd/bases/services.wa8s.reconciler.io_serviceclientducks.yaml apis/services/v1alpha1/serviceclientducks.yaml
+	cp config/crd/bases/services.wa8s.reconciler.io_serviceinstanceducks.yaml apis/services/v1alpha1/serviceinstanceducks.yaml
 
 .PHONY: generate
 generate: components ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.

@@ -1,27 +1,81 @@
 ---
 apiVersion: services.wa8s.reconciler.io/v1alpha1
-kind: ServiceLifecycle
+kind: ServiceResourceDefinition
 metadata:
   name: valkey
 spec:
-  ref:
-    kind: Composition
-    name: valkey-lifecycle
-  hostCapabilities:
-    env:
-      vars:
-      - name: RUST_BACKTRACE
-        value: "1"
-    network:
-      inherit: true
-      ipNameLookup: true
-  clientRef:
-    name: valkey-client
+  group: x.services.wa8s.reconciler.io
+  instanceNames:
+    plural: valkeys
+    kind: Valkey
+  clientNames:
+    plural: valkeyclients
+    kind: ValkeyClient
+  lifecycle:
+    ref:
+      kind: Composition
+      name: valkey-lifecycle
+      namespace: wa8s-service-valkey
+    serviceAccountRef:
+      name: default
+      namespace: wa8s-service-valkey
+    hostCapabilities:
+      env:
+        vars:
+        - name: RUST_BACKTRACE
+          value: "1"
+      network:
+        inherit: true
+        ipNameLookup: true
+    clientRef:
+      name: valkey-client
+      namespace: wa8s-service-valkey
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    wa8s.reconciler.io/manager: "true"
+    app.kubernetes.io/name: wa8s
+    app.kubernetes.io/managed-by: kustomize
+  name: wa8s-services-x-valkey
+rules:
+- apiGroups:
+  - x.services.wa8s.reconciler.io
+  resources:
+  - valkeys
+  - valkeyclients
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - x.services.wa8s.reconciler.io
+  resources:
+  - valkeys/status
+  - valkeyclients/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - x.services.wa8s.reconciler.io
+  resources:
+  - valkeys/finalizers
+  - valkeyclients/finalizers
+  verbs:
+  - update
 
 ---
 apiVersion: wa8s.reconciler.io/v1alpha1
 kind: Composition
 metadata:
+  namespace: wa8s-service-valkey
   name: valkey-lifecycle
 spec:
   dependencies:
@@ -37,6 +91,7 @@ spec:
 apiVersion: wa8s.reconciler.io/v1alpha1
 kind: Component
 metadata:
+  namespace: wa8s-service-valkey
   name: valkey-client
 spec:
   oci:

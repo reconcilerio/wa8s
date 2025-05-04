@@ -81,6 +81,24 @@ func TestServiceClientDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestServiceClientDuckStatusDie_MissingMethods(t *testingx.T) {
+	die := ServiceClientDuckStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceClientDuckStatusDie: %s", diff.List())
+	}
+}
+
+func TestServiceClientDuckDie_MissingMethods(t *testingx.T) {
+	die := ServiceClientDuckBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceClientDuckDie: %s", diff.List())
+	}
+}
+
 func TestServiceInstanceReferenceDie_MissingMethods(t *testingx.T) {
 	die := ServiceInstanceReferenceBlank
 	ignore := []string{}
@@ -126,6 +144,33 @@ func TestServiceInstanceDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestServiceInstanceDuckSpecDie_MissingMethods(t *testingx.T) {
+	die := ServiceInstanceDuckSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceInstanceDuckSpecDie: %s", diff.List())
+	}
+}
+
+func TestServiceInstanceDuckStatusDie_MissingMethods(t *testingx.T) {
+	die := ServiceInstanceDuckStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceInstanceDuckStatusDie: %s", diff.List())
+	}
+}
+
+func TestServiceInstanceDuckDie_MissingMethods(t *testingx.T) {
+	die := ServiceInstanceDuckBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceInstanceDuckDie: %s", diff.List())
+	}
+}
+
 func TestServiceLifecycleReferenceDie_MissingMethods(t *testingx.T) {
 	die := ServiceLifecycleReferenceBlank
 	ignore := []string{}
@@ -168,5 +213,41 @@ func TestClusterServiceLifecycleDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ClusterServiceLifecycleDie: %s", diff.List())
+	}
+}
+
+func TestServiceResourceDefinitionSpecDie_MissingMethods(t *testingx.T) {
+	die := ServiceResourceDefinitionSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceResourceDefinitionSpecDie: %s", diff.List())
+	}
+}
+
+func TestServiceResourceDefinitionNamesDie_MissingMethods(t *testingx.T) {
+	die := ServiceResourceDefinitionNamesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceResourceDefinitionNamesDie: %s", diff.List())
+	}
+}
+
+func TestServiceResourceDefinitionStatusDie_MissingMethods(t *testingx.T) {
+	die := ServiceResourceDefinitionStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceResourceDefinitionStatusDie: %s", diff.List())
+	}
+}
+
+func TestServiceResourceDefinitionDie_MissingMethods(t *testingx.T) {
+	die := ServiceResourceDefinitionBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceResourceDefinitionDie: %s", diff.List())
 	}
 }

@@ -28,6 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
+	"reconciler.io/wa8s/internal/defaults"
 	"reconciler.io/wa8s/validation"
 )
 
@@ -98,7 +99,7 @@ func (r *ComponentReference) Default(ctx context.Context) error {
 		r.Kind = "Component"
 	}
 	if r.APIVersion == "" {
-		r.APIVersion = validation.DefaultApiVersionForKind(r.Kind)
+		r.APIVersion = defaults.APIVersionForKind(r.Kind)
 	}
 	if r.Namespace == "" && !strings.HasPrefix(r.Kind, "Cluster") {
 		r.Namespace = validation.RetrieveResource(ctx).GetNamespace()
@@ -241,7 +242,7 @@ func (r *ComponentReference) Validate(ctx context.Context, fldPath *field.Path) 
 		if r.Namespace == "" {
 			// defaulted
 			errs = append(errs, field.Required(fldPath.Child("namespace"), ""))
-		} else if ns := validation.RetrieveResource(ctx).GetNamespace(); ns != "" && r.Namespace != ns {
+		} else if ns := validation.RetrieveResource(ctx).GetNamespace(); ns != "" && ns != r.Namespace && ns != defaults.Namespace() {
 			errs = append(errs, field.Invalid(fldPath.Child("namespace"), r.Namespace, "cross namespace components are not allowed"))
 		}
 	}

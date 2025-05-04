@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package validation
+package defaults
 
 const (
 	// duplicate values to avoid cyclic dependencies
@@ -24,7 +24,7 @@ const (
 	servicesv1alpha1   = "services.wa8s.reconciler.io/v1alpha1"
 )
 
-func DefaultApiVersionForKind(kind string) string {
+func APIVersionForKind(kind string) string {
 	switch kind {
 	case "Component":
 		return componentsv1alpha1

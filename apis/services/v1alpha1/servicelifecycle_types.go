@@ -95,6 +95,16 @@ func (r *ServiceLifecycle) GetStatus() *ServiceLifecycleStatus {
 	return &r.Status
 }
 
+var _ componentsv1alpha1.ComponentLike = (*ServiceLifecycle)(nil)
+
+func (r *ServiceLifecycle) GetGenericComponentSpec() *componentsv1alpha1.GenericComponentSpec {
+	return &r.Spec.GenericComponentSpec
+}
+
+func (r *ServiceLifecycle) GetGenericComponentStatus() *componentsv1alpha1.GenericComponentStatus {
+	return &r.Status.GenericComponentStatus
+}
+
 // +kubebuilder:object:root=true
 
 // ServiceLifecycleList contains a list of ServiceLifecycle
@@ -129,6 +139,16 @@ func (r *ClusterServiceLifecycle) GetSpec() *ServiceLifecycleSpec {
 
 func (r *ClusterServiceLifecycle) GetStatus() *ServiceLifecycleStatus {
 	return &r.Status
+}
+
+var _ componentsv1alpha1.ComponentLike = (*ClusterServiceLifecycle)(nil)
+
+func (r *ClusterServiceLifecycle) GetGenericComponentSpec() *componentsv1alpha1.GenericComponentSpec {
+	return &r.Spec.GenericComponentSpec
+}
+
+func (r *ClusterServiceLifecycle) GetGenericComponentStatus() *componentsv1alpha1.GenericComponentStatus {
+	return &r.Status.GenericComponentStatus
 }
 
 // +kubebuilder:object:root=true

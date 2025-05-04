@@ -162,7 +162,7 @@ func main() {
 	ctx = logr.NewContext(ctx, setupLog)
 	config := reconcilers.NewConfig(mgr, nil, syncPeriod)
 
-	componentDuckBroker, err := duckclient.NewBroker(mgr, schema.GroupKind{Group: "duck.wa8s.reconciler.io", Kind: "ComponentDuck"})
+	componentDuckBroker, err := duckclient.NewBroker(mgr, schema.GroupKind{Group: "wa8s.reconciler.io", Kind: "ComponentDuck"})
 	if err != nil {
 		setupLog.Error(err, "unable to create ComponentDuckBroker")
 		os.Exit(1)
@@ -301,6 +301,15 @@ func main() {
 	}
 	if err = (&servicesv1alpha1.ClusterServiceLifecycle{}).SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "ClusterServiceLifecycle")
+		os.Exit(1)
+	}
+
+	if err := controllers.ServiceResourceDefinitionReconciler(config, mgr).SetupWithManager(ctx, mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ServiceResourceDefinition")
+		os.Exit(1)
+	}
+	if err = (&servicesv1alpha1.ServiceResourceDefinition{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "ServiceResourceDefinition")
 		os.Exit(1)
 	}
 

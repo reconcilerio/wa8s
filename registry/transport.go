@@ -27,6 +27,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"reconciler.io/runtime/reconcilers"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"reconciler.io/wa8s/internal/defaults"
 )
 
 func CustomTransport(ctx context.Context) (http.RoundTripper, error) {
@@ -57,7 +59,7 @@ func CustomTransport(ctx context.Context) (http.RoundTripper, error) {
 
 	tlsSecrets := &corev1.SecretList{}
 	// TODO parameterize the namespace
-	if err := c.List(ctx, tlsSecrets, client.InNamespace("wa8s-system")); err != nil {
+	if err := c.List(ctx, tlsSecrets, client.InNamespace(defaults.Namespace())); err != nil {
 		return nil, err
 	}
 	for _, tlsSecret := range tlsSecrets.Items {
