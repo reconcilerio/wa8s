@@ -363,10 +363,13 @@ jobs:
         echo "##[group]kubectl apply -f examples/valkey-service/prereq/"
           kubectl apply -f examples/valkey-service/prereq/
           kubectl wait deployments.apps/valkey -n wa8s-service-valkey --for condition=available --timeout 1m
+          kubectl wait serviceresourcedefinitions.services.wa8s.reconciler.io/valkey --for condition=ready --timeout 5m
         echo "##[endgroup]"
 
         echo "##[group]kubectl apply -f examples/valkey-service/"
           kubectl apply -f examples/valkey-service/
+          kubectl wait valkeys.x.services.wa8s.reconciler.io/my-valkey --for condition=ready --timeout 5m
+          kubectl wait valkeyclients.x.services.wa8s.reconciler.io/my-valkey --for condition=ready --timeout 5m
           kubectl wait httptrigger.containers.wa8s.reconciler.io/incrementor --for condition=ready --timeout 5m
         echo "##[endgroup]"
 
