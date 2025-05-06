@@ -19,6 +19,16 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
+  groups:
+    wasm-tools:
+      patterns:
+      - wasmparser
+      - wat
+      - wit-component
+    wac:
+      patterns:
+      - wac-graph
+      - wac-parser
 - package-ecosystem: gomod
   directory: "/hack/controller-gen"
   schedule:
