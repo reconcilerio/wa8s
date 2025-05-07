@@ -169,7 +169,7 @@ func main() {
 	}
 	controllers.ComponentDuckBroker = componentDuckBroker
 
-	if err := controllers.ComponentReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.ComponentReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Component")
 		os.Exit(1)
 	}
@@ -178,7 +178,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.ClusterComponentReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.ClusterComponentReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ClusterComponent")
 		os.Exit(1)
 	}
@@ -187,7 +187,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.CompositionReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.CompositionReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Composition")
 		os.Exit(1)
 	}
@@ -196,7 +196,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.RepositoryReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.RepositoryReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Repository")
 		os.Exit(1)
 	}
@@ -205,7 +205,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.ClusterRepositoryReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.ClusterRepositoryReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ClusterRepository")
 		os.Exit(1)
 	}
@@ -214,7 +214,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.ConfigStoreReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.ConfigStoreReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ConfigStore")
 		os.Exit(1)
 	}
@@ -223,7 +223,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.CronTriggerReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.CronTriggerReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CronTrigger")
 		os.Exit(1)
 	}
@@ -232,7 +232,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.HttpTriggerReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.HttpTriggerReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "HttpTrigger")
 		os.Exit(1)
 	}
@@ -241,7 +241,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.WrpcTriggerReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.WrpcTriggerReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "WrpcTrigger")
 		os.Exit(1)
 	}
@@ -250,7 +250,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.WasmtimeContainerReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.WasmtimeContainerReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "WasmtimeContainer")
 		os.Exit(1)
 	}
@@ -259,7 +259,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.ServiceBindingReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.ServiceBindingReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ServiceBinding")
 		os.Exit(1)
 	}
@@ -268,7 +268,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.ServiceClientReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.ServiceClientReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ServiceClient")
 		os.Exit(1)
 	}
@@ -277,7 +277,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.ServiceInstanceReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.ServiceInstanceReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ServiceInstance")
 		os.Exit(1)
 	}
@@ -286,7 +286,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.ServiceLifecycleReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.ServiceLifecycleReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ServiceLifecycle")
 		os.Exit(1)
 	}
@@ -295,7 +295,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.ClusterServiceLifecycleReconciler(config).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.ClusterServiceLifecycleReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ClusterServiceLifecycle")
 		os.Exit(1)
 	}
@@ -304,7 +304,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.ServiceResourceDefinitionReconciler(config, mgr).SetupWithManager(ctx, mgr); err != nil {
+	if err := controllers.ServiceResourceDefinitionReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ServiceResourceDefinition")
 		os.Exit(1)
 	}
@@ -313,7 +313,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	mgr.Add(controllers.ServicesWebhook(mgr, config, ":9080"))
+	mgr.Add(controllers.ServicesWebhook(mgr, config.WithTracker(), ":9080"))
 
 	// +kubebuilder:scaffold:builder
 
