@@ -33,7 +33,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	"reconciler.io/wa8s/registry"
@@ -114,7 +113,7 @@ func CopyComponent() *reconcilers.SyncReconciler[componentsv1alpha1.GenericCompo
 		Setup: func(ctx context.Context, mgr manager.Manager, bldr *builder.TypedBuilder[reconcile.Request]) error {
 			bldr.Watches(&corev1.Secret{}, reconcilers.EnqueueTracked(ctx))
 			bldr.Watches(&corev1.ServiceAccount{}, reconcilers.EnqueueTracked(ctx))
-			bldr.WatchesRawSource(source.Channel(ComponentDuckBroker.Subscribe(ctx), reconcilers.EnqueueTracked(ctx)))
+			bldr.WatchesRawSource(ComponentDuckBroker.TrackedSource(ctx))
 
 			return nil
 		},

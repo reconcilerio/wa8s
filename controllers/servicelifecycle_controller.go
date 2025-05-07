@@ -28,7 +28,6 @@ import (
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
@@ -355,7 +354,7 @@ func HttpTriggerChildReconciler(childLabelKey string) reconcilers.SubReconciler[
 func ClientComponentReconciler() reconcilers.SubReconciler[servicesv1alpha1.GenericServiceLifecycle] {
 	return &reconcilers.SyncReconciler[servicesv1alpha1.GenericServiceLifecycle]{
 		Setup: func(ctx context.Context, mgr controllerruntime.Manager, bldr *builder.Builder) error {
-			bldr.WatchesRawSource(source.Channel(ComponentDuckBroker.Subscribe(ctx), reconcilers.EnqueueTracked(ctx)))
+			bldr.WatchesRawSource(ComponentDuckBroker.TrackedSource(ctx))
 
 			return nil
 		},

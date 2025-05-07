@@ -30,7 +30,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	"reconciler.io/wa8s/components"
@@ -303,7 +302,7 @@ func ResolveDependencies() reconcilers.SubReconciler[*componentsv1alpha1.Composi
 func ResolveDependency() reconcilers.SubReconciler[*componentsv1alpha1.Composition] {
 	return &reconcilers.SyncReconciler[*componentsv1alpha1.Composition]{
 		Setup: func(ctx context.Context, mgr manager.Manager, bldr *builder.TypedBuilder[reconcile.Request]) error {
-			bldr.WatchesRawSource(source.Channel(ComponentDuckBroker.Subscribe(ctx), reconcilers.EnqueueTracked(ctx)))
+			bldr.WatchesRawSource(ComponentDuckBroker.TrackedSource(ctx))
 
 			return nil
 		},

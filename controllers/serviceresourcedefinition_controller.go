@@ -23,7 +23,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-logr/logr"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -31,18 +30,16 @@ import (
 	dieapiextensionsv1 "reconciler.io/dies/apis/apiextensions/v1"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 	duckv1 "reconciler.io/ducks/api/v1"
+	duckreconcilers "reconciler.io/ducks/reconcilers"
 	"reconciler.io/runtime/apis"
 	"reconciler.io/runtime/reconcilers"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	servicesv1alpha1 "reconciler.io/wa8s/apis/services/v1alpha1"
 	"reconciler.io/wa8s/internal/defaults"
-	"reconciler.io/wa8s/internal/submanager"
 )
 
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=serviceresourcedefinitions,verbs=get;list;watch;create;update;patch;delete
@@ -50,7 +47,7 @@ import (
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=serviceresourcedefinitions/finalizers,verbs=update
 // +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
 
-func ServiceResourceDefinitionReconciler(c reconcilers.Config, mgr ctrl.Manager) *reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceResourceDefinition] {
+func ServiceResourceDefinitionReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceResourceDefinition] {
 	return &reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceResourceDefinition]{
 		Reconciler: &reconcilers.SuppressTransientErrors[*servicesv1alpha1.ServiceResourceDefinition, *servicesv1alpha1.ServiceResourceDefinitionList]{
 			Reconciler: &reconcilers.WithFinalizer[*servicesv1alpha1.ServiceResourceDefinition]{
@@ -60,7 +57,7 @@ func ServiceResourceDefinitionReconciler(c reconcilers.Config, mgr ctrl.Manager)
 					ServiceResourceDefinitionInstanceResourceDefintionReconciler(),
 					ServiceResourceDefinitionClientResourceDefintionReconciler(),
 					ServiceResourceDefinitionClientComponentDuckReconciler(),
-					ServiceResourceDefinitionDuckSubReconciler(mgr),
+					ServiceResourceDefinitionDuckSubReconciler(),
 				},
 			},
 		},
@@ -384,90 +381,66 @@ func ServiceResourceDefinitionClientComponentDuckReconciler() reconcilers.SubRec
 	}
 }
 
-type managerEntry struct {
-	done   <-chan error
-	cancel context.CancelFunc
-}
+func ServiceResourceDefinitionDuckSubReconciler() reconcilers.SubReconciler[*servicesv1alpha1.ServiceResourceDefinition] {
+	syncPeriod := 10 * time.Hour
+	return reconcilers.Sequence[*servicesv1alpha1.ServiceResourceDefinition]{
+		&reconcilers.SyncReconciler[*servicesv1alpha1.ServiceResourceDefinition]{
+			Sync: func(ctx context.Context, resource *servicesv1alpha1.ServiceResourceDefinition) error {
+				// require CRDs to be established before continuing
+				if !apis.ConditionIsTrue(resource.GetConditionManager(ctx).GetCondition(servicesv1alpha1.ServiceResourceDefinitionConditionInstanceDefinitionReady)) {
+					return ErrUpdateStatusBeforeContinuingReconcile
+				}
+				if !apis.ConditionIsTrue(resource.GetConditionManager(ctx).GetCondition(servicesv1alpha1.ServiceResourceDefinitionConditionClientDefinitionReady)) {
+					return ErrUpdateStatusBeforeContinuingReconcile
+				}
 
-func ServiceResourceDefinitionDuckSubReconciler(mgr ctrl.Manager) reconcilers.SubReconciler[*servicesv1alpha1.ServiceResourceDefinition] {
-	managers := map[string]managerEntry{}
+				return nil
+			},
+		},
+		&duckreconcilers.SubManagerReconciler[*servicesv1alpha1.ServiceResourceDefinition]{
+			SyncPeriod:      &syncPeriod,
+			AssertFinalizer: fmt.Sprintf("%s/reconciler", servicesv1alpha1.GroupVersion.Group),
+			LocalTypes: func(ctx context.Context, resource *servicesv1alpha1.ServiceResourceDefinition) ([]schema.GroupKind, error) {
+				return []schema.GroupKind{
+					{Group: resource.Spec.Group, Kind: resource.Spec.InstanceNames.Kind},
+					{Group: resource.Spec.Group, Kind: fmt.Sprintf("%sList", resource.Spec.InstanceNames.Kind)},
+					{Group: resource.Spec.Group, Kind: resource.Spec.ClientNames.Kind},
+					{Group: resource.Spec.Group, Kind: fmt.Sprintf("%sList", resource.Spec.ClientNames.Kind)},
+				}, nil
+			},
+			SetupWithSubManager: func(ctx context.Context, mgr ctrl.Manager, resource *servicesv1alpha1.ServiceResourceDefinition) error {
+				config := reconcilers.NewConfig(mgr, nil, syncPeriod)
 
-	return &reconcilers.SyncReconciler[*servicesv1alpha1.ServiceResourceDefinition]{
-		Sync: func(ctx context.Context, resource *servicesv1alpha1.ServiceResourceDefinition) error {
-			if _, ok := managers[resource.Name]; ok {
-				// already running
+				instanceTypeMeta := metav1.TypeMeta{
+					APIVersion: schema.GroupVersion{Group: resource.Spec.Group, Version: "v1alpha1"}.String(),
+					Kind:       resource.Spec.InstanceNames.Kind,
+				}
+				if err := ServiceInstanceDuckReconciler(config.WithTracker(), instanceTypeMeta, resource.Name).SetupWithManager(ctx, mgr); err != nil {
+					return err
+				}
+
+				clientTypeMeta := metav1.TypeMeta{
+					APIVersion: schema.GroupVersion{Group: resource.Spec.Group, Version: "v1alpha1"}.String(),
+					Kind:       resource.Spec.ClientNames.Kind,
+				}
+				if err := ServiceClientDuckReconciler(config.WithTracker(), clientTypeMeta, resource.Name).SetupWithManager(ctx, mgr); err != nil {
+					return err
+				}
+
+				return nil
+			},
+		},
+		&reconcilers.SyncReconciler[*servicesv1alpha1.ServiceResourceDefinition]{
+			Sync: func(ctx context.Context, resource *servicesv1alpha1.ServiceResourceDefinition) error {
 				resource.GetConditionManager(ctx).MarkTrue(servicesv1alpha1.ServiceResourceDefinitionConditionReconcilerRunning, "Running", "")
 
 				return nil
-			}
+			},
+			Finalize: func(ctx context.Context, resource *servicesv1alpha1.ServiceResourceDefinition) error {
+				resource.GetConditionManager(ctx).MarkTrue(servicesv1alpha1.ServiceResourceDefinitionConditionReconcilerRunning, "Shutdown", "")
 
-			// require CRDs to be established before continuing
-			if !apis.ConditionIsTrue(resource.GetConditionManager(ctx).GetCondition(servicesv1alpha1.ServiceResourceDefinitionConditionInstanceDefinitionReady)) {
-				return ErrUpdateStatusBeforeContinuingReconcile
-			}
-			if !apis.ConditionIsTrue(resource.GetConditionManager(ctx).GetCondition(servicesv1alpha1.ServiceResourceDefinitionConditionClientDefinitionReady)) {
-				return ErrUpdateStatusBeforeContinuingReconcile
-			}
-
-			syncPeriod := 10 * time.Hour
-			mgr, err := submanager.New(mgr,
-				manager.Options{
-					Cache: cache.Options{
-						SyncPeriod: &syncPeriod,
-					},
-				},
-				schema.GroupKind{Group: resource.Spec.Group, Kind: resource.Spec.InstanceNames.Kind},
-				schema.GroupKind{Group: resource.Spec.Group, Kind: fmt.Sprintf("%sList", resource.Spec.InstanceNames.Kind)},
-				schema.GroupKind{Group: resource.Spec.Group, Kind: resource.Spec.ClientNames.Kind},
-				schema.GroupKind{Group: resource.Spec.Group, Kind: fmt.Sprintf("%sList", resource.Spec.ClientNames.Kind)},
-			)
-			if err != nil {
-				return err
-			}
-
-			config := reconcilers.NewConfig(mgr, nil, syncPeriod)
-
-			instanceTypeMeta := metav1.TypeMeta{
-				APIVersion: schema.GroupVersion{Group: resource.Spec.Group, Version: "v1alpha1"}.String(),
-				Kind:       resource.Spec.InstanceNames.Kind,
-			}
-			if err := ServiceInstanceDuckReconciler(config, instanceTypeMeta, resource.Name).SetupWithManager(ctx, mgr); err != nil {
-				return err
-			}
-
-			clientTypeMeta := metav1.TypeMeta{
-				APIVersion: schema.GroupVersion{Group: resource.Spec.Group, Version: "v1alpha1"}.String(),
-				Kind:       resource.Spec.ClientNames.Kind,
-			}
-			if err := ServiceClientDuckReconciler(config, clientTypeMeta, resource.Name).SetupWithManager(ctx, mgr); err != nil {
-				return err
-			}
-
-			ctx, cancel := context.WithCancel(ctx)
-			ctx = logr.NewContext(ctx, ctrl.Log.WithName("ServiceDuckManager").WithValues("duck", resource.Name))
-			done := make(chan error)
-			managers[resource.Name] = managerEntry{done, cancel}
-			go func(ctx context.Context, mgr ctrl.Manager, name string) {
-				err := mgr.Start(ctx)
-				done <- err
-			}(ctx, mgr, resource.Name)
-
-			resource.GetConditionManager(ctx).MarkTrue(servicesv1alpha1.ServiceResourceDefinitionConditionReconcilerRunning, "Running", "")
-
-			return nil
-		},
-		Finalize: func(ctx context.Context, resource *servicesv1alpha1.ServiceResourceDefinition) error {
-			manager, ok := managers[resource.Name]
-			if ok {
-				manager.cancel()
-				// block until shutdown is complete
-				if err := <-manager.done; err != nil {
-					logr.FromContextOrDiscard(ctx).Error(err, "problem running submanager")
-				}
-				delete(managers, resource.Name)
-			}
-
-			return nil
+				return nil
+			},
 		},
 	}
 }

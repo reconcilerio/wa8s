@@ -43,7 +43,7 @@ import (
 	duckclient "reconciler.io/ducks/client"
 )
 
-var ComponentDuckBroker *duckclient.Broker
+var ComponentDuckBroker duckclient.Broker
 var ErrNotComponent = errors.New("referenced apiVersion kind is not a component")
 
 // +kubebuilder:rbac:groups=duck.reconciler.io,resources=ducktypes,verbs=get;list;watch
