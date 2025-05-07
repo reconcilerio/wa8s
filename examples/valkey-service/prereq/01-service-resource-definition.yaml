@@ -1,0 +1,98 @@
+---
+apiVersion: services.wa8s.reconciler.io/v1alpha1
+kind: ServiceResourceDefinition
+metadata:
+  name: valkey
+spec:
+  group: x.services.wa8s.reconciler.io
+  instanceNames:
+    plural: valkeys
+    kind: Valkey
+  clientNames:
+    plural: valkeyclients
+    kind: ValkeyClient
+  lifecycle:
+    ref:
+      kind: Composition
+      name: valkey-lifecycle
+      namespace: wa8s-service-valkey
+    serviceAccountRef:
+      name: default
+      namespace: wa8s-service-valkey
+    hostCapabilities:
+      env:
+        vars:
+        - name: RUST_BACKTRACE
+          value: "1"
+      network:
+        inherit: true
+        ipNameLookup: true
+    clientRef:
+      name: valkey-client
+      namespace: wa8s-service-valkey
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    wa8s.reconciler.io/manager: "true"
+    app.kubernetes.io/name: wa8s
+    app.kubernetes.io/managed-by: kustomize
+  name: wa8s-services-x-valkey
+rules:
+- apiGroups:
+  - x.services.wa8s.reconciler.io
+  resources:
+  - valkeys
+  - valkeyclients
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - x.services.wa8s.reconciler.io
+  resources:
+  - valkeys/status
+  - valkeyclients/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - x.services.wa8s.reconciler.io
+  resources:
+  - valkeys/finalizers
+  - valkeyclients/finalizers
+  verbs:
+  - update
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: Composition
+metadata:
+  namespace: wa8s-service-valkey
+  name: valkey-lifecycle
+spec:
+  dependencies:
+  - component: componentized:lifecycle
+    oci:
+      image: ghcr.io/componentized/services/valkey-lifecycle:v0.0.3@sha256:19996510d22d3ea2c98f9185726c9a3ea04e54862cd69b8298eb4fee2b729d3a
+  - component: componentized:config
+    config:
+      valuesFrom:
+      - name: valkey
+
+---
+apiVersion: wa8s.reconciler.io/v1alpha1
+kind: Component
+metadata:
+  namespace: wa8s-service-valkey
+  name: valkey-client
+spec:
+  oci:
+    image: ghcr.io/componentized/valkey/valkey-client:v0.1.1@sha256:7b25f9c2074ea30afbb205b2c7a55693951ba83f183ef5d35b18f561abba2a05

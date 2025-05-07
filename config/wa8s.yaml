@@ -2908,6 +2908,317 @@ metadata:
   annotations:
     cert-manager.io/inject-ca-from: wa8s-system/serving-cert
     controller-gen.kubebuilder.io/version: v0.17.3
+  name: serviceresourcedefinitions.services.wa8s.reconciler.io
+spec:
+  group: services.wa8s.reconciler.io
+  names:
+    categories:
+    - wa8s
+    - wa8s-services
+    kind: ServiceResourceDefinition
+    listKind: ServiceResourceDefinitionList
+    plural: serviceresourcedefinitions
+    singular: serviceresourcedefinition
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ServiceResourceDefinition is the Schema for the ServiceResourceDefinitions
+          API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ServiceResourceDefinitionSpec defines the desired state of
+              ServiceResourceDefinition
+            properties:
+              clientNames:
+                description: |-
+                  ServiceResourceDefinitionNames indicates the names to serve this service as a CustomResourceDefinition.
+
+                  Derived from CustomResourceDefinitionNames
+                properties:
+                  categories:
+                    description: |-
+                      categories is a list of grouped resources this custom resource belongs to (e.g. 'all').
+                      This is published in API discovery documents, and used by clients to support invocations like
+                      `kubectl get all`. `wa8s` and `wa8s-services` are added by default.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  kind:
+                    description: |-
+                      kind is the serialized kind of the resource. It is normally CamelCase and singular.
+                      Custom resource instances will use this value as the `kind` attribute in API calls.
+                    type: string
+                  plural:
+                    description: |-
+                      plural is the plural name of the resource to serve.
+                      The custom resources are served under `/apis/<group>/<version>/.../<plural>`.
+                      Must be all lowercase.
+                    type: string
+                  shortNames:
+                    description: |-
+                      shortNames are short names for the resource, exposed in API discovery documents,
+                      and used by clients to support invocations like `kubectl get <shortname>`.
+                      It must be all lowercase.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
+                required:
+                - kind
+                - plural
+                type: object
+              group:
+                type: string
+              instanceNames:
+                description: |-
+                  ServiceResourceDefinitionNames indicates the names to serve this service as a CustomResourceDefinition.
+
+                  Derived from CustomResourceDefinitionNames
+                properties:
+                  categories:
+                    description: |-
+                      categories is a list of grouped resources this custom resource belongs to (e.g. 'all').
+                      This is published in API discovery documents, and used by clients to support invocations like
+                      `kubectl get all`. `wa8s` and `wa8s-services` are added by default.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  kind:
+                    description: |-
+                      kind is the serialized kind of the resource. It is normally CamelCase and singular.
+                      Custom resource instances will use this value as the `kind` attribute in API calls.
+                    type: string
+                  plural:
+                    description: |-
+                      plural is the plural name of the resource to serve.
+                      The custom resources are served under `/apis/<group>/<version>/.../<plural>`.
+                      Must be all lowercase.
+                    type: string
+                  shortNames:
+                    description: |-
+                      shortNames are short names for the resource, exposed in API discovery documents,
+                      and used by clients to support invocations like `kubectl get <shortname>`.
+                      It must be all lowercase.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
+                required:
+                - kind
+                - plural
+                type: object
+              lifecycle:
+                description: ServiceLifecycleSpec defines the desired state of ServiceLifecycle
+                properties:
+                  clientRef:
+                    properties:
+                      apiVersion:
+                        type: string
+                      kind:
+                        type: string
+                      name:
+                        type: string
+                      namespace:
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  hostCapabilities:
+                    properties:
+                      config:
+                        properties:
+                          vars:
+                            items:
+                              properties:
+                                name:
+                                  type: string
+                                value:
+                                  type: string
+                              required:
+                              - name
+                              - value
+                              type: object
+                            type: array
+                        type: object
+                      env:
+                        properties:
+                          inherit:
+                            type: boolean
+                          vars:
+                            items:
+                              properties:
+                                name:
+                                  type: string
+                                value:
+                                  type: string
+                              required:
+                              - name
+                              type: object
+                            type: array
+                        type: object
+                      network:
+                        properties:
+                          inherit:
+                            type: boolean
+                          ipNameLookup:
+                            type: boolean
+                        type: object
+                    type: object
+                  ref:
+                    description: Ref references the component to convert to an image
+                    properties:
+                      apiVersion:
+                        type: string
+                      kind:
+                        type: string
+                      name:
+                        type: string
+                      namespace:
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  repositoryRef:
+                    properties:
+                      kind:
+                        type: string
+                      name:
+                        type: string
+                    type: object
+                  serviceAccountRef:
+                    description: ServiceAccountRef references the service account
+                      holding image pull secrets for the image
+                    properties:
+                      name:
+                        type: string
+                      namespace:
+                        description: Namespace containing the ServiceAccount, only
+                          allowed for ClusterRepository resources
+                        type: string
+                    required:
+                    - name
+                    type: object
+                required:
+                - clientRef
+                type: object
+            required:
+            - clientNames
+            - group
+            - instanceNames
+            - lifecycle
+            type: object
+          status:
+            description: ServiceResourceDefinitionStatus defines the observed state
+              of ServiceResourceDefinition
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the 'Generation' of the resource that
+                  was last processed by the controller.
+                format: int64
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: wa8s-system/serving-cert
+    controller-gen.kubebuilder.io/version: v0.17.3
   name: wasmtimecontainers.containers.wa8s.reconciler.io
 spec:
   group: containers.wa8s.reconciler.io
@@ -3414,55 +3725,19 @@ rules:
   - create
   - patch
 ---
+aggregationRule:
+  clusterRoleSelectors:
+  - matchExpressions:
+    - key: wa8s.reconciler.io/manager
+      operator: Exists
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: wa8s
-  name: wa8s-component-editor-role
-rules:
-- apiGroups:
-  - wa8s.reconciler.io
-  resources:
-  - components
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - wa8s.reconciler.io
-  resources:
-  - components/status
-  verbs:
-  - get
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  labels:
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/name: wa8s
-  name: wa8s-component-viewer-role
-rules:
-- apiGroups:
-  - wa8s.reconciler.io
-  resources:
-  - components
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - wa8s.reconciler.io
-  resources:
-  - components/status
-  verbs:
-  - get
+  name: wa8s-manager-aggregate-role
+rules: []
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -3498,6 +3773,18 @@ rules:
   - secrets/finalizers
   verbs:
   - update
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
 - apiGroups:
   - apps
   resources:
@@ -3566,14 +3853,6 @@ rules:
   - list
   - watch
 - apiGroups:
-  - duck.wa8s.reconciler.io
-  resources:
-  - componentducks
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
   - registries.wa8s.reconciler.io
   resources:
   - clusterrepositories
@@ -3610,6 +3889,7 @@ rules:
   - serviceclients
   - serviceinstances
   - servicelifecycles
+  - serviceresourcedefinitions
   verbs:
   - create
   - delete
@@ -3626,6 +3906,7 @@ rules:
   - serviceclients/finalizers
   - serviceinstances/finalizers
   - servicelifecycles/finalizers
+  - serviceresourcedefinitions/finalizers
   verbs:
   - update
 - apiGroups:
@@ -3636,6 +3917,7 @@ rules:
   - serviceclients/status
   - serviceinstances/status
   - servicelifecycles/status
+  - serviceresourcedefinitions/status
   verbs:
   - get
   - patch
@@ -3644,6 +3926,7 @@ rules:
   - wa8s.reconciler.io
   resources:
   - clustercomponents
+  - componentducks
   - components
   - compositions
   - configstores
@@ -3725,6 +4008,22 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: controller-manager
+  namespace: wa8s-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: wa8s
+  name: wa8s-manager-aggregate-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: wa8s-manager-aggregate-role
 subjects:
 - kind: ServiceAccount
   name: controller-manager
@@ -3831,6 +4130,11 @@ spec:
       - args:
         - --leader-elect
         - --health-probe-bind-address=:8081
+        env:
+        - name: WA8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         image: ko://reconciler.io/wa8s/cmd
         livenessProbe:
           httpGet:
@@ -3954,102 +4258,12 @@ spec:
 apiVersion: duck.reconciler.io/v1
 kind: DuckType
 metadata:
-  name: componentducks.duck.wa8s.reconciler.io
+  name: componentducks.wa8s.reconciler.io
   namespace: wa8s-system
 spec:
-  group: duck.wa8s.reconciler.io
+  group: wa8s.reconciler.io
   kind: ComponentDuck
   plural: componentducks
----
-apiVersion: duck.wa8s.reconciler.io/v1
-kind: ComponentDuck
-metadata:
-  name: clustercomponents.wa8s.reconciler.io
-  namespace: wa8s-system
-spec:
-  group: wa8s.reconciler.io
-  kind: ClusterComponent
-  version: v1alpha1
----
-apiVersion: duck.wa8s.reconciler.io/v1
-kind: ComponentDuck
-metadata:
-  name: clusterservicelifecycles.services.wa8s.reconciler.io
-  namespace: wa8s-system
-spec:
-  group: services.wa8s.reconciler.io
-  kind: ClusterServiceLifecycle
-  version: v1alpha1
----
-apiVersion: duck.wa8s.reconciler.io/v1
-kind: ComponentDuck
-metadata:
-  name: components.wa8s.reconciler.io
-  namespace: wa8s-system
-spec:
-  group: wa8s.reconciler.io
-  kind: Component
-  version: v1alpha1
----
-apiVersion: duck.wa8s.reconciler.io/v1
-kind: ComponentDuck
-metadata:
-  name: compositions.wa8s.reconciler.io
-  namespace: wa8s-system
-spec:
-  group: wa8s.reconciler.io
-  kind: Composition
-  version: v1alpha1
----
-apiVersion: duck.wa8s.reconciler.io/v1
-kind: ComponentDuck
-metadata:
-  name: configstores.wa8s.reconciler.io
-  namespace: wa8s-system
-spec:
-  group: wa8s.reconciler.io
-  kind: ConfigStore
-  version: v1alpha1
----
-apiVersion: duck.wa8s.reconciler.io/v1
-kind: ComponentDuck
-metadata:
-  name: servicebindings.services.wa8s.reconciler.io
-  namespace: wa8s-system
-spec:
-  group: services.wa8s.reconciler.io
-  kind: ServiceBinding
-  version: v1alpha1
----
-apiVersion: duck.wa8s.reconciler.io/v1
-kind: ComponentDuck
-metadata:
-  name: serviceclients.services.wa8s.reconciler.io
-  namespace: wa8s-system
-spec:
-  group: services.wa8s.reconciler.io
-  kind: ServiceClient
-  version: v1alpha1
----
-apiVersion: duck.wa8s.reconciler.io/v1
-kind: ComponentDuck
-metadata:
-  name: serviceinstances.services.wa8s.reconciler.io
-  namespace: wa8s-system
-spec:
-  group: services.wa8s.reconciler.io
-  kind: ServiceInstance
-  version: v1alpha1
----
-apiVersion: duck.wa8s.reconciler.io/v1
-kind: ComponentDuck
-metadata:
-  name: servicelifecycles.services.wa8s.reconciler.io
-  namespace: wa8s-system
-spec:
-  group: services.wa8s.reconciler.io
-  kind: ServiceLifecycle
-  version: v1alpha1
 ---
 apiVersion: registries.wa8s.reconciler.io/v1alpha1
 kind: ClusterRepository
@@ -4059,6 +4273,96 @@ metadata:
 spec:
   template: registry.wa8s-system.svc.cluster.local/{{ .Kind }}/{{ .UID }}:{{ .ResourceVersion
     }}
+---
+apiVersion: wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: clustercomponents.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: wa8s.reconciler.io
+  kind: ClusterComponent
+  version: v1alpha1
+---
+apiVersion: wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: clusterservicelifecycles.services.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: services.wa8s.reconciler.io
+  kind: ClusterServiceLifecycle
+  version: v1alpha1
+---
+apiVersion: wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: components.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: wa8s.reconciler.io
+  kind: Component
+  version: v1alpha1
+---
+apiVersion: wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: compositions.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: wa8s.reconciler.io
+  kind: Composition
+  version: v1alpha1
+---
+apiVersion: wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: configstores.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: wa8s.reconciler.io
+  kind: ConfigStore
+  version: v1alpha1
+---
+apiVersion: wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: servicebindings.services.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: services.wa8s.reconciler.io
+  kind: ServiceBinding
+  version: v1alpha1
+---
+apiVersion: wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: serviceclients.services.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: services.wa8s.reconciler.io
+  kind: ServiceClient
+  version: v1alpha1
+---
+apiVersion: wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: serviceinstances.services.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: services.wa8s.reconciler.io
+  kind: ServiceInstance
+  version: v1alpha1
+---
+apiVersion: wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: servicelifecycles.services.wa8s.reconciler.io
+  namespace: wa8s-system
+spec:
+  group: services.wa8s.reconciler.io
+  kind: ServiceLifecycle
+  version: v1alpha1
 ---
 apiVersion: wa8s.reconciler.io/v1alpha1
 kind: ClusterComponent
@@ -4483,4 +4787,25 @@ webhooks:
     - UPDATE
     resources:
     - servicelifecycles
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: wa8s-system
+      path: /validate-services-wa8s-reconciler-io-v1alpha1-serviceresourcedefinition
+  failurePolicy: Fail
+  name: v1alpha1.serviceresourcedefinitions.services.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - services.wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - serviceresourcedefinitions
   sideEffects: None

@@ -60,8 +60,13 @@ spec:
       - name: manager
         image: ko://reconciler.io/wa8s/cmd
         args:
-          - --leader-elect
-          - --health-probe-bind-address=:8081
+        - --leader-elect
+        - --health-probe-bind-address=:8081
+        env:
+        - name: WA8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:

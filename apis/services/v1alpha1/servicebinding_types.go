@@ -68,6 +68,16 @@ type ServiceBinding struct {
 	Status ServiceBindingStatus `json:"status,omitempty"`
 }
 
+var _ componentsv1alpha1.ComponentLike = (*ServiceBinding)(nil)
+
+func (r *ServiceBinding) GetGenericComponentSpec() *componentsv1alpha1.GenericComponentSpec {
+	return nil
+}
+
+func (r *ServiceBinding) GetGenericComponentStatus() *componentsv1alpha1.GenericComponentStatus {
+	return &r.Status.GenericComponentStatus
+}
+
 // +kubebuilder:object:root=true
 
 // ServiceBindingList contains a list of ServiceBinding

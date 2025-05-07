@@ -321,3 +321,24 @@ webhooks:
     resources:
     - servicelifecycles
   sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-services-wa8s-reconciler-io-v1alpha1-serviceresourcedefinition
+  failurePolicy: Fail
+  name: v1alpha1.serviceresourcedefinitions.services.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - services.wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - serviceresourcedefinitions
+  sideEffects: None

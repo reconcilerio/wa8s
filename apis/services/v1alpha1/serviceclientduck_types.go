@@ -17,31 +17,22 @@ limitations under the License.
 package v1alpha1
 
 import (
+	_ "embed"
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	dieapiextensionsv1 "reconciler.io/dies/apis/apiextensions/v1"
 	"reconciler.io/runtime/apis"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 )
 
 // +die
-// +die:field:name=Ref,die=ServiceInstanceReferenceDie
-
-// ServiceClientSpec defines the desired state of ServiceClient
-type ServiceClientSpec struct {
-	Ref                   ServiceInstanceReference `json:"ref"`
-	Scopes                []string                 `json:"scopes,omitempty"`
-	Duration              metav1.Duration          `json:"duration,omitempty"`
-	RenewBefore           metav1.Duration          `json:"renewBefore,omitempty"`
-	RenewBeforePercentage int32                    `json:"renewBeforePercentage,omitempty"`
-}
-
-// +die
 // +die:field:name=GenericComponentStatus,die=GenericComponentStatusDie,package=reconciler.io/wa8s/apis/components/v1alpha1
 // +die:field:name=Binding,die=LocalObjectReferenceDie,package=_/core/v1
 
 // ServiceClientStatus defines the observed state of ServiceClient
-type ServiceClientStatus struct {
+type ServiceClientDuckStatus struct {
 	apis.Status                               `json:",inline"`
 	componentsv1alpha1.GenericComponentStatus `json:",inline"`
 
@@ -60,36 +51,40 @@ type ServiceClientStatus struct {
 // +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
 // +kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
-// +die:object=true
+// +die:object=true,spec=ServiceClientSpecDie,status=ServiceClientStatusDie
 
-// ServiceClient is the Schema for the ServiceClients API
-type ServiceClient struct {
+// ServiceClientDuck is the Schema for the ServiceClientDucks API
+type ServiceClientDuck struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ServiceClientSpec   `json:"spec,omitempty"`
-	Status ServiceClientStatus `json:"status,omitempty"`
+	Spec   ServiceClientSpec       `json:"spec,omitempty"`
+	Status ServiceClientDuckStatus `json:"status,omitempty"`
 }
 
-var _ componentsv1alpha1.ComponentLike = (*ServiceClient)(nil)
+var _ componentsv1alpha1.ComponentLike = (*ServiceClientDuck)(nil)
 
-func (r *ServiceClient) GetGenericComponentSpec() *componentsv1alpha1.GenericComponentSpec {
+func (r *ServiceClientDuck) GetGenericComponentSpec() *componentsv1alpha1.GenericComponentSpec {
 	return nil
 }
 
-func (r *ServiceClient) GetGenericComponentStatus() *componentsv1alpha1.GenericComponentStatus {
+func (r *ServiceClientDuck) GetGenericComponentStatus() *componentsv1alpha1.GenericComponentStatus {
 	return &r.Status.GenericComponentStatus
 }
 
 // +kubebuilder:object:root=true
 
-// ServiceClientList contains a list of ServiceClient
-type ServiceClientList struct {
+// ServiceClientDuckList contains a list of ServiceClientDuck
+type ServiceClientDuckList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []ServiceClient `json:"items"`
+	Items           []ServiceClientDuck `json:"items"`
 }
 
+//go:embed serviceclientducks.yaml
+var serviceClientDuckCRD []byte
+var ServiceClientDuckCRD *dieapiextensionsv1.CustomResourceDefinitionDie
+
 func init() {
-	SchemeBuilder.Register(&ServiceClient{}, &ServiceClientList{})
+	ServiceClientDuckCRD = dieapiextensionsv1.CustomResourceDefinitionBlank.DieFeedYAML(serviceClientDuckCRD)
 }

@@ -1,10 +1,7 @@
 ---
-apiVersion: services.wa8s.reconciler.io/v1alpha1
-kind: ServiceInstance
+apiVersion: x.services.wa8s.reconciler.io/v1alpha1
+kind: Valkey
 metadata:
   name: my-valkey
 spec:
-  ref:
-    kind: ServiceLifecycle
-    name: valkey
   type: valkey

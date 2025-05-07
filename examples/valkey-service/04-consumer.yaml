@@ -23,8 +23,8 @@ spec:
       image: ghcr.io/componentized/valkey/sample-http-incrementor:v0.1.1@sha256:9eb9ae66f633013e5e459ae89449cc49c4f1b0bccd5cdce810a8c7a5d7aaf39a
   - component: componentized:valkey-client
     ref:
-      apiVersion: services.wa8s.reconciler.io/v1alpha1
-      kind: ServiceClient
+      apiVersion: x.services.wa8s.reconciler.io/v1alpha1
+      kind: ValkeyClient
       name: my-valkey
   - component: componentized:logging
     ref:

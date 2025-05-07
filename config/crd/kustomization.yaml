@@ -17,6 +17,7 @@ resources:
 - bases/services.wa8s.reconciler.io_serviceclients.yaml
 - bases/services.wa8s.reconciler.io_serviceinstances.yaml
 - bases/services.wa8s.reconciler.io_servicelifecycles.yaml
+- bases/services.wa8s.reconciler.io_serviceresourcedefinitions.yaml
 - ducks.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
@@ -40,6 +41,7 @@ patches:
 - path: patches/cainjection_in_serviceclients.yaml
 - path: patches/cainjection_in_serviceinstances.yaml
 - path: patches/cainjection_in_servicelifecycles.yaml
+- path: patches/cainjection_in_serviceresourcedefinitions.yaml
 - path: patches/cainjection_in_wasmtimecontainers.yaml
 - path: patches/cainjection_in_wrpctriggers.yaml
 # +kubebuilder:scaffold:crdkustomizecainjectionpatch

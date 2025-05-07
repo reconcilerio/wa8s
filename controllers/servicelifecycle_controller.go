@@ -33,6 +33,7 @@ import (
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
 	servicesv1alpha1 "reconciler.io/wa8s/apis/services/v1alpha1"
+	"reconciler.io/wa8s/internal/defaults"
 )
 
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=servicelifecycles,verbs=get;list;watch;create;update;patch;delete
@@ -149,7 +150,7 @@ func CheckForInstancesBeforeFinalizing() reconcilers.SubReconciler[servicesv1alp
 func ServiceLifecycleCompositionChildReconciler(childLabelKey string) reconcilers.SubReconciler[servicesv1alpha1.GenericServiceLifecycle] {
 	return &reconcilers.ChildReconciler[servicesv1alpha1.GenericServiceLifecycle, *componentsv1alpha1.Composition, *componentsv1alpha1.CompositionList]{
 		DesiredChild: func(ctx context.Context, resource servicesv1alpha1.GenericServiceLifecycle) (*componentsv1alpha1.Composition, error) {
-			return &componentsv1alpha1.Composition{
+			child := &componentsv1alpha1.Composition{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace:    resource.GetNamespace(),
 					GenerateName: fmt.Sprintf("%s-", resource.GetName()),
@@ -198,7 +199,13 @@ func ServiceLifecycleCompositionChildReconciler(childLabelKey string) reconciler
 						},
 					},
 				},
-			}, nil
+			}
+
+			if child.Namespace == "" { // TODO parameterize
+				child.Namespace = defaults.Namespace()
+			}
+
+			return child, nil
 		},
 		ChildObjectManager: &reconcilers.UpdatingObjectManager[*componentsv1alpha1.Composition]{
 			MergeBeforeUpdate: func(current, desired *componentsv1alpha1.Composition) {
@@ -258,7 +265,7 @@ func ServiceLifecycleCompositionChildReconciler(childLabelKey string) reconciler
 func HttpTriggerChildReconciler(childLabelKey string) reconcilers.SubReconciler[servicesv1alpha1.GenericServiceLifecycle] {
 	return &reconcilers.ChildReconciler[servicesv1alpha1.GenericServiceLifecycle, *containersv1alpha1.HttpTrigger, *containersv1alpha1.HttpTriggerList]{
 		DesiredChild: func(ctx context.Context, resource servicesv1alpha1.GenericServiceLifecycle) (*containersv1alpha1.HttpTrigger, error) {
-			return &containersv1alpha1.HttpTrigger{
+			child := &containersv1alpha1.HttpTrigger{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: resource.GetNamespace(),
 					Name:      fmt.Sprintf("%s-lifecycle", resource.GetName()),
@@ -280,7 +287,14 @@ func HttpTriggerChildReconciler(childLabelKey string) reconcilers.SubReconciler[
 						HostCapabilities:  resource.GetSpec().HostCapabilities,
 					},
 				},
-			}, nil
+			}
+
+			if child.Namespace == "" {
+				// TODO parameterize
+				child.Namespace = defaults.Namespace()
+			}
+
+			return child, nil
 		},
 		ChildObjectManager: &reconcilers.UpdatingObjectManager[*containersv1alpha1.HttpTrigger]{
 			MergeBeforeUpdate: func(current, desired *containersv1alpha1.HttpTrigger) {

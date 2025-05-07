@@ -25,6 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
+	"reconciler.io/wa8s/internal/defaults"
 	"reconciler.io/wa8s/validation"
 )
 
@@ -67,7 +68,7 @@ func (r *ClusterRepository) Default(ctx context.Context, obj runtime.Object) err
 
 	if r.Spec.ServiceAccountRef.Namespace == "" {
 		// TODO parameterize
-		r.Spec.ServiceAccountRef.Namespace = "wa8s-system"
+		r.Spec.ServiceAccountRef.Namespace = defaults.Namespace()
 	}
 	if err := r.Spec.Default(ctx); err != nil {
 		return err
@@ -213,7 +214,7 @@ func (r *ServiceAccountReference) Validate(ctx context.Context, fldPath *field.P
 	if r.Namespace == "" {
 		// defaulted
 		errs = append(errs, field.Required(fldPath.Child("namespace"), ""))
-	} else if ns := validation.RetrieveResource(ctx).GetNamespace(); ns != "" && r.Namespace != ns {
+	} else if ns := validation.RetrieveResource(ctx).GetNamespace(); ns != "" && ns != r.Namespace && ns != defaults.Namespace() {
 		errs = append(errs, field.Invalid(fldPath.Child("namespace"), r.Namespace, "cross namespace service accounts are not allowed"))
 	}
 	if r.Name == "" {
