@@ -1,8 +1,10 @@
 module reconciler.io/wa8s/hack/kapp
 
-go 1.23.7
+go 1.23.8
 
-require carvel.dev/kapp v0.64.1
+toolchain go1.24.1
+
+require carvel.dev/kapp v0.64.2
 
 require (
 	carvel.dev/vendir v0.40.0 // indirect
