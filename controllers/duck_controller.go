@@ -28,19 +28,18 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"reconciler.io/runtime/apis"
+	duckclient "reconciler.io/ducks/client"
 	"reconciler.io/runtime/reconcilers"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	"reconciler.io/wa8s/apis"
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
 	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 	"reconciler.io/wa8s/registry"
-
-	duckclient "reconciler.io/ducks/client"
 )
 
 var ComponentDuckBroker duckclient.Broker
@@ -186,10 +185,19 @@ func ComponentChildReconciler[GC componentsv1alpha1.ComponentLike](conditionType
 	return &reconcilers.CastResource[GC, componentsv1alpha1.ComponentLike]{
 		Reconciler: &reconcilers.ChildReconciler[componentsv1alpha1.ComponentLike, *componentsv1alpha1.Component, *componentsv1alpha1.ComponentList]{
 			DesiredChild: func(ctx context.Context, resource componentsv1alpha1.ComponentLike) (*componentsv1alpha1.Component, error) {
+				if !ChildComponentShouldExist(ctx, resource) {
+					return nil, nil
+				}
+
 				c := reconcilers.RetrieveConfigOrDie(ctx)
 				gvk, err := c.GroupVersionKindFor(resource)
 				if err != nil {
 					return nil, err
+				}
+
+				componentSpec := resource.GetGenericComponentSpec()
+				if componentSpec == nil {
+					componentSpec = &componentsv1alpha1.GenericComponentSpec{}
 				}
 
 				return &componentsv1alpha1.Component{
@@ -204,7 +212,7 @@ func ComponentChildReconciler[GC componentsv1alpha1.ComponentLike](conditionType
 						),
 					},
 					Spec: componentsv1alpha1.ComponentSpec{
-						GenericComponentSpec: *resource.GetGenericComponentSpec().DeepCopy(),
+						GenericComponentSpec: *componentSpec.DeepCopy(),
 						Ref: &componentsv1alpha1.ComponentReference{
 							APIVersion: gvk.GroupVersion().String(),
 							Kind:       gvk.Kind,
@@ -235,7 +243,11 @@ func ComponentChildReconciler[GC componentsv1alpha1.ComponentLike](conditionType
 				}
 
 				if child == nil {
-					parent.GetConditionManager(ctx).MarkFalse(conditionType, "Missing child Component", "")
+					if !ChildComponentShouldExist(ctx, parent) {
+						parent.GetConditionManager(ctx).MarkTrue(conditionType, "NotNeeded", "")
+						return nil
+					}
+					parent.GetConditionManager(ctx).MarkFalse(conditionType, "Missing", "")
 					return ErrDurable
 				}
 
@@ -246,6 +258,20 @@ func ComponentChildReconciler[GC componentsv1alpha1.ComponentLike](conditionType
 			},
 		},
 	}
+}
+
+func ChildComponentShouldExist(ctx context.Context, resource componentsv1alpha1.ComponentLike) bool {
+	annotations := resource.GetAnnotations()
+	if annotations != nil {
+		createChild := annotations[apis.CreateChildComponentAnnotation]
+		if createChild == apis.CreateChildComponentTrue {
+			return true
+		}
+		if createChild == apis.CreateChildComponentFalse {
+			return false
+		}
+	}
+	return len(resource.GetOwnerReferences()) == 0
 }
 
 func ReflectComponentableStatus[GC componentsv1alpha1.ComponentLike]() reconcilers.SubReconciler[GC] {

@@ -25,6 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
+	"reconciler.io/wa8s/apis"
 	"reconciler.io/wa8s/validation"
 )
 
@@ -132,6 +133,7 @@ func (r *ConfigStore) ValidateDelete(ctx context.Context, obj runtime.Object) (w
 func (r *ConfigStore) Validate(ctx context.Context, fldPath *field.Path) field.ErrorList {
 	errs := field.ErrorList{}
 
+	errs = append(errs, apis.ValidateCommonAnnotations(ctx, fldPath, r)...)
 	errs = append(errs, r.Spec.Validate(ctx, fldPath.Child("spec"))...)
 
 	return errs

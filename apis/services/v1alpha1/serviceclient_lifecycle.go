@@ -23,8 +23,9 @@ import (
 )
 
 const (
-	ServiceClientConditionReady = apis.ConditionReady
-	ServiceClientConditionBound = "Bound"
+	ServiceClientConditionReady          = apis.ConditionReady
+	ServiceClientConditionBound          = "Bound"
+	ServiceClientConditionChildComponent = "ChildComponent"
 )
 
 func (s *ServiceClient) GetConditionsAccessor() apis.ConditionsAccessor {
@@ -39,6 +40,7 @@ func (s *ServiceClientStatus) GetConditionSet() apis.ConditionSet {
 	return apis.NewLivingConditionSetWithHappyReason(
 		"Ready",
 		ServiceClientConditionBound,
+		ServiceClientConditionChildComponent,
 	)
 }
 

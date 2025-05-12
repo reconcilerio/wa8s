@@ -25,6 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
+	"reconciler.io/wa8s/apis"
 	"reconciler.io/wa8s/validation"
 )
 
@@ -146,6 +147,7 @@ func (r *ServiceLifecycle) ValidateDelete(ctx context.Context, obj runtime.Objec
 func (r *ServiceLifecycle) Validate(ctx context.Context, fldPath *field.Path) field.ErrorList {
 	errs := field.ErrorList{}
 
+	errs = append(errs, apis.ValidateCommonAnnotations(ctx, fldPath, r)...)
 	errs = append(errs, r.Spec.Validate(ctx, fldPath.Child("spec"))...)
 
 	return errs
@@ -178,6 +180,7 @@ func (r *ClusterServiceLifecycle) ValidateDelete(ctx context.Context, obj runtim
 func (r *ClusterServiceLifecycle) Validate(ctx context.Context, fldPath *field.Path) field.ErrorList {
 	errs := field.ErrorList{}
 
+	errs = append(errs, apis.ValidateCommonAnnotations(ctx, fldPath, r)...)
 	errs = append(errs, r.Spec.Validate(ctx, fldPath.Child("spec"))...)
 
 	return errs

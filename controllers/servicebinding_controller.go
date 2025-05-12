@@ -43,6 +43,8 @@ import (
 // +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func ServiceBindingReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceBinding] {
+	childLabelKey := fmt.Sprintf("%s/service-binding", servicesv1alpha1.GroupVersion.Group)
+
 	return &reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceBinding]{
 		Reconciler: &reconcilers.WithFinalizer[*servicesv1alpha1.ServiceBinding]{
 			Finalizer: fmt.Sprintf("%s/reconciler", servicesv1alpha1.GroupVersion.Group),
@@ -53,6 +55,7 @@ func ServiceBindingReconciler(c reconcilers.Config) *reconcilers.ResourceReconci
 					ManageServiceBinding(),
 					ConfigureClientComponent(),
 					ExpirationRequeue(),
+					ComponentChildReconciler[*servicesv1alpha1.ServiceBinding](servicesv1alpha1.ServiceBindingConditionChildComponent, childLabelKey, nil),
 				},
 			},
 		},

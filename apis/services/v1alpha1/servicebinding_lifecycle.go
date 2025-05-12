@@ -23,11 +23,12 @@ import (
 )
 
 const (
-	ServiceBindingConditionReady         = apis.ConditionReady
-	ServiceBindingConditionInstanceReady = "InstanceReady"
-	ServiceBindingConditionSecret        = "Secret"
-	ServiceBindingConditionBound         = "Bound"
-	ServiceBindingConditionClientReady   = "ClientReady"
+	ServiceBindingConditionReady          = apis.ConditionReady
+	ServiceBindingConditionInstanceReady  = "InstanceReady"
+	ServiceBindingConditionSecret         = "Secret"
+	ServiceBindingConditionBound          = "Bound"
+	ServiceBindingConditionClientReady    = "ClientReady"
+	ServiceBindingConditionChildComponent = "ChildComponent"
 )
 
 func (s *ServiceBinding) GetConditionsAccessor() apis.ConditionsAccessor {
@@ -45,6 +46,7 @@ func (s *ServiceBindingStatus) GetConditionSet() apis.ConditionSet {
 		ServiceBindingConditionSecret,
 		ServiceBindingConditionBound,
 		ServiceBindingConditionClientReady,
+		ServiceBindingConditionChildComponent,
 	)
 }
 
