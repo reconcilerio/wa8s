@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"sync"
 
 	extism "github.com/extism/go-sdk"
 	"github.com/google/go-containerregistry/pkg/name"
@@ -32,7 +33,7 @@ import (
 
 //go:embed wit-tools.wasm
 var witToolsWasm []byte
-var witToolsPlugin *extism.Plugin
+var witToolsPool = bootstrapPool(witToolsWasm, "wit-tools.wasm")
 
 func ExtractWIT(ctx context.Context, component []byte) (_ string, err error) {
 	defer func() {
@@ -41,7 +42,10 @@ func ExtractWIT(ctx context.Context, component []byte) (_ string, err error) {
 		}
 	}()
 
-	_, out, err := witToolsPlugin.CallWithContext(ctx, "extract", component)
+	plugin := witToolsPool.Get().(*extism.Plugin)
+	defer witToolsPool.Put(plugin)
+
+	_, out, err := plugin.CallWithContext(ctx, "extract", component)
 	if err != nil {
 		return "", err
 	}
@@ -50,7 +54,7 @@ func ExtractWIT(ctx context.Context, component []byte) (_ string, err error) {
 
 //go:embed static-config.wasm
 var staticConfigWasm []byte
-var staticConfigPlugin *extism.Plugin
+var staticConfigPool = bootstrapPool(staticConfigWasm, "static-config.wasm")
 
 func ComponentizeConfigStore(ctx context.Context, config map[string]string) (_ []byte, err error) {
 	defer func() {
@@ -58,6 +62,9 @@ func ComponentizeConfigStore(ctx context.Context, config map[string]string) (_ [
 			err = fmt.Errorf("panic calling ComponentizeConfigStore: %s", r)
 		}
 	}()
+
+	plugin := staticConfigPool.Get().(*extism.Plugin)
+	defer staticConfigPool.Put(plugin)
 
 	c := [][]string{}
 
@@ -72,7 +79,7 @@ func ComponentizeConfigStore(ctx context.Context, config map[string]string) (_ [
 	if err != nil {
 		return nil, err
 	}
-	_, component, err := staticConfigPlugin.CallWithContext(ctx, "build_component", bytes)
+	_, component, err := plugin.CallWithContext(ctx, "build_component", bytes)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +89,7 @@ func ComponentizeConfigStore(ctx context.Context, config map[string]string) (_ [
 
 //go:embed wac.wasm
 var wacWasm []byte
-var wacPlugin *extism.Plugin
+var wacPool = bootstrapPool(wacWasm, "wac.wasm")
 
 type ResolvedComponent struct {
 	Name      string
@@ -97,6 +104,9 @@ func WACCompose(ctx context.Context, wac string, dependencies []ResolvedComponen
 			err = fmt.Errorf("panic calling WACCompose: %s", r)
 		}
 	}()
+
+	plugin := wacPool.Get().(*extism.Plugin)
+	defer wacPool.Put(plugin)
 
 	type WACDependency struct {
 		Name      string `json:"name"`
@@ -122,7 +132,7 @@ func WACCompose(ctx context.Context, wac string, dependencies []ResolvedComponen
 	if err != nil {
 		return nil, err
 	}
-	_, component, err := wacPlugin.CallWithContext(ctx, "compose", inputJson)
+	_, component, err := plugin.CallWithContext(ctx, "compose", inputJson)
 	if err != nil {
 		return nil, err
 	}
@@ -136,6 +146,9 @@ func WACPlug(ctx context.Context, dependencies []ResolvedComponent) (_ []byte, e
 			err = fmt.Errorf("panic calling WACPlug: %s", r)
 		}
 	}()
+
+	plugin := wacPool.Get().(*extism.Plugin)
+	defer wacPool.Put(plugin)
 
 	type WACDependency struct {
 		Name      string `json:"name"`
@@ -161,12 +174,24 @@ func WACPlug(ctx context.Context, dependencies []ResolvedComponent) (_ []byte, e
 	if err != nil {
 		return nil, err
 	}
-	_, component, err := wacPlugin.CallWithContext(ctx, "plug", inputJson)
+	_, component, err := plugin.CallWithContext(ctx, "plug", inputJson)
 	if err != nil {
 		return nil, err
 	}
 
 	return component, nil
+}
+
+func bootstrapPool(wasm []byte, name string) sync.Pool {
+	return sync.Pool{
+		New: func() any {
+			plugin, err := bootstrapPlugin(wasm, name)
+			if err != nil {
+				panic(err)
+			}
+			return plugin
+		},
+	}
 }
 
 func bootstrapPlugin(wasm []byte, name string) (*extism.Plugin, error) {
@@ -188,24 +213,4 @@ func bootstrapPlugin(wasm []byte, name string) (*extism.Plugin, error) {
 		return nil, err
 	}
 	return plugin, nil
-}
-
-func init() {
-	plugin, err := bootstrapPlugin(witToolsWasm, "wit-tools.wasm")
-	if err != nil {
-		panic(err)
-	}
-	witToolsPlugin = plugin
-
-	plugin, err = bootstrapPlugin(staticConfigWasm, "static-config.wasm")
-	if err != nil {
-		panic(err)
-	}
-	staticConfigPlugin = plugin
-
-	plugin, err = bootstrapPlugin(wacWasm, "wac.wasm")
-	if err != nil {
-		panic(err)
-	}
-	wacPlugin = plugin
 }
