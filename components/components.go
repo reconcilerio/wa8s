@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"sync"
 
 	extism "github.com/extism/go-sdk"
 	"github.com/google/go-containerregistry/pkg/name"
@@ -33,6 +34,7 @@ import (
 //go:embed wit-tools.wasm
 var witToolsWasm []byte
 var witToolsPlugin *extism.Plugin
+var witToolsMutex sync.Mutex
 
 func ExtractWIT(ctx context.Context, component []byte) (_ string, err error) {
 	defer func() {
@@ -40,6 +42,9 @@ func ExtractWIT(ctx context.Context, component []byte) (_ string, err error) {
 			err = fmt.Errorf("panic calling ExtractWIT: %s", r)
 		}
 	}()
+
+	witToolsMutex.Lock()
+	defer witToolsMutex.Unlock()
 
 	_, out, err := witToolsPlugin.CallWithContext(ctx, "extract", component)
 	if err != nil {
@@ -51,6 +56,7 @@ func ExtractWIT(ctx context.Context, component []byte) (_ string, err error) {
 //go:embed static-config.wasm
 var staticConfigWasm []byte
 var staticConfigPlugin *extism.Plugin
+var staticConfigMutext sync.Mutex
 
 func ComponentizeConfigStore(ctx context.Context, config map[string]string) (_ []byte, err error) {
 	defer func() {
@@ -58,6 +64,9 @@ func ComponentizeConfigStore(ctx context.Context, config map[string]string) (_ [
 			err = fmt.Errorf("panic calling ComponentizeConfigStore: %s", r)
 		}
 	}()
+
+	staticConfigMutext.Lock()
+	defer staticConfigMutext.Unlock()
 
 	c := [][]string{}
 
@@ -83,6 +92,7 @@ func ComponentizeConfigStore(ctx context.Context, config map[string]string) (_ [
 //go:embed wac.wasm
 var wacWasm []byte
 var wacPlugin *extism.Plugin
+var wacMutex sync.Mutex
 
 type ResolvedComponent struct {
 	Name      string
@@ -97,6 +107,9 @@ func WACCompose(ctx context.Context, wac string, dependencies []ResolvedComponen
 			err = fmt.Errorf("panic calling WACCompose: %s", r)
 		}
 	}()
+
+	wacMutex.Lock()
+	defer wacMutex.Unlock()
 
 	type WACDependency struct {
 		Name      string `json:"name"`
@@ -136,6 +149,9 @@ func WACPlug(ctx context.Context, dependencies []ResolvedComponent) (_ []byte, e
 			err = fmt.Errorf("panic calling WACPlug: %s", r)
 		}
 	}()
+
+	wacMutex.Lock()
+	defer wacMutex.Unlock()
 
 	type WACDependency struct {
 		Name      string `json:"name"`
