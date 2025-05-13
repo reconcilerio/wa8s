@@ -30,6 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 	"sigs.k8s.io/json"
 
+	"reconciler.io/wa8s/apis"
 	"reconciler.io/wa8s/validation"
 )
 
@@ -156,6 +157,7 @@ func (r *Composition) validateNoUnknownFields(ctx context.Context) error {
 func (r *Composition) Validate(ctx context.Context, fldPath *field.Path) field.ErrorList {
 	errs := field.ErrorList{}
 
+	errs = append(errs, apis.ValidateCommonAnnotations(ctx, fldPath, r)...)
 	errs = append(errs, r.Spec.Validate(ctx, fldPath.Child("spec"))...)
 
 	return errs

@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/stoewer/go-strcase"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -489,6 +490,8 @@ func ServiceInstanceDuckChildServiceInstanceReconciler(serviceResourceDefinition
 			}
 			lifecycleName := lifecycles.Items[0].Name
 
+			gvk := schema.FromAPIVersionAndKind(resource.APIVersion, resource.Kind)
+
 			return &servicesv1alpha1.ServiceInstance{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace:    resource.Namespace,
@@ -496,8 +499,9 @@ func ServiceInstanceDuckChildServiceInstanceReconciler(serviceResourceDefinition
 					Labels: reconcilers.MergeMaps(
 						resource.Labels,
 						map[string]string{
-							"services.wa8s.reconciler.io/service-resource-definition": serviceResourceDefinitionName,
-							"services.wa8s.reconciler.io/service-instance-duck":       resource.Name,
+							"services.wa8s.reconciler.io/service-resource-definition":    serviceResourceDefinitionName,
+							"services.wa8s.reconciler.io/service-instance-duck":          resource.Name,
+							fmt.Sprintf("%s/%s", gvk.Group, strcase.KebabCase(gvk.Kind)): resource.Name,
 						},
 					),
 				},
@@ -558,6 +562,9 @@ func ServiceInstanceDuckChildServiceInstanceReconciler(serviceResourceDefinition
 }
 
 func ServiceClientDuckReconciler(c reconcilers.Config, typeMeta metav1.TypeMeta, serviceResourceDefinitionName string) *reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceClientDuck] {
+	gvk := schema.FromAPIVersionAndKind(typeMeta.APIVersion, typeMeta.Kind)
+	childLabelKey := fmt.Sprintf("%s/%s", gvk.Group, strcase.KebabCase(gvk.Kind))
+
 	return &reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceClientDuck]{
 		Type: &servicesv1alpha1.ServiceClientDuck{
 			TypeMeta: typeMeta,
@@ -570,6 +577,7 @@ func ServiceClientDuckReconciler(c reconcilers.Config, typeMeta metav1.TypeMeta,
 
 		Reconciler: reconcilers.Sequence[*servicesv1alpha1.ServiceClientDuck]{
 			ServiceClientDuckChildServiceClientReconciler(serviceResourceDefinitionName),
+			ComponentChildReconciler[*servicesv1alpha1.ServiceClientDuck](servicesv1alpha1.ServiceClientDuckConditionChildComponent, childLabelKey, nil),
 		},
 
 		Config: c,
@@ -603,6 +611,8 @@ func ServiceClientDuckChildServiceClientReconciler(serviceResourceDefinitionName
 			resource = resource.DeepCopy()
 			resource.Spec.Ref.Name = instances.Items[0].Name
 
+			gvk := schema.FromAPIVersionAndKind(resource.APIVersion, resource.Kind)
+
 			return &servicesv1alpha1.ServiceClient{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace:    resource.Namespace,
@@ -610,7 +620,8 @@ func ServiceClientDuckChildServiceClientReconciler(serviceResourceDefinitionName
 					Labels: reconcilers.MergeMaps(
 						resource.Labels,
 						map[string]string{
-							"services.wa8s.reconciler.io/service-client-duck": resource.Name,
+							"services.wa8s.reconciler.io/service-client-duck":            resource.Name,
+							fmt.Sprintf("%s/%s", gvk.Group, strcase.KebabCase(gvk.Kind)): resource.Name,
 						},
 					),
 				},

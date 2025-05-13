@@ -28,6 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
+	"reconciler.io/wa8s/apis"
 	"reconciler.io/wa8s/internal/defaults"
 	"reconciler.io/wa8s/validation"
 )
@@ -149,6 +150,7 @@ func (r *Component) ValidateDelete(ctx context.Context, obj runtime.Object) (war
 func (r *Component) Validate(ctx context.Context, fldPath *field.Path) field.ErrorList {
 	errs := field.ErrorList{}
 
+	errs = append(errs, apis.ValidateCommonAnnotations(ctx, fldPath, r)...)
 	errs = append(errs, r.Spec.Validate(ctx, fldPath.Child("spec"))...)
 
 	return errs
@@ -181,6 +183,7 @@ func (r *ClusterComponent) ValidateDelete(ctx context.Context, obj runtime.Objec
 func (r *ClusterComponent) Validate(ctx context.Context, fldPath *field.Path) field.ErrorList {
 	errs := field.ErrorList{}
 
+	errs = append(errs, apis.ValidateCommonAnnotations(ctx, fldPath, r)...)
 	errs = append(errs, r.Spec.Validate(ctx, fldPath.Child("spec"))...)
 
 	return errs

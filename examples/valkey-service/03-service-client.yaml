@@ -9,6 +9,5 @@ spec:
   scopes:
   - read
   - write
-  # last 1h while rotating every 5m for demos
   duration: 1h
-  renewBefore: 55m
+  renewBefore: 15m

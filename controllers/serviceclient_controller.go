@@ -39,11 +39,14 @@ import (
 // +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func ServiceClientReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceClient] {
+	childLabelKey := fmt.Sprintf("%s/service-client", servicesv1alpha1.GroupVersion.Group)
+
 	return &reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceClient]{
 		Reconciler: &reconcilers.SuppressTransientErrors[*servicesv1alpha1.ServiceClient, *servicesv1alpha1.ServiceClientList]{
 			Reconciler: reconcilers.Sequence[*servicesv1alpha1.ServiceClient]{
 				StampServiceBinding(),
 				RenewRequeue(),
+				ComponentChildReconciler[*servicesv1alpha1.ServiceClient](servicesv1alpha1.ServiceClientConditionChildComponent, childLabelKey, nil),
 			},
 		},
 
