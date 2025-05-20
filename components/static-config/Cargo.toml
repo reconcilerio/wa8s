@@ -7,6 +7,6 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-extism-pdk = "1.4.0"
+extism-pdk = "1.4.1"
 static-config = "0.1.0"
 walrus = "=0.23.3"

@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-extism-pdk = "1.4.0"
+extism-pdk = "1.4.1"
 wasmparser = "0.230.0"
 wat = "1.230.0"
 wit-component = "0.230.0"
