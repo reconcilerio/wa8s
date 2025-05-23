@@ -19,7 +19,7 @@ require (
 	reconciler.io/dies v0.16.0
 	reconciler.io/ducks v0.1.1-0.20250507015441-0e0b3c9b5823
 	reconciler.io/runtime v0.23.1-0.20250507005741-fb32c48200cd
-	sigs.k8s.io/controller-runtime v0.20.4
+	sigs.k8s.io/controller-runtime v0.21.0
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8
 	sigs.k8s.io/yaml v1.4.0
 )
