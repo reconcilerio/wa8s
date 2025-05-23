@@ -139,8 +139,8 @@ github.com/google/gnostic-models v0.6.9/go.mod h1:CiWsm0s6BSQd1hRn8/QmxqB6BesYcb
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
-github.com/google/go-containerregistry v0.20.4 h1:w/Fdj3ef046SdV/GJU69cCnreaLpqbTo1X9XPyHbkd4=
-github.com/google/go-containerregistry v0.20.4/go.mod h1:Q14vdOOzug02bwnhMkZKD4e30pDaD9W65qzXpyzF49E=
+github.com/google/go-containerregistry v0.20.5 h1:4RnlYcDs5hoA++CeFjlbZ/U9Yp1EuWr+UhhTyYQjOP0=
+github.com/google/go-containerregistry v0.20.5/go.mod h1:Q14vdOOzug02bwnhMkZKD4e30pDaD9W65qzXpyzF49E=
 github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20250115185438-c4dd792fa06c h1:lP8HUtcIHrjJZ/b9VPvDkZXIRt7T0CBUb1oVZXiw9Us=
 github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20250115185438-c4dd792fa06c/go.mod h1:8mk2eu7HGqCp+JSWQVFCnKQwk/K6cIY6ID9aX72iTRo=
 github.com/google/go-containerregistry/pkg/authn/kubernetes v0.0.0-20241111191718-6bce25ecf029 h1:tmtax9EjrCFrrw72NeGso7qZUnJXTIP368kcjE4lZwE=
