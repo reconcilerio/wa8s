@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/extism/go-sdk v1.7.1
-	github.com/go-logr/logr v1.4.2
+	github.com/go-logr/logr v1.4.3
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.20.5
 	github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20250115185438-c4dd792fa06c
