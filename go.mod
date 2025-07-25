@@ -21,7 +21,7 @@ require (
 	reconciler.io/runtime v0.23.1-0.20250507005741-fb32c48200cd
 	sigs.k8s.io/controller-runtime v0.21.0
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8
-	sigs.k8s.io/yaml v1.5.0
+	sigs.k8s.io/yaml v1.6.0
 )
 
 require (
