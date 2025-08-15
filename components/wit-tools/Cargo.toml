@@ -8,6 +8,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 extism-pdk = "1.4.1"
-wasmparser = "0.236.0"
-wat = "1.236.0"
-wit-component = "0.236.0"
+wasmparser = "0.236.1"
+wat = "1.236.1"
+wit-component = "0.236.1"
