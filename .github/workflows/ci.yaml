@@ -22,7 +22,7 @@ jobs:
     name: Unit Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/setup-go@v5
+    - uses: actions/setup-go@v6
       with:
         go-version: 1.24.x
     - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -59,7 +59,7 @@ jobs:
       BUNDLE: registry.local/wa8s/bundle
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-go@v5
+    - uses: actions/setup-go@v6
       with:
         go-version: 1.24.x
     - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -187,7 +187,7 @@ jobs:
       BUNDLE: registry.local/bundle
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-go@v5
+    - uses: actions/setup-go@v6
       with:
         go-version: 1.24.x
     - name: Install kind
@@ -479,7 +479,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-go@v5
+    - uses: actions/setup-go@v6
       with:
         go-version: 1.24.x
     - name: Get the version
