@@ -110,7 +110,7 @@ undeploy-cert-manager: ## Undeploy cert-manager from the K8s cluster specified i
 
 .PHONY: deploy-ducks
 deploy-ducks: ## Deploy ducks to the K8s cluster specified in ~/.kube/config.
-	$(KAPP) deploy -a ducks -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c -f https://github.com/reconcilerio/ducks/releases/download/v0.1.0/reconcilerio-ducks-v0.1.0.yaml
+	$(KAPP) deploy -a ducks -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c -f https://github.com/reconcilerio/ducks/releases/download/v0.2.0/reconcilerio-ducks-v0.2.0.yaml
 
 .PHONY: undeploy-ducks
 undeploy-ducks: ## Undeploy cert-manager from the K8s cluster specified in ~/.kube/config.
