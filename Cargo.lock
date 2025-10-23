@@ -1262,7 +1262,7 @@ dependencies = [
  "clap",
  "java-properties",
  "serde",
- "walrus",
+ "walrus 0.23.3",
  "wasm-compose",
  "wasm-metadata 0.225.0",
  "wit-component 0.225.0",
@@ -1274,7 +1274,7 @@ version = "0.1.0"
 dependencies = [
  "extism-pdk",
  "static-config",
- "walrus",
+ "walrus 0.24.1",
 ]
 
 [[package]]
@@ -1538,9 +1538,25 @@ dependencies = [
  "id-arena",
  "leb128",
  "log",
- "walrus-macro",
+ "walrus-macro 0.22.0",
  "wasm-encoder 0.214.0",
  "wasmparser 0.214.0",
+]
+
+[[package]]
+name = "walrus"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b11ee559f3617acd8ab2f1c89722003e9d803ee873ceac8f62a1788e4154289"
+dependencies = [
+ "anyhow",
+ "gimli",
+ "id-arena",
+ "leb128",
+ "log",
+ "walrus-macro 0.24.0",
+ "wasm-encoder 0.240.0",
+ "wasmparser 0.240.0",
 ]
 
 [[package]]
@@ -1548,6 +1564,18 @@ name = "walrus-macro"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "439ad39ff894c43c9649fa724cdde9a6fc50b855d517ef071a93e5df82fe51d3"
+dependencies = [
+ "heck 0.5.0",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "walrus-macro"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ef06db404cbaed87cb25fd2ca3a62502af485f43383c9641ffcf1479d02fffd"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
