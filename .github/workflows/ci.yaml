@@ -165,7 +165,7 @@ jobs:
           ${IMGPKG} push -f "${scratch}" -b "${BUNDLE}"
           ${IMGPKG} copy -b "${BUNDLE}" --to-tar reconcilerio-wa8s-bundle.tar
         echo "##[endgroup]"
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       with:
         name: reconcilerio-wa8s-bundle.tar
         path: reconcilerio-wa8s-bundle.tar
