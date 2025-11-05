@@ -2,7 +2,7 @@ module reconciler.io/wa8s/hack/stern
 
 go 1.25.0
 
-require github.com/stern/stern v1.33.0
+require github.com/stern/stern v1.33.1
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.7 // indirect
