@@ -11,6 +11,27 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
+      path: /validate-wa8s-reconciler-io-v1alpha1-clustercomponent
+  failurePolicy: Fail
+  name: v1alpha1.clustercomponents.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - clustercomponents
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
       path: /validate-registries-wa8s-reconciler-io-v1alpha1-clusterrepository
   failurePolicy: Fail
   name: v1alpha1.clusterrepositories.registries.wa8s.reconciler.io
@@ -32,40 +53,19 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-registries-wa8s-reconciler-io-v1alpha1-repository
+      path: /validate-services-wa8s-reconciler-io-v1alpha1-clusterservicelifecycle
   failurePolicy: Fail
-  name: v1alpha1.repositories.registries.wa8s.reconciler.io
+  name: v1alpha1.clusterservicelifecycles.services.wa8s.reconciler.io
   rules:
   - apiGroups:
-    - registries.wa8s.reconciler.io
+    - services.wa8s.reconciler.io
     apiVersions:
     - v1alpha1
     operations:
     - CREATE
     - UPDATE
     resources:
-    - repositories
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  - v1beta1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-wa8s-reconciler-io-v1alpha1-clustercomponent
-  failurePolicy: Fail
-  name: v1alpha1.clustercomponents.wa8s.reconciler.io
-  rules:
-  - apiGroups:
-    - wa8s.reconciler.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - clustercomponents
+    - clusterservicelifecycles
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -179,61 +179,19 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-containers-wa8s-reconciler-io-v1alpha1-wasmtimecontainer
+      path: /validate-registries-wa8s-reconciler-io-v1alpha1-repository
   failurePolicy: Fail
-  name: v1alpha1.wasmtimecontainers.containers.wa8s.reconciler.io
+  name: v1alpha1.repositories.registries.wa8s.reconciler.io
   rules:
   - apiGroups:
-    - containers.wa8s.reconciler.io
+    - registries.wa8s.reconciler.io
     apiVersions:
     - v1alpha1
     operations:
     - CREATE
     - UPDATE
     resources:
-    - wasmtimecontainers
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  - v1beta1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-containers-wa8s-reconciler-io-v1alpha1-wrpctrigger
-  failurePolicy: Fail
-  name: v1alpha1.wrpctriggers.containers.wa8s.reconciler.io
-  rules:
-  - apiGroups:
-    - containers.wa8s.reconciler.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - wrpctriggers
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  - v1beta1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-services-wa8s-reconciler-io-v1alpha1-clusterservicelifecycle
-  failurePolicy: Fail
-  name: v1alpha1.clusterservicelifecycles.services.wa8s.reconciler.io
-  rules:
-  - apiGroups:
-    - services.wa8s.reconciler.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - clusterservicelifecycles
+    - repositories
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -341,4 +299,46 @@ webhooks:
     - UPDATE
     resources:
     - serviceresourcedefinitions
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-containers-wa8s-reconciler-io-v1alpha1-wasmtimecontainer
+  failurePolicy: Fail
+  name: v1alpha1.wasmtimecontainers.containers.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - containers.wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - wasmtimecontainers
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-containers-wa8s-reconciler-io-v1alpha1-wrpctrigger
+  failurePolicy: Fail
+  name: v1alpha1.wrpctriggers.containers.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - containers.wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - wrpctriggers
   sideEffects: None
