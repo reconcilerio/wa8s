@@ -9,7 +9,7 @@ require (
 	github.com/google/go-containerregistry v0.20.7
 	github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20250115185438-c4dd792fa06c
 	github.com/stoewer/go-strcase v1.3.1
-	github.com/tetratelabs/wazero v1.10.1
+	github.com/tetratelabs/wazero v1.11.0
 	k8s.io/api v0.35.0
 	k8s.io/apiextensions-apiserver v0.35.0
 	k8s.io/apimachinery v0.35.0
