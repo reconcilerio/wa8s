@@ -81,7 +81,7 @@ spec:
   dependencies:
   - component: componentized:lifecycle
     oci:
-      image: ghcr.io/componentized/services/valkey-lifecycle:v0.0.3@sha256:19996510d22d3ea2c98f9185726c9a3ea04e54862cd69b8298eb4fee2b729d3a
+      image: ghcr.io/componentized/services/valkey-lifecycle:v0.0.4@sha256:00d667788f5cc5f70441ac709363fc0b06e648e9eb5d63f0e6f632e1c58ff25f
   - component: componentized:config
     config:
       valuesFrom:
@@ -95,4 +95,4 @@ metadata:
   name: valkey-client
 spec:
   oci:
-    image: ghcr.io/componentized/valkey/valkey-client:v0.1.1@sha256:7b25f9c2074ea30afbb205b2c7a55693951ba83f183ef5d35b18f561abba2a05
+    image: ghcr.io/componentized/valkey/valkey-client:v0.2.1@sha256:c9672e1ce38df6635787cd9a832cf3b0392b0a5dc9c71016872b22fdf179d331
