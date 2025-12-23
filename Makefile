@@ -102,7 +102,7 @@ deploy: generate manifests ## Deploy controller to the K8s cluster specified in 
 
 .PHONY: deploy-cert-manager
 deploy-cert-manager: ## Deploy cert-manager to the K8s cluster specified in ~/.kube/config.
-	$(KAPP) deploy -a cert-manager -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c -f https://github.com/cert-manager/cert-manager/releases/download/v1.12.0/cert-manager.yaml
+	$(KAPP) deploy -a cert-manager -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.2/cert-manager.yaml
 
 .PHONY: undeploy-cert-manager
 undeploy-cert-manager: ## Undeploy cert-manager from the K8s cluster specified in ~/.kube/config.

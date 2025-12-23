@@ -112,14 +112,14 @@ func (s *servicesWebhooks) fetchCredentials(ctx context.Context) func(w http.Res
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Info("request", "method", r.Method, "path", r.RequestURI)
 
-		bindingId := r.Header.Get("service-binding-id")
-		if bindingId == "" {
-			log.Error(fmt.Errorf("missing service-binding-id header"), "missing service-binding-id header")
+		serviceId := r.Header.Get("service-id")
+		if serviceId == "" {
+			log.Error(fmt.Errorf("missing service-id header"), "missing service-id header")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		creds, err := s.retrieveCredentials(ctx, bindingId)
+		creds, err := s.retrieveCredentials(ctx, serviceId)
 		if err != nil {
 			log.Error(err, "unable to load creds")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -138,9 +138,9 @@ func (s *servicesWebhooks) publishCredentials(ctx context.Context) func(w http.R
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Info("request", "method", r.Method, "path", r.RequestURI)
 
-		bindingId := r.Header.Get("service-binding-id")
-		if bindingId == "" {
-			log.Error(fmt.Errorf("missing service-binding-id header"), "missing service-binding-id header")
+		serviceId := r.Header.Get("service-id")
+		if serviceId == "" {
+			log.Error(fmt.Errorf("missing service-id header"), "missing service-id header")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -152,7 +152,7 @@ func (s *servicesWebhooks) publishCredentials(ctx context.Context) func(w http.R
 			return
 		}
 
-		err := s.updateCredentials(ctx, bindingId, creds)
+		err := s.updateCredentials(ctx, serviceId, creds)
 		if err != nil {
 			log.Error(err, "failed to update service-binding-id")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -170,14 +170,14 @@ func (s *servicesWebhooks) destroyCredentials(ctx context.Context) func(w http.R
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Info("request", "method", r.Method, "path", r.RequestURI)
 
-		bindingId := r.Header.Get("service-binding-id")
-		if bindingId == "" {
-			log.Error(fmt.Errorf("missing service-binding-id header"), "missing service-binding-id header")
+		serviceId := r.Header.Get("service-id")
+		if serviceId == "" {
+			log.Error(fmt.Errorf("missing service-id header"), "missing service-id header")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		err := s.deleteCredentials(ctx, bindingId)
+		err := s.deleteCredentials(ctx, serviceId)
 		if err != nil && !errors.Is(err, ErrUnknownSecret) {
 			log.Error(err, "failed to destroy service-binding-id")
 			w.WriteHeader(http.StatusInternalServerError)

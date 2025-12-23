@@ -20,7 +20,7 @@ spec:
   dependencies:
   - component: componentized:http-incrementor
     oci:
-      image: ghcr.io/componentized/valkey/sample-http-incrementor:v0.1.1@sha256:9eb9ae66f633013e5e459ae89449cc49c4f1b0bccd5cdce810a8c7a5d7aaf39a
+      image: ghcr.io/componentized/valkey/sample-http-incrementor:v0.2.1@sha256:9c7c7f02cfa044212b8aa335f0dfcc52041d4377fabcc8f86e233be49d395c9e
   - component: componentized:valkey-client
     ref:
       apiVersion: x.services.wa8s.reconciler.io/v1alpha1

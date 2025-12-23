@@ -4382,7 +4382,7 @@ metadata:
   namespace: wa8s-system
 spec:
   oci:
-    image: ghcr.io/componentized/services/credential-config:v0.0.3@sha256:b74bf9e2f7421f5ebc8e56011672f40c266f0f4697f6e92f3448fefdb98cef3c
+    image: ghcr.io/componentized/services/credential-config:v0.0.4@sha256:7c79f9e94cdb5b5801d3c1ee666d61a67fd4728383d669f65cbd513cf1b7baee
     serviceAccountRef:
       name: default
       namespace: wa8s-system
@@ -4405,7 +4405,7 @@ metadata:
   namespace: wa8s-system
 spec:
   oci:
-    image: ghcr.io/componentized/services/lifecycle-host-http:v0.0.3@sha256:59b2c6b21a5c8da388d0751be64ff4e108d3f335ad1f8decc6b1d6ca30862e86
+    image: ghcr.io/componentized/services/lifecycle-host-http:v0.0.4@sha256:29441b4ce3b4c856991a164098e30bf1df32f279c2ef5bc40a9cf4d6b3688ef0
     serviceAccountRef:
       name: default
       namespace: wa8s-system
@@ -4417,7 +4417,7 @@ metadata:
   namespace: wa8s-system
 spec:
   oci:
-    image: ghcr.io/componentized/logging/to-stdout:v0.1.0@sha256:28d0f577e81c2e32ab6a757ad636751de28331cd7d435b02f048ab3bf3b4ac1c
+    image: ghcr.io/componentized/logging/to-stdout:v0.2.1@sha256:27ea8e5600ba2a8458925e5505077a925caf3d84528f474a3d24e3ab2dfcbe31
     serviceAccountRef:
       name: default
       namespace: wa8s-system
@@ -4431,7 +4431,7 @@ spec:
   dependencies:
   - component: componentized:services-credential-admin
     oci:
-      image: ghcr.io/componentized/services/webhook-credential-admin:v0.0.3@sha256:38029cd83c79caa3bb0a358777de968cb30e0f897105b45efa772e44fc6b976e
+      image: ghcr.io/componentized/services/webhook-credential-admin:v0.0.4@sha256:913d1fa5faf1a81f0df9ed63b997687179984d7781fb1af1ea2fc4288ba6f101
   - component: componentized:webhook-config
     ref:
       kind: ConfigStore
@@ -4446,7 +4446,7 @@ spec:
   dependencies:
   - component: componentized:services-credential-store
     oci:
-      image: ghcr.io/componentized/services/webhook-credential-store:v0.0.3@sha256:b132bd54b1f93ac578922f8d807ec94d6930e51493bb8440bd29130ab9fe0a92
+      image: ghcr.io/componentized/services/webhook-credential-store:v0.0.4@sha256:4572597d475693a64ee588bf9db94b05fe3cf98105a06f034d96895795a12a2b
   - component: componentized:webhook-config
     ref:
       kind: ConfigStore
