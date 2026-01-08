@@ -8,7 +8,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 extism-pdk = "1.4.1"
-indexmap = "2.12.1"
+indexmap = "2.13.0"
 serde = "1.0.228"
 serde_json = "1.0.149"
 serde_with = { version = "3.16.1", features = [ "base64" ] }
