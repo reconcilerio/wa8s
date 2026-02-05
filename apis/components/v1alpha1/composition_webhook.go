@@ -21,15 +21,14 @@ import (
 	"fmt"
 	"strings"
 
-	runtime "k8s.io/apimachinery/pkg/runtime"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 	"sigs.k8s.io/json"
 
+	"reconciler.io/runtime/reconcilers"
 	"reconciler.io/wa8s/apis"
 	"reconciler.io/wa8s/validation"
 )
@@ -37,17 +36,14 @@ import (
 //+kubebuilder:webhook:path=/validate-wa8s-reconciler-io-v1alpha1-composition,mutating=false,failurePolicy=fail,sideEffects=None,groups=wa8s.reconciler.io,resources=compositions,verbs=create;update,versions=v1alpha1,name=v1alpha1.compositions.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
 
 func (r *Composition) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
-		WithDefaulter(r).
+	return ctrl.NewWebhookManagedBy(mgr, r).
 		WithValidator(r).
 		Complete()
 }
 
-var _ webhook.CustomDefaulter = &Component{}
+var _ reconcilers.Defaulter = &Composition{}
 
-func (r *Composition) Default(ctx context.Context, obj runtime.Object) error {
-	r = obj.(*Composition)
+func (r *Composition) Default(ctx context.Context) error {
 	ctx = validation.StashResource(ctx, r)
 
 	if err := r.Spec.Default(ctx); err != nil {
@@ -106,37 +102,35 @@ func (r *CompositionDependency) Default(ctx context.Context) error {
 	return nil
 }
 
-var _ webhook.CustomValidator = &Composition{}
+var _ admission.Validator[*Composition] = &Composition{}
 
-func (r *Composition) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *Composition) ValidateCreate(ctx context.Context, obj *Composition) (warnings admission.Warnings, err error) {
 	if err := r.validateNoUnknownFields(ctx); err != nil {
 		return nil, err
 	}
 
-	if err := r.Default(ctx, obj); err != nil {
+	if err := obj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = obj.(*Composition)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, obj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *Composition) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *Composition) ValidateUpdate(ctx context.Context, oldObj, newObj *Composition) (warnings admission.Warnings, err error) {
 	if err := r.validateNoUnknownFields(ctx); err != nil {
 		return nil, err
 	}
 
-	if err := r.Default(ctx, newObj); err != nil {
+	if err := newObj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = newObj.(*Composition)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, newObj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *Composition) ValidateDelete(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *Composition) ValidateDelete(ctx context.Context, obj *Composition) (warnings admission.Warnings, err error) {
 	return
 }
 
@@ -162,6 +156,7 @@ func (r *Composition) Validate(ctx context.Context, fldPath *field.Path) field.E
 
 	return errs
 }
+
 func (r *CompositionSpec) Validate(ctx context.Context, fldPath *field.Path) field.ErrorList {
 	errs := field.ErrorList{}
 

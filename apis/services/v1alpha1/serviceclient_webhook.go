@@ -21,12 +21,11 @@ import (
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	runtime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
+	"reconciler.io/runtime/reconcilers"
 	"reconciler.io/wa8s/apis"
 	"reconciler.io/wa8s/validation"
 )
@@ -34,17 +33,14 @@ import (
 // +kubebuilder:webhook:path=/validate-services-wa8s-reconciler-io-v1alpha1-serviceclient,mutating=false,failurePolicy=fail,sideEffects=None,groups=services.wa8s.reconciler.io,resources=serviceclients,verbs=create;update,versions=v1alpha1,name=v1alpha1.serviceclients.services.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
 
 func (r *ServiceClient) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
-		WithDefaulter(r).
+	return ctrl.NewWebhookManagedBy(mgr, r).
 		WithValidator(r).
 		Complete()
 }
 
-var _ webhook.CustomDefaulter = &ServiceClient{}
+var _ reconcilers.Defaulter = &ServiceClient{}
 
-func (r *ServiceClient) Default(ctx context.Context, obj runtime.Object) error {
-	r = obj.(*ServiceClient)
+func (r *ServiceClient) Default(ctx context.Context) error {
 	ctx = validation.StashResource(ctx, r)
 
 	if err := r.Spec.Default(ctx); err != nil {
@@ -81,29 +77,27 @@ func (r *ServiceClientSpec) Default(ctx context.Context) error {
 	return nil
 }
 
-var _ webhook.CustomValidator = &ServiceClient{}
+var _ admission.Validator[*ServiceClient] = &ServiceClient{}
 
-func (r *ServiceClient) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, obj); err != nil {
+func (r *ServiceClient) ValidateCreate(ctx context.Context, obj *ServiceClient) (warnings admission.Warnings, err error) {
+	if err := obj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = obj.(*ServiceClient)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, obj)
 
 	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ServiceClient) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, newObj); err != nil {
+func (r *ServiceClient) ValidateUpdate(ctx context.Context, oldObj, newObj *ServiceClient) (warnings admission.Warnings, err error) {
+	if err := newObj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = newObj.(*ServiceClient)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, newObj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ServiceClient) ValidateDelete(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *ServiceClient) ValidateDelete(ctx context.Context, obj *ServiceClient) (warnings admission.Warnings, err error) {
 	return
 }
 

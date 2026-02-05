@@ -22,7 +22,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	"reconciler.io/runtime/apis"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"reconciler.io/runtime/reconcilers"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
@@ -61,7 +61,7 @@ type ServiceLifecycleStatus struct {
 type GenericServiceLifecycle interface {
 	runtime.Object
 	metav1.Object
-	webhook.CustomDefaulter
+	reconcilers.Defaulter
 
 	GetSpec() *ServiceLifecycleSpec
 	GetStatus() *ServiceLifecycleStatus

@@ -38,7 +38,7 @@ import (
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=servicelifecycles,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=servicelifecycles/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=servicelifecycles/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func ServiceLifecycleReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[servicesv1alpha1.GenericServiceLifecycle] {
 	childLabelKey := fmt.Sprintf("%s/service-lifecycle", servicesv1alpha1.GroupVersion.Group)
@@ -48,7 +48,7 @@ func ServiceLifecycleReconciler(c reconcilers.Config) *reconcilers.ResourceRecon
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=clusterservicelifecycles,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=clusterservicelifecycles/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=clusterservicelifecycles/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func ClusterServiceLifecycleReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[servicesv1alpha1.GenericServiceLifecycle] {
 	childLabelKey := fmt.Sprintf("%s/cluster-service-lifecycle", servicesv1alpha1.GroupVersion.Group)
@@ -119,7 +119,7 @@ func CheckForInstancesBeforeFinalizing() reconcilers.SubReconciler[servicesv1alp
 				return err
 			}
 			for _, serviceInstance := range serviceInstances.Items {
-				if err := serviceInstance.Default(ctx, &serviceInstance); err != nil {
+				if err := serviceInstance.Default(ctx); err != nil {
 					return err
 				}
 

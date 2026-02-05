@@ -22,7 +22,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	"reconciler.io/runtime/apis"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"reconciler.io/runtime/reconcilers"
 )
 
 // +die
@@ -61,7 +61,7 @@ type RepositoryStatus struct {
 type GenericRepository interface {
 	runtime.Object
 	metav1.Object
-	webhook.CustomDefaulter
+	reconcilers.Defaulter
 
 	GetSpec() *RepositorySpec
 	GetStatus() *RepositoryStatus

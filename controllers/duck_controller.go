@@ -121,7 +121,7 @@ func ResolveRepository[GC componentsv1alpha1.ComponentLike](conditionType string
 					return ErrDurable
 				}
 
-				if err := repository.Default(ctx, repository); err != nil {
+				if err := repository.Default(ctx); err != nil {
 					return err
 				}
 				keychain, err := registry.KeychainManager.Get(repository)

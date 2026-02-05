@@ -321,11 +321,11 @@ jobs:
         echo "##[endgroup]"
         echo "##[group]Deploy cert-manager"
           ${KAPP} deploy -a cert-manager -n apps --wait-timeout 5m -y \
-            -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.1/cert-manager.yaml
+            -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.2/cert-manager.yaml
         echo "##[endgroup]"
         echo "##[group]Deploy reconcilerio-ducks"
           ${KAPP} deploy -a reconcilerio-ducks -n apps --wait-timeout 5m -y \
-            -f https://github.com/reconcilerio/ducks/releases/download/v0.1.0/reconcilerio-ducks-v0.1.0.yaml
+            -f https://github.com/reconcilerio/ducks/releases/download/v0.3.0/reconcilerio-ducks-v0.3.0.yaml
         echo "##[endgroup]"
         echo "##[group]Deploy reconcilerio-wa8s"
           kubectl create secret generic local-ca \

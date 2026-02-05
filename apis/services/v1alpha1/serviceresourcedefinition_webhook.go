@@ -20,13 +20,12 @@ import (
 	"context"
 	"strings"
 
-	runtime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
+	"reconciler.io/runtime/reconcilers"
 	"reconciler.io/wa8s/apis"
 	"reconciler.io/wa8s/validation"
 )
@@ -34,17 +33,14 @@ import (
 // +kubebuilder:webhook:path=/validate-services-wa8s-reconciler-io-v1alpha1-serviceresourcedefinition,mutating=false,failurePolicy=fail,sideEffects=None,groups=services.wa8s.reconciler.io,resources=serviceresourcedefinitions,verbs=create;update,versions=v1alpha1,name=v1alpha1.serviceresourcedefinitions.services.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
 
 func (r *ServiceResourceDefinition) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
-		WithDefaulter(r).
+	return ctrl.NewWebhookManagedBy(mgr, r).
 		WithValidator(r).
 		Complete()
 }
 
-var _ webhook.CustomDefaulter = &ServiceResourceDefinition{}
+var _ reconcilers.Defaulter = &ServiceResourceDefinition{}
 
-func (r *ServiceResourceDefinition) Default(ctx context.Context, obj runtime.Object) error {
-	r = obj.(*ServiceResourceDefinition)
+func (r *ServiceResourceDefinition) Default(ctx context.Context) error {
 	ctx = validation.StashResource(ctx, r)
 
 	if err := r.Spec.Default(ctx); err != nil {
@@ -80,29 +76,27 @@ func (r *ServiceResourceDefinitionNames) Default(ctx context.Context) error {
 	return nil
 }
 
-var _ webhook.CustomValidator = &ServiceResourceDefinition{}
+var _ admission.Validator[*ServiceResourceDefinition] = &ServiceResourceDefinition{}
 
-func (r *ServiceResourceDefinition) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, obj); err != nil {
+func (r *ServiceResourceDefinition) ValidateCreate(ctx context.Context, obj *ServiceResourceDefinition) (warnings admission.Warnings, err error) {
+	if err := obj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = obj.(*ServiceResourceDefinition)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, obj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ServiceResourceDefinition) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, newObj); err != nil {
+func (r *ServiceResourceDefinition) ValidateUpdate(ctx context.Context, oldObj, newObj *ServiceResourceDefinition) (warnings admission.Warnings, err error) {
+	if err := newObj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = newObj.(*ServiceResourceDefinition)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, newObj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ServiceResourceDefinition) ValidateDelete(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *ServiceResourceDefinition) ValidateDelete(ctx context.Context, obj *ServiceResourceDefinition) (warnings admission.Warnings, err error) {
 	return
 }
 

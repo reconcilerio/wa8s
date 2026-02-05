@@ -34,7 +34,7 @@ import (
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=httptriggers,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=httptriggers/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=httptriggers/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func HttpTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.HttpTrigger] {
 	childLabelKey := fmt.Sprintf("%s/http-trigger", containersv1alpha1.GroupVersion.Group)

@@ -34,7 +34,7 @@ import (
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wrpctriggers,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wrpctriggers/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wrpctriggers/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func WrpcTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.WrpcTrigger] {
 	childLabelKey := fmt.Sprintf("%s/wrpc-trigger", containersv1alpha1.GroupVersion.Group)

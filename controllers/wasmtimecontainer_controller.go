@@ -38,7 +38,7 @@ import (
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func WasmtimeContainerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.WasmtimeContainer] {
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.WasmtimeContainer]{

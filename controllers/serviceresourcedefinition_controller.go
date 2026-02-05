@@ -46,7 +46,7 @@ import (
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=serviceresourcedefinitions,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=serviceresourcedefinitions/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=serviceresourcedefinitions/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func ServiceResourceDefinitionReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceResourceDefinition] {
 	return &reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceResourceDefinition]{
