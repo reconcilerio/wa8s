@@ -19,10 +19,9 @@ package v1alpha1
 import (
 	"context"
 
-	runtime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation/field"
+	"reconciler.io/runtime/reconcilers"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	"reconciler.io/wa8s/apis"
@@ -32,17 +31,14 @@ import (
 //+kubebuilder:webhook:path=/validate-wa8s-reconciler-io-v1alpha1-configstore,mutating=false,failurePolicy=fail,sideEffects=None,groups=wa8s.reconciler.io,resources=configstores,verbs=create;update,versions=v1alpha1,name=v1alpha1.configstores.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
 
 func (r *ConfigStore) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
-		WithDefaulter(r).
+	return ctrl.NewWebhookManagedBy(mgr, r).
 		WithValidator(r).
 		Complete()
 }
 
-var _ webhook.CustomDefaulter = &Component{}
+var _ reconcilers.Defaulter = &ConfigStore{}
 
-func (r *ConfigStore) Default(ctx context.Context, obj runtime.Object) error {
-	r = obj.(*ConfigStore)
+func (r *ConfigStore) Default(ctx context.Context) error {
 	ctx = validation.StashResource(ctx, r)
 
 	if err := r.Spec.Default(ctx); err != nil {
@@ -104,29 +100,27 @@ func (r *ValueFrom) Default(ctx context.Context) error {
 	return nil
 }
 
-var _ webhook.CustomValidator = &ConfigStore{}
+var _ admission.Validator[*ConfigStore] = &ConfigStore{}
 
-func (r *ConfigStore) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, obj); err != nil {
+func (r *ConfigStore) ValidateCreate(ctx context.Context, obj *ConfigStore) (warnings admission.Warnings, err error) {
+	if err := obj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = obj.(*ConfigStore)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, obj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ConfigStore) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, newObj); err != nil {
+func (r *ConfigStore) ValidateUpdate(ctx context.Context, oldObj, newObj *ConfigStore) (warnings admission.Warnings, err error) {
+	if err := newObj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = newObj.(*ConfigStore)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, newObj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ConfigStore) ValidateDelete(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *ConfigStore) ValidateDelete(ctx context.Context, obj *ConfigStore) (warnings admission.Warnings, err error) {
 	return
 }
 

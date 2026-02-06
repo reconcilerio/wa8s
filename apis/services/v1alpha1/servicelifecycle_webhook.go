@@ -19,10 +19,9 @@ package v1alpha1
 import (
 	"context"
 
-	runtime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation/field"
+	"reconciler.io/runtime/reconcilers"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	"reconciler.io/wa8s/apis"
@@ -33,26 +32,21 @@ import (
 // +kubebuilder:webhook:path=/validate-services-wa8s-reconciler-io-v1alpha1-clusterservicelifecycle,mutating=false,failurePolicy=fail,sideEffects=None,groups=services.wa8s.reconciler.io,resources=clusterservicelifecycles,verbs=create;update,versions=v1alpha1,name=v1alpha1.clusterservicelifecycles.services.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
 
 func (r *ServiceLifecycle) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
-		WithDefaulter(r).
+	return ctrl.NewWebhookManagedBy(mgr, r).
 		WithValidator(r).
 		Complete()
 }
 
 func (r *ClusterServiceLifecycle) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
-		WithDefaulter(r).
+	return ctrl.NewWebhookManagedBy(mgr, r).
 		WithValidator(r).
 		Complete()
 }
 
-var _ webhook.CustomDefaulter = &ServiceLifecycle{}
-var _ webhook.CustomDefaulter = &ClusterServiceLifecycle{}
+var _ reconcilers.Defaulter = &ServiceLifecycle{}
+var _ reconcilers.Defaulter = &ClusterServiceLifecycle{}
 
-func (r *ServiceLifecycle) Default(ctx context.Context, obj runtime.Object) error {
-	r = obj.(*ServiceLifecycle)
+func (r *ServiceLifecycle) Default(ctx context.Context) error {
 	ctx = validation.StashResource(ctx, r)
 
 	if err := r.Spec.Default(ctx); err != nil {
@@ -62,8 +56,7 @@ func (r *ServiceLifecycle) Default(ctx context.Context, obj runtime.Object) erro
 	return nil
 }
 
-func (r *ClusterServiceLifecycle) Default(ctx context.Context, obj runtime.Object) error {
-	r = obj.(*ClusterServiceLifecycle)
+func (r *ClusterServiceLifecycle) Default(ctx context.Context) error {
 	ctx = validation.StashResource(ctx, r)
 
 	if err := r.Spec.Default(ctx); err != nil {
@@ -117,30 +110,28 @@ func (r *ServiceLifecycleReference) Validate(ctx context.Context, fldPath *field
 	return errs
 }
 
-var _ webhook.CustomValidator = &ServiceLifecycle{}
-var _ webhook.CustomValidator = &ClusterServiceLifecycle{}
+var _ admission.Validator[*ServiceLifecycle] = &ServiceLifecycle{}
+var _ admission.Validator[*ClusterServiceLifecycle] = &ClusterServiceLifecycle{}
 
-func (r *ServiceLifecycle) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, obj); err != nil {
+func (r *ServiceLifecycle) ValidateCreate(ctx context.Context, obj *ServiceLifecycle) (warnings admission.Warnings, err error) {
+	if err := obj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = obj.(*ServiceLifecycle)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, obj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ServiceLifecycle) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, newObj); err != nil {
+func (r *ServiceLifecycle) ValidateUpdate(ctx context.Context, oldObj, newObj *ServiceLifecycle) (warnings admission.Warnings, err error) {
+	if err := newObj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = newObj.(*ServiceLifecycle)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, newObj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ServiceLifecycle) ValidateDelete(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *ServiceLifecycle) ValidateDelete(ctx context.Context, obj *ServiceLifecycle) (warnings admission.Warnings, err error) {
 	return
 }
 
@@ -153,27 +144,25 @@ func (r *ServiceLifecycle) Validate(ctx context.Context, fldPath *field.Path) fi
 	return errs
 }
 
-func (r *ClusterServiceLifecycle) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, obj); err != nil {
+func (r *ClusterServiceLifecycle) ValidateCreate(ctx context.Context, obj *ClusterServiceLifecycle) (warnings admission.Warnings, err error) {
+	if err := obj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = obj.(*ClusterServiceLifecycle)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, obj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ClusterServiceLifecycle) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, newObj); err != nil {
+func (r *ClusterServiceLifecycle) ValidateUpdate(ctx context.Context, oldObj, newObj *ClusterServiceLifecycle) (warnings admission.Warnings, err error) {
+	if err := newObj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = newObj.(*ClusterServiceLifecycle)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, newObj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ClusterServiceLifecycle) ValidateDelete(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *ClusterServiceLifecycle) ValidateDelete(ctx context.Context, obj *ClusterServiceLifecycle) (warnings admission.Warnings, err error) {
 	return
 }
 

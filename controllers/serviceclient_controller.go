@@ -36,7 +36,7 @@ import (
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=serviceclients,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=serviceclients/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=serviceclients/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func ServiceClientReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceClient] {
 	childLabelKey := fmt.Sprintf("%s/service-client", servicesv1alpha1.GroupVersion.Group)

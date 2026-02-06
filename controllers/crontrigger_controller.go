@@ -32,7 +32,7 @@ import (
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=crontriggers,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=crontriggers/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=crontriggers/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func CronTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.CronTrigger] {
 	childLabelKey := fmt.Sprintf("%s/cron-trigger", containersv1alpha1.GroupVersion.Group)

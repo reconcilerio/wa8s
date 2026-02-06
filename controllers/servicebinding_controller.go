@@ -40,7 +40,7 @@ import (
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=servicebindings,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=servicebindings/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=servicebindings/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func ServiceBindingReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceBinding] {
 	childLabelKey := fmt.Sprintf("%s/service-binding", servicesv1alpha1.GroupVersion.Group)
@@ -110,7 +110,7 @@ func ResolveServiceInstanceId() reconcilers.SubReconciler[*servicesv1alpha1.Serv
 				return ErrDurable
 			}
 
-			if err := instance.Default(ctx, instance); err != nil {
+			if err := instance.Default(ctx); err != nil {
 				return err
 			}
 			instanceId := instance.Status.ServiceInstanceId

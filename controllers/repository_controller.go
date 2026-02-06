@@ -37,7 +37,7 @@ import (
 // +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=repositories,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=repositories/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=repositories/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func RepositoryReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[registriesv1alpha1.GenericRepository] {
 	return genericRepositoryReconciler(c, &registriesv1alpha1.Repository{}, &registriesv1alpha1.RepositoryList{})
@@ -46,7 +46,7 @@ func RepositoryReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[
 // +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterrepositories,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterrepositories/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterrepositories/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func ClusterRepositoryReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[registriesv1alpha1.GenericRepository] {
 	return genericRepositoryReconciler(c, &registriesv1alpha1.ClusterRepository{}, &registriesv1alpha1.ClusterRepositoryList{})

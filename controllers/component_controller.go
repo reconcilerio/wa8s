@@ -41,7 +41,7 @@ import (
 // +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=components,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=components/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=components/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func ComponentReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[componentsv1alpha1.GenericComponent] {
 	return genericComponentReconciler(c, &componentsv1alpha1.Component{}, &componentsv1alpha1.ComponentList{})
@@ -50,7 +50,7 @@ func ComponentReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[c
 // +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=clustercomponents,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=clustercomponents/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=clustercomponents/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func ClusterComponentReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[componentsv1alpha1.GenericComponent] {
 	return genericComponentReconciler(c, &componentsv1alpha1.ClusterComponent{}, &componentsv1alpha1.ClusterComponentList{})

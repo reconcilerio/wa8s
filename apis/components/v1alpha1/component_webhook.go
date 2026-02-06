@@ -21,11 +21,10 @@ import (
 	"fmt"
 	"strings"
 
-	runtime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apimachinery/pkg/util/validation/field"
+	"reconciler.io/runtime/reconcilers"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	"reconciler.io/wa8s/apis"
@@ -37,26 +36,21 @@ import (
 //+kubebuilder:webhook:path=/validate-wa8s-reconciler-io-v1alpha1-clustercomponent,mutating=false,failurePolicy=fail,sideEffects=None,groups=wa8s.reconciler.io,resources=clustercomponents,verbs=create;update,versions=v1alpha1,name=v1alpha1.clustercomponents.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
 
 func (r *Component) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
-		WithDefaulter(r).
+	return ctrl.NewWebhookManagedBy(mgr, r).
 		WithValidator(r).
 		Complete()
 }
 
 func (r *ClusterComponent) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
-		WithDefaulter(r).
+	return ctrl.NewWebhookManagedBy(mgr, r).
 		WithValidator(r).
 		Complete()
 }
 
-var _ webhook.CustomDefaulter = &Component{}
-var _ webhook.CustomDefaulter = &ClusterComponent{}
+var _ reconcilers.Defaulter = &Component{}
+var _ reconcilers.Defaulter = &ClusterComponent{}
 
-func (r *Component) Default(ctx context.Context, obj runtime.Object) error {
-	r = obj.(*Component)
+func (r *Component) Default(ctx context.Context) error {
 	ctx = validation.StashResource(ctx, r)
 
 	if err := r.Spec.Default(ctx); err != nil {
@@ -66,8 +60,7 @@ func (r *Component) Default(ctx context.Context, obj runtime.Object) error {
 	return nil
 }
 
-func (r *ClusterComponent) Default(ctx context.Context, obj runtime.Object) error {
-	r = obj.(*ClusterComponent)
+func (r *ClusterComponent) Default(ctx context.Context) error {
 	ctx = validation.StashResource(ctx, r)
 
 	if err := r.Spec.Default(ctx); err != nil {
@@ -120,30 +113,28 @@ func (r *OCIReference) Default(ctx context.Context) error {
 	return nil
 }
 
-var _ webhook.CustomValidator = &Component{}
-var _ webhook.CustomValidator = &ClusterComponent{}
+var _ admission.Validator[*Component] = &Component{}
+var _ admission.Validator[*ClusterComponent] = &ClusterComponent{}
 
-func (r *Component) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, obj); err != nil {
+func (r *Component) ValidateCreate(ctx context.Context, obj *Component) (warnings admission.Warnings, err error) {
+	if err := obj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = obj.(*Component)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, obj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *Component) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, newObj); err != nil {
+func (r *Component) ValidateUpdate(ctx context.Context, oldObj, newObj *Component) (warnings admission.Warnings, err error) {
+	if err := newObj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = newObj.(*Component)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, newObj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *Component) ValidateDelete(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *Component) ValidateDelete(ctx context.Context, obj *Component) (warnings admission.Warnings, err error) {
 	return
 }
 
@@ -156,27 +147,25 @@ func (r *Component) Validate(ctx context.Context, fldPath *field.Path) field.Err
 	return errs
 }
 
-func (r *ClusterComponent) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, obj); err != nil {
+func (r *ClusterComponent) ValidateCreate(ctx context.Context, obj *ClusterComponent) (warnings admission.Warnings, err error) {
+	if err := obj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = obj.(*ClusterComponent)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, obj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ClusterComponent) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
-	if err := r.Default(ctx, newObj); err != nil {
+func (r *ClusterComponent) ValidateUpdate(ctx context.Context, oldObj, newObj *ClusterComponent) (warnings admission.Warnings, err error) {
+	if err := newObj.Default(ctx); err != nil {
 		return nil, err
 	}
-	r = newObj.(*ClusterComponent)
-	ctx = validation.StashResource(ctx, r)
+	ctx = validation.StashResource(ctx, newObj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *ClusterComponent) ValidateDelete(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *ClusterComponent) ValidateDelete(ctx context.Context, obj *ClusterComponent) (warnings admission.Warnings, err error) {
 	return
 }
 

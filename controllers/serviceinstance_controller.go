@@ -38,7 +38,7 @@ import (
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=serviceinstances,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=serviceinstances/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=services.wa8s.reconciler.io,resources=serviceinstances/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func ServiceInstanceReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceInstance] {
 	return &reconcilers.ResourceReconciler[*servicesv1alpha1.ServiceInstance]{
@@ -115,7 +115,7 @@ func ResolveServiceLifecycle() reconcilers.SubReconciler[*servicesv1alpha1.Servi
 				return ErrDurable
 			}
 
-			if err := lifecycle.Default(ctx, lifecycle); err != nil {
+			if err := lifecycle.Default(ctx); err != nil {
 				return err
 			}
 			address := lifecycle.GetStatus().URL

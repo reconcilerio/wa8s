@@ -39,7 +39,7 @@ import (
 // +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=compositions,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=compositions/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=compositions/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func CompositionReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*componentsv1alpha1.Composition] {
 	childLabelKey := fmt.Sprintf("%s/composition", componentsv1alpha1.GroupVersion.Group)
