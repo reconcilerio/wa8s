@@ -67,7 +67,7 @@ func (r *ServiceBinding) ValidateCreate(ctx context.Context, obj *ServiceBinding
 	}
 	ctx = validation.StashResource(ctx, obj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
 func (r *ServiceBinding) ValidateUpdate(ctx context.Context, oldObj, newObj *ServiceBinding) (warnings admission.Warnings, err error) {
@@ -87,7 +87,7 @@ func (r *ServiceBinding) ValidateUpdate(ctx context.Context, oldObj, newObj *Ser
 		return nil, fmt.Errorf(".status.serviceBindingId is immutable once set")
 	}
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
 func (r *ServiceBinding) ValidateDelete(ctx context.Context, obj *ServiceBinding) (warnings admission.Warnings, err error) {

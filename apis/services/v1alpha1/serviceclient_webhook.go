@@ -85,7 +85,7 @@ func (r *ServiceClient) ValidateCreate(ctx context.Context, obj *ServiceClient) 
 	}
 	ctx = validation.StashResource(ctx, obj)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
 func (r *ServiceClient) ValidateUpdate(ctx context.Context, oldObj, newObj *ServiceClient) (warnings admission.Warnings, err error) {
