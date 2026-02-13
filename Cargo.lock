@@ -1561,8 +1561,8 @@ dependencies = [
  "leb128",
  "log",
  "walrus-macro 0.25.0",
- "wasm-encoder 0.245.0",
- "wasmparser 0.245.0",
+ "wasm-encoder 0.245.1",
+ "wasmparser 0.245.1",
 ]
 
 [[package]]
