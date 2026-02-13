@@ -126,7 +126,9 @@ func CheckForInstancesBeforeFinalizing() reconcilers.SubReconciler[servicesv1alp
 				if serviceInstance.Spec.Ref.Name == resource.GetName() && serviceInstance.Spec.Ref.Kind == gvk.Kind {
 					if !namespaced || serviceInstance.Spec.Ref.Namespace == resource.GetNamespace() {
 						// track client to be deleted
-						c.Tracker.TrackObject(&serviceInstance, resource)
+						if err := c.Tracker.TrackObject(&serviceInstance, resource); err != nil {
+							return err
+						}
 						if resource.GetNamespace() == "" {
 							resource.GetConditionManager(ctx).MarkFalse(servicesv1alpha1.ServiceLifecycleConditionFinalizer, "ServiceInstanceExists", "deletion blocked by ServiceInstance %s/%s", serviceInstance.Namespace, serviceInstance.Name)
 						} else {
@@ -137,7 +139,9 @@ func CheckForInstancesBeforeFinalizing() reconcilers.SubReconciler[servicesv1alp
 				}
 			}
 
-			resource.GetConditionManager(ctx).ClearCondition(servicesv1alpha1.ServiceLifecycleConditionFinalizer)
+			if err := resource.GetConditionManager(ctx).ClearCondition(servicesv1alpha1.ServiceLifecycleConditionFinalizer); err != nil {
+				return err
+			}
 
 			return nil
 		},

@@ -43,7 +43,7 @@ generate: components ## Generate code containing DeepCopy, DeepCopyInto, and Dee
 fmt: ## Run go fmt against code.
 	$(GOIMPORTS) --local reconciler.io/wa8s -w .
 
-.PHONY: vet
+.PHONY: vet 
 vet: ## Run go vet against code.
 	go vet ./...
 
@@ -52,11 +52,11 @@ test: manifests generate vet ## Run tests.
 	go test ./... -coverprofile cover.out
 
 .PHONY: lint
-lint: golangci-lint ## Run golangci-lint linter
+lint: ## Run golangci-lint linter
 	$(GOLANGCI_LINT) run
 
 .PHONY: lint-fix
-lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
+lint-fix: ## Run golangci-lint linter and perform fixes
 	$(GOLANGCI_LINT) run --fix
 
 .PHONY: components
@@ -130,6 +130,7 @@ kind-deploy: ## Deploy to a running local kind cluster
 CONTROLLER_GEN ?= go run -modfile hack/controller-gen/go.mod sigs.k8s.io/controller-tools/cmd/controller-gen
 DIEGEN ?= go run -modfile hack/diegen/go.mod reconciler.io/dies/diegen
 GOIMPORTS ?= go run -modfile hack/goimports/go.mod golang.org/x/tools/cmd/goimports
+GOLANGCI_LINT ?= go run -modfile hack/golangci-lint/go.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 KAPP ?= go run -modfile hack/kapp/go.mod carvel.dev/kapp/cmd/kapp
 KO ?= go run -modfile hack/ko/go.mod github.com/google/ko
 KUSTOMIZE ?= go run -modfile hack/kustomize/go.mod sigs.k8s.io/kustomize/kustomize/v4
