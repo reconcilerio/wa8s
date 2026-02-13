@@ -202,10 +202,12 @@ func Copy(ctx context.Context, from name.Reference, to name.Tag, opts ...remote.
 	return name.NewDigest(fmt.Sprintf("%s@%s", to.Repository, digest.DigestStr()))
 }
 
-func componentAsLayer(component []byte) (v1.Layer, error) {
+func componentAsLayer(component []byte) (layer v1.Layer, err error) {
 	buf := bytes.NewBuffer([]byte{})
 	tarWriter := tar.NewWriter(buf)
-	defer tarWriter.Close()
+	defer func() {
+		err = tarWriter.Close()
+	}()
 	if err := tarWriter.WriteHeader(&tar.Header{
 		Name: "component.wasm",
 		Size: int64(len(component)),
@@ -218,7 +220,7 @@ func componentAsLayer(component []byte) (v1.Layer, error) {
 	if _, err := io.Copy(tarWriter, bytes.NewReader(component)); err != nil {
 		return nil, err
 	}
-	layer := stream.NewLayer(io.NopCloser(buf), stream.WithMediaType(types.OCILayer))
+	layer = stream.NewLayer(io.NopCloser(buf), stream.WithMediaType(types.OCILayer))
 	return layer, nil
 }
 

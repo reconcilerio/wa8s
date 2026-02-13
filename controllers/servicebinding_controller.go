@@ -422,7 +422,7 @@ func ExpirationRequeue() reconcilers.SubReconciler[*servicesv1alpha1.ServiceBind
 			}
 
 			now := rtime.RetrieveNow(ctx)
-			expiration := resource.CreationTimestamp.Time.Add(resource.Spec.Duration.Duration)
+			expiration := resource.CreationTimestamp.Add(resource.Spec.Duration.Duration)
 			resource.Status.ExpiresAfter = metav1.NewTime(expiration)
 
 			if after := expiration.Sub(now); after > 0 {

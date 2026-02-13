@@ -166,7 +166,7 @@ func StampServiceBinding() reconcilers.SubReconciler[*servicesv1alpha1.ServiceCl
 				return ErrDurable
 			}
 
-			if current.Status.GenericComponentStatus.Image == "" {
+			if current.Status.Image == "" {
 				// should never be ready and missing an image, but ya know
 				parent.GetConditionManager(ctx).MarkFalse(servicesv1alpha1.ServiceClientConditionBound, "ImageMissing", "ServiceBinding %s is missing image", current.Name)
 				return ErrDurable

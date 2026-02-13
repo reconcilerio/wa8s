@@ -313,7 +313,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	mgr.Add(controllers.ServicesWebhook(mgr, config.WithTracker(), ":9080"))
+	if err := mgr.Add(controllers.ServicesWebhook(mgr, config.WithTracker(), ":9080")); err != nil {
+		setupLog.Error(err, "unable to create ServicesWebhook")
+		os.Exit(1)
+	}
 
 	// +kubebuilder:scaffold:builder
 

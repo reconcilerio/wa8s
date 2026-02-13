@@ -74,37 +74,6 @@ func (s *servicesWebhooks) Start(ctx context.Context) error {
 	return http.ListenAndServe(s.Addr, mux)
 }
 
-func (s *servicesWebhooks) lookupInstanceID(ctx context.Context) func(w http.ResponseWriter, r *http.Request) {
-	log := logr.FromContextOrDiscard(ctx).WithName("lookupInstanceID")
-	ctx = logr.NewContext(ctx, log)
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		log.Info("request", "method", r.Method, "path", r.RequestURI)
-
-		bindingId := r.Header.Get("service-binding-id")
-		if bindingId == "" {
-			log.Error(fmt.Errorf("missing service-binding-id header"), "missing service-binding-id header")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		secret, err := s.loadSecret(ctx, bindingId)
-		if err != nil {
-			log.Error(err, "unable to load binding")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		if secret == nil {
-			log.Info("unknown binding")
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		w.Header().Add("service-instance-id", secret.Labels["services.wa8s.reconciler.io/instance-id"])
-		w.WriteHeader(http.StatusNoContent)
-	}
-}
-
 func (s *servicesWebhooks) fetchCredentials(ctx context.Context) func(w http.ResponseWriter, r *http.Request) {
 	log := logr.FromContextOrDiscard(ctx).WithName("fetchCredentials")
 	ctx = logr.NewContext(ctx, log)
@@ -127,7 +96,11 @@ func (s *servicesWebhooks) fetchCredentials(ctx context.Context) func(w http.Res
 		}
 
 		w.Header().Add("content-type", "application/json")
-		json.NewEncoder(w).Encode(creds)
+		if err := json.NewEncoder(w).Encode(creds); err != nil {
+			log.Error(err, "unable to encode response")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
 }
 

@@ -75,7 +75,7 @@ func CollectConfig() reconcilers.SubReconciler[*componentsv1alpha1.ConfigStore] 
 
 			config := map[string]string{}
 
-			for _, valuesFrom := range resource.Spec.GenericConfigStoreSpec.ValuesFrom {
+			for _, valuesFrom := range resource.Spec.ValuesFrom {
 				configMap := &corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: resource.Namespace,
@@ -94,7 +94,7 @@ func CollectConfig() reconcilers.SubReconciler[*componentsv1alpha1.ConfigStore] 
 				}
 			}
 
-			for _, values := range resource.Spec.GenericConfigStoreSpec.Values {
+			for _, values := range resource.Spec.Values {
 				if values.ValueFrom != nil {
 					configMap := &corev1.ConfigMap{
 						ObjectMeta: metav1.ObjectMeta{

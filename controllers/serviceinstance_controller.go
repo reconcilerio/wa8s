@@ -190,7 +190,9 @@ func ManageServiceInstance() reconcilers.SubReconciler[*servicesv1alpha1.Service
 			for _, serviceBinding := range serviceBindings.Items {
 				if serviceBinding.Spec.Ref.Name == resource.Name {
 					// track client to be deleted
-					c.Tracker.TrackObject(&serviceBinding, resource)
+					if err := c.Tracker.TrackObject(&serviceBinding, resource); err != nil {
+						return err
+					}
 					resource.GetConditionManager(ctx).MarkFalse(servicesv1alpha1.ServiceInstanceConditionFinalizer, "ServiceBindingExists", "deletion blocked by ServiceBinding %s", serviceBinding.Name)
 					return ErrDurable
 				}
@@ -206,7 +208,9 @@ func ManageServiceInstance() reconcilers.SubReconciler[*servicesv1alpha1.Service
 				resource.GetConditionManager(ctx).MarkFalse(servicesv1alpha1.ServiceInstanceConditionFinalizer, "DestroyFailed", "%s", err)
 				return ErrDurable
 			}
-			resource.GetConditionManager(ctx).ClearCondition(servicesv1alpha1.ServiceInstanceConditionFinalizer)
+			if err := resource.GetConditionManager(ctx).ClearCondition(servicesv1alpha1.ServiceInstanceConditionFinalizer); err != nil {
+				return err
+			}
 			c.Recorder.Eventf(resource, corev1.EventTypeNormal, "Destroyed", "")
 
 			return nil
