@@ -15,7 +15,6 @@ require (
 	k8s.io/apimachinery v0.35.1
 	k8s.io/client-go v0.35.1
 	k8s.io/kube-aggregator v0.35.1
-	k8s.io/utils v0.0.0-20251002143259-bc988d571ff4
 	reconciler.io/dies v0.18.0
 	reconciler.io/ducks v0.3.0
 	reconciler.io/runtime v0.25.2-0.20260205131110-e5cd021736ff
@@ -143,6 +142,7 @@ require (
 	k8s.io/component-base v0.35.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912 // indirect
+	k8s.io/utils v0.0.0-20251002143259-bc988d571ff4 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.31.2 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.2-0.20260122202528-d9cc6641c482 // indirect

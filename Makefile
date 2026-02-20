@@ -26,12 +26,16 @@ help: ## Display this help.
 ##@ Development
 
 .PHONY: manifests
-manifests: ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) rbac:roleName=wa8s-manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+manifests: internal-manifests ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
+	$(foreach file,$(wildcard config/crd/bases/*.yaml),$(shell $(YQ) -i 'del(.metadata.annotations["controller-gen.kubebuilder.io/version"]) | del(.metadata.annotations | select(length==0))' ${file}))
 	cat hack/boilerplate.yaml.txt > config/wa8s.yaml
 	$(KUSTOMIZE) build config/default >> config/wa8s.yaml
 	cp config/crd/bases/services.wa8s.reconciler.io_serviceclientducks.yaml apis/services/v1alpha1/serviceclientducks.yaml
 	cp config/crd/bases/services.wa8s.reconciler.io_serviceinstanceducks.yaml apis/services/v1alpha1/serviceinstanceducks.yaml
+
+.PHONY: internal-manifests
+internal-manifests:
+	$(CONTROLLER_GEN) rbac:roleName=wa8s-manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
 generate: components ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
@@ -135,3 +139,4 @@ KAPP ?= go run -modfile hack/kapp/go.mod carvel.dev/kapp/cmd/kapp
 KO ?= go run -modfile hack/ko/go.mod github.com/google/ko
 KUSTOMIZE ?= go run -modfile hack/kustomize/go.mod sigs.k8s.io/kustomize/kustomize/v4
 STERN ?= go run -modfile hack/stern/go.mod github.com/stern/stern
+YQ ?= go run -modfile hack/yq/go.mod github.com/mikefarah/yq/v4
