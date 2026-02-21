@@ -1,6 +1,6 @@
 module reconciler.io/wa8s
 
-go 1.25.0
+go 1.25.7
 
 require (
 	github.com/extism/go-sdk v1.7.1

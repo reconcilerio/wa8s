@@ -22,6 +22,7 @@ jobs:
     name: Unit Test
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
       with:
         go-version-file: 'go.mod'
@@ -36,7 +37,6 @@ jobs:
       run: cargo binstall --force cargo-component
     - name: Install wasm-tools
       run: cargo binstall --force wasm-tools
-    - uses: actions/checkout@v6
     - name: Test
       run: make test
     - name: Lint
