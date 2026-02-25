@@ -6,7 +6,7 @@ require (
 	github.com/extism/go-sdk v1.7.1
 	github.com/go-logr/logr v1.4.3
 	github.com/google/go-cmp v0.7.0
-	github.com/google/go-containerregistry v0.21.0
+	github.com/google/go-containerregistry v0.21.1
 	github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20250115185438-c4dd792fa06c
 	github.com/stoewer/go-strcase v1.3.1
 	github.com/tetratelabs/wazero v1.11.0
