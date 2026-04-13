@@ -534,7 +534,7 @@ jobs:
         cp reconcilerio-wa8s-bundle.tar reconcilerio-wa8s-bundle-${version}.tar
         cp reconcilerio-wa8s.yaml reconcilerio-wa8s-${version}.yaml
     - name: Draft GitHub Release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         draft: true
         files: |
