@@ -3,6 +3,9 @@
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
+# Use go toolchain defined in go.mod
+export GOTOOLCHAIN ?= go$(shell go mod edit -json | jq -r .Go)
+
 .PHONY: all
 all: test
 
