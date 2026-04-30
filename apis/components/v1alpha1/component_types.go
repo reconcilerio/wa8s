@@ -171,6 +171,9 @@ type ClusterComponentList struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&Component{}, &ComponentList{})
-	SchemeBuilder.Register(&ClusterComponent{}, &ClusterComponentList{})
+	schemeBuilder.Register(func(s *runtime.Scheme) error {
+		s.AddKnownTypes(GroupVersion, &Component{}, &ComponentList{})
+		s.AddKnownTypes(GroupVersion, &ClusterComponent{}, &ClusterComponentList{})
+		return nil
+	})
 }

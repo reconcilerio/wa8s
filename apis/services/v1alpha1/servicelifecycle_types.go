@@ -161,6 +161,9 @@ type ClusterServiceLifecycleList struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&ServiceLifecycle{}, &ServiceLifecycleList{})
-	SchemeBuilder.Register(&ClusterServiceLifecycle{}, &ClusterServiceLifecycleList{})
+	schemeBuilder.Register(func(s *runtime.Scheme) error {
+		s.AddKnownTypes(GroupVersion, &ServiceLifecycle{}, &ServiceLifecycleList{})
+		s.AddKnownTypes(GroupVersion, &ClusterServiceLifecycle{}, &ClusterServiceLifecycleList{})
+		return nil
+	})
 }

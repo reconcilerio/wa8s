@@ -20,17 +20,25 @@ limitations under the License.
 package v1alpha1
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"sigs.k8s.io/controller-runtime/pkg/scheme"
 )
 
 var (
 	// GroupVersion is group version used to register these objects
 	GroupVersion = schema.GroupVersion{Group: "registries.wa8s.reconciler.io", Version: "v1alpha1"}
 
-	// SchemeBuilder is used to add go types to the GroupVersionKind scheme
-	SchemeBuilder = &scheme.Builder{GroupVersion: GroupVersion}
+	// schemeBuilder is used to add go types to the GroupVersionKind scheme
+	schemeBuilder = runtime.NewSchemeBuilder()
 
 	// AddToScheme adds the types in this group-version to the given scheme.
-	AddToScheme = SchemeBuilder.AddToScheme
+	AddToScheme = schemeBuilder.AddToScheme
 )
+
+func init() {
+	schemeBuilder.Register(func(s *runtime.Scheme) error {
+		metav1.AddToGroupVersion(s, GroupVersion)
+		return nil
+	})
+}

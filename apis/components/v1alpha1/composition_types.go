@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	runtime "k8s.io/apimachinery/pkg/runtime"
 	"reconciler.io/runtime/apis"
 )
 
@@ -117,5 +118,8 @@ type CompositionList struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&Composition{}, &CompositionList{})
+	schemeBuilder.Register(func(s *runtime.Scheme) error {
+		s.AddKnownTypes(GroupVersion, &Composition{}, &CompositionList{})
+		return nil
+	})
 }
