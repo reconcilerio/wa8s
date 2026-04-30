@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	runtime "k8s.io/apimachinery/pkg/runtime"
 	"reconciler.io/runtime/apis"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
@@ -88,5 +89,8 @@ type WrpcTriggerList struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&WrpcTrigger{}, &WrpcTriggerList{})
+	schemeBuilder.Register(func(s *runtime.Scheme) error {
+		s.AddKnownTypes(GroupVersion, &WrpcTrigger{}, &WrpcTriggerList{})
+		return nil
+	})
 }

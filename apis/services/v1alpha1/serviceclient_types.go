@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"reconciler.io/runtime/apis"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
@@ -91,5 +92,8 @@ type ServiceClientList struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&ServiceClient{}, &ServiceClientList{})
+	schemeBuilder.Register(func(s *runtime.Scheme) error {
+		s.AddKnownTypes(GroupVersion, &ServiceClient{}, &ServiceClientList{})
+		return nil
+	})
 }

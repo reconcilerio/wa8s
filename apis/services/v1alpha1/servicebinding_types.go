@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"reconciler.io/runtime/apis"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
@@ -88,5 +89,8 @@ type ServiceBindingList struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&ServiceBinding{}, &ServiceBindingList{})
+	schemeBuilder.Register(func(s *runtime.Scheme) error {
+		s.AddKnownTypes(GroupVersion, &ServiceBinding{}, &ServiceBindingList{})
+		return nil
+	})
 }

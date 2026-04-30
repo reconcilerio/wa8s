@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"reconciler.io/runtime/apis"
 )
 
@@ -95,5 +96,8 @@ type ServiceResourceDefinitionList struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&ServiceResourceDefinition{}, &ServiceResourceDefinitionList{})
+	schemeBuilder.Register(func(s *runtime.Scheme) error {
+		s.AddKnownTypes(GroupVersion, &ServiceResourceDefinition{}, &ServiceResourceDefinitionList{})
+		return nil
+	})
 }

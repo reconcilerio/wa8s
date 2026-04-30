@@ -141,6 +141,9 @@ type ClusterRepositoryList struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&Repository{}, &RepositoryList{})
-	SchemeBuilder.Register(&ClusterRepository{}, &ClusterRepositoryList{})
+	schemeBuilder.Register(func(s *runtime.Scheme) error {
+		s.AddKnownTypes(GroupVersion, &Repository{}, &RepositoryList{})
+		s.AddKnownTypes(GroupVersion, &ClusterRepository{}, &ClusterRepositoryList{})
+		return nil
+	})
 }
