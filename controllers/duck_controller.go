@@ -66,8 +66,8 @@ func ResolveComponentReference(ctx context.Context, ref componentsv1alpha1.Compo
 	return component, nil
 }
 
-// +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=repositories,verbs=get;list;watch
-// +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=clusterrepositories,verbs=get;list;watch
+// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=repositories,verbs=get;list;watch
+// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterrepositories,verbs=get;list;watch
 
 func ResolveRepository[GC componentsv1alpha1.ComponentLike](conditionType string) reconcilers.SubReconciler[GC] {
 	return &reconcilers.CastResource[GC, componentsv1alpha1.ComponentLike]{
