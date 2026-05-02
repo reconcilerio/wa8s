@@ -69,81 +69,109 @@ func ResolveComponentReference(ctx context.Context, ref componentsv1alpha1.Compo
 // +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=repositories,verbs=get;list;watch
 // +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterrepositories,verbs=get;list;watch
 
-func ResolveRepository[GC componentsv1alpha1.ComponentLike](conditionType string) reconcilers.SubReconciler[GC] {
-	return &reconcilers.CastResource[GC, componentsv1alpha1.ComponentLike]{
-		Reconciler: &reconcilers.SyncReconciler[componentsv1alpha1.ComponentLike]{
-			Setup: func(ctx context.Context, mgr manager.Manager, bldr *builder.TypedBuilder[reconcile.Request]) error {
-				bldr.Watches(&registriesv1alpha1.Repository{}, reconcilers.EnqueueTracked(ctx))
-				bldr.Watches(&registriesv1alpha1.ClusterRepository{}, reconcilers.EnqueueTracked(ctx))
+func ResolveRepository[RR registriesv1alpha1.RepositoryReferencer](conditionType string) reconcilers.SubReconciler[RR] {
+	return &reconcilers.SyncReconciler[RR]{
+		Setup: func(ctx context.Context, mgr manager.Manager, bldr *builder.TypedBuilder[reconcile.Request]) error {
+			bldr.Watches(&registriesv1alpha1.Repository{}, reconcilers.EnqueueTracked(ctx))
+			bldr.Watches(&registriesv1alpha1.ClusterRepository{}, reconcilers.EnqueueTracked(ctx))
 
-				return nil
-			},
-			Sync: func(ctx context.Context, resource componentsv1alpha1.ComponentLike) error {
-				c := reconcilers.RetrieveConfigOrDie(ctx)
-				conditionManager := resource.GetConditionManager(ctx)
+			return nil
+		},
+		Sync: func(ctx context.Context, resource RR) error {
+			c := reconcilers.RetrieveConfigOrDie(ctx)
+			conditionManager := resource.GetConditionManager(ctx)
 
-				repositoryRef := resource.GetGenericComponentSpec().RepositoryRef
-				var repository registriesv1alpha1.GenericRepository
-				if repositoryRef.Kind == "ClusterRepository" {
-					repository = &registriesv1alpha1.ClusterRepository{
-						ObjectMeta: metav1.ObjectMeta{
-							Name: repositoryRef.Name,
-						},
-					}
-				} else {
-					repository = &registriesv1alpha1.Repository{
-						ObjectMeta: metav1.ObjectMeta{
-							Namespace: resource.GetNamespace(),
-							Name:      repositoryRef.Name,
-						},
-					}
+			repositoryRef := resource.GetRepositoryReference()
+			var repository registriesv1alpha1.GenericRepository
+			if repositoryRef.Kind == "ClusterRepository" {
+				repository = &registriesv1alpha1.ClusterRepository{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: repositoryRef.Name,
+					},
 				}
-				if err := c.TrackAndGet(ctx, client.ObjectKeyFromObject(repository), repository); err != nil {
-					if apierrs.IsNotFound(err) {
-						resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotFound", "%s %s not found", repositoryRef.Kind, repositoryRef.Name)
-						return ErrDurable
-					}
-					return err
+			} else {
+				repository = &registriesv1alpha1.Repository{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: resource.GetNamespace(),
+						Name:      repositoryRef.Name,
+					},
 				}
-
-				// avoid premature reconciliation, check generation and ready condition
-				if repository.GetGeneration() != repository.GetStatus().ObservedGeneration {
-					resource.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for %s %s to reconcile", repositoryRef.Kind, repositoryRef.Name)
-					return ErrGenerationMismatch
-				}
-				repository.GetStatus().InitializeConditions(ctx)
-				if ready := repository.GetStatus().GetCondition(registriesv1alpha1.RepositoryConditionReady); !apis.ConditionIsTrue(ready) {
-					if apis.ConditionIsFalse(ready) {
-						resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
-					} else {
-						resource.GetConditionManager(ctx).MarkUnknown(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
-					}
+			}
+			if err := c.TrackAndGet(ctx, client.ObjectKeyFromObject(repository), repository); err != nil {
+				if apierrs.IsNotFound(err) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotFound", "%s %s not found", repositoryRef.Kind, repositoryRef.Name)
 					return ErrDurable
 				}
+				return err
+			}
 
-				if err := repository.Default(ctx); err != nil {
-					return err
+			// avoid premature reconciliation, check generation and ready condition
+			if repository.GetGeneration() != repository.GetStatus().ObservedGeneration {
+				resource.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for %s %s to reconcile", repositoryRef.Kind, repositoryRef.Name)
+				return ErrGenerationMismatch
+			}
+			repository.GetStatus().InitializeConditions(ctx)
+			if ready := repository.GetStatus().GetCondition(registriesv1alpha1.RepositoryConditionReady); !apis.ConditionIsTrue(ready) {
+				if apis.ConditionIsFalse(ready) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
+				} else {
+					resource.GetConditionManager(ctx).MarkUnknown(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
 				}
-				keychain, err := registry.KeychainManager.Get(repository)
-				if err != nil {
-					return errors.Join(err, ErrTransient)
-				}
-				if kc, err := RepositoryKeychainStasher.RetrieveOrError(ctx); err == nil {
-					// merge with existing stashed keychain
-					keychain = authn.NewMultiKeychain(keychain, kc)
-				}
-				RepositoryKeychainStasher.Store(ctx, keychain)
+				return ErrDurable
+			}
 
-				tagRef, err := registry.ApplyTemplate(ctx, repository.GetSpec().Template, resource)
-				if err != nil {
-					return err
-				}
-				RepositoryTagStasher.Store(ctx, tagRef)
+			if err := repository.Default(ctx); err != nil {
+				return err
+			}
+			keychain, err := registry.KeychainManager.Get(repository)
+			if err != nil {
+				return errors.Join(err, ErrTransient)
+			}
+			if kc, err := RepositoryKeychainStasher.RetrieveOrError(ctx); err == nil {
+				// merge with existing stashed keychain
+				keychain = authn.NewMultiKeychain(keychain, kc)
+			}
+			RepositoryKeychainStasher.Store(ctx, keychain)
 
-				conditionManager.MarkTrue(conditionType, "Ready", "")
+			tagRef, err := registry.ApplyTemplate(ctx, repository.GetSpec().Template, resource)
+			if err != nil {
+				return err
+			}
+			RepositoryTagStasher.Store(ctx, tagRef)
 
+			conditionManager.MarkTrue(conditionType, "Ready", "")
+
+			return nil
+		},
+	}
+}
+
+func ResolveKeychain[SAR registriesv1alpha1.ServiceAccountReferencer](conditionType string) reconcilers.SubReconciler[SAR] {
+	return &reconcilers.SyncReconciler[SAR]{
+		Sync: func(ctx context.Context, resource SAR) error {
+			ref := resource.GetServiceAccountReference()
+			if ref == nil {
 				return nil
-			},
+			}
+
+			keychain, err := registry.KeychainManager.CreateForServiceAccountRef(ctx, *ref)
+			if err != nil {
+				if apierrs.IsNotFound(err) {
+					status := err.(apierrs.APIStatus).Status()
+					kind := status.Kind
+					name := status.Details.Name
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, fmt.Sprintf("%sNotFound", kind), "%s %s not found", kind, name)
+					return ErrDurable
+				}
+				return err
+			}
+
+			if kc, err := RepositoryKeychainStasher.RetrieveOrError(ctx); err == nil {
+				// merge with existing stashed keychain
+				keychain = authn.NewMultiKeychain(keychain, kc)
+			}
+			RepositoryKeychainStasher.Store(ctx, keychain)
+			return nil
 		},
 	}
 }

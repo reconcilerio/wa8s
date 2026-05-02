@@ -20,6 +20,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	"reconciler.io/runtime/apis"
+
+	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 )
 
 // +die
@@ -96,6 +98,10 @@ func (r *ConfigStore) GetGenericComponentSpec() *GenericComponentSpec {
 
 func (r *ConfigStore) GetGenericComponentStatus() *GenericComponentStatus {
 	return &r.Status.GenericComponentStatus
+}
+
+func (r *ConfigStore) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
+	return &r.Spec.RepositoryRef
 }
 
 // +kubebuilder:object:root=true

@@ -79,6 +79,10 @@ func (r *WasmtimeContainer) GetGenericComponentStatus() *componentsv1alpha1.Gene
 	return &r.Status.GenericComponentStatus
 }
 
+func (r *WasmtimeContainer) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
+	return &r.Spec.RepositoryRef
+}
+
 // +kubebuilder:object:root=true
 
 // WasmtimeContainerList contains a list of WasmtimeContainer
