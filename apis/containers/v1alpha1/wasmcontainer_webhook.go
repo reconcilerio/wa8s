@@ -29,17 +29,17 @@ import (
 	"reconciler.io/wa8s/validation"
 )
 
-//+kubebuilder:webhook:path=/validate-containers-wa8s-reconciler-io-v1alpha1-wasmtimecontainer,mutating=false,failurePolicy=fail,sideEffects=None,groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers,verbs=create;update,versions=v1alpha1,name=v1alpha1.wasmtimecontainers.containers.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
+//+kubebuilder:webhook:path=/validate-containers-wa8s-reconciler-io-v1alpha1-componentcontainerimage,mutating=false,failurePolicy=fail,sideEffects=None,groups=containers.wa8s.reconciler.io,resources=componentcontainerimages,verbs=create;update,versions=v1alpha1,name=v1alpha1.componentcontainerimages.containers.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
 
-func (r *WasmtimeContainer) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (r *ComponentContainerImage) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr, r).
 		WithValidator(r).
 		Complete()
 }
 
-var _ reconcilers.Defaulter = &WasmtimeContainer{}
+var _ reconcilers.Defaulter = &ComponentContainerImage{}
 
-func (r *WasmtimeContainer) Default(ctx context.Context) error {
+func (r *ComponentContainerImage) Default(ctx context.Context) error {
 	ctx = validation.StashResource(ctx, r)
 
 	if err := r.Spec.Default(ctx); err != nil {
@@ -49,7 +49,7 @@ func (r *WasmtimeContainer) Default(ctx context.Context) error {
 	return nil
 }
 
-func (r *WasmtimeContainerSpec) Default(ctx context.Context) error {
+func (r *ComponentContainerImageSpec) Default(ctx context.Context) error {
 	if err := r.GenericComponentSpec.Default(ctx); err != nil {
 		return err
 	}
@@ -69,9 +69,9 @@ func (r *WasmtimeContainerSpec) Default(ctx context.Context) error {
 	return nil
 }
 
-var _ admission.Validator[*WasmtimeContainer] = &WasmtimeContainer{}
+var _ admission.Validator[*ComponentContainerImage] = &ComponentContainerImage{}
 
-func (r *WasmtimeContainer) ValidateCreate(ctx context.Context, obj *WasmtimeContainer) (warnings admission.Warnings, err error) {
+func (r *ComponentContainerImage) ValidateCreate(ctx context.Context, obj *ComponentContainerImage) (warnings admission.Warnings, err error) {
 	if err := obj.Default(ctx); err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (r *WasmtimeContainer) ValidateCreate(ctx context.Context, obj *WasmtimeCon
 	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *WasmtimeContainer) ValidateUpdate(ctx context.Context, oldObj, newObj *WasmtimeContainer) (warnings admission.Warnings, err error) {
+func (r *ComponentContainerImage) ValidateUpdate(ctx context.Context, oldObj, newObj *ComponentContainerImage) (warnings admission.Warnings, err error) {
 	if err := newObj.Default(ctx); err != nil {
 		return nil, err
 	}
@@ -89,11 +89,11 @@ func (r *WasmtimeContainer) ValidateUpdate(ctx context.Context, oldObj, newObj *
 	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *WasmtimeContainer) ValidateDelete(ctx context.Context, obj *WasmtimeContainer) (warnings admission.Warnings, err error) {
+func (r *ComponentContainerImage) ValidateDelete(ctx context.Context, obj *ComponentContainerImage) (warnings admission.Warnings, err error) {
 	return
 }
 
-func (r *WasmtimeContainer) Validate(ctx context.Context, fldPath *field.Path) field.ErrorList {
+func (r *ComponentContainerImage) Validate(ctx context.Context, fldPath *field.Path) field.ErrorList {
 	errs := field.ErrorList{}
 
 	errs = append(errs, apis.ValidateCommonAnnotations(ctx, fldPath, r)...)
@@ -102,7 +102,7 @@ func (r *WasmtimeContainer) Validate(ctx context.Context, fldPath *field.Path) f
 	return errs
 }
 
-func (r *WasmtimeContainerSpec) Validate(ctx context.Context, fldPath *field.Path) field.ErrorList {
+func (r *ComponentContainerImageSpec) Validate(ctx context.Context, fldPath *field.Path) field.ErrorList {
 	errs := field.ErrorList{}
 
 	errs = append(errs, r.GenericComponentSpec.Validate(ctx, fldPath)...)

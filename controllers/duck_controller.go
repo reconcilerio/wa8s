@@ -491,13 +491,13 @@ func DetectTraceCycle(trace []componentsv1alpha1.ComponentSpan, component client
 	return hasCycle, sanitized
 }
 
-// +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=componentcontainerimages,verbs=get;list;watch;create;update;patch;delete
 
-func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](conditionType, childLabelKey string, imageRef registriesv1alpha1.ImageReference) reconcilers.SubReconciler[GC] {
+func ComponentContainerImageChildReconciler[GC containersv1alpha1.GenericContainer](conditionType, childLabelKey string, imageRef registriesv1alpha1.ImageReference) reconcilers.SubReconciler[GC] {
 	return &reconcilers.CastResource[GC, containersv1alpha1.GenericContainer]{
-		Reconciler: &reconcilers.ChildReconciler[containersv1alpha1.GenericContainer, *containersv1alpha1.WasmtimeContainer, *containersv1alpha1.WasmtimeContainerList]{
-			DesiredChild: func(ctx context.Context, resource containersv1alpha1.GenericContainer) (*containersv1alpha1.WasmtimeContainer, error) {
-				return &containersv1alpha1.WasmtimeContainer{
+		Reconciler: &reconcilers.ChildReconciler[containersv1alpha1.GenericContainer, *containersv1alpha1.ComponentContainerImage, *containersv1alpha1.ComponentContainerImageList]{
+			DesiredChild: func(ctx context.Context, resource containersv1alpha1.GenericContainer) (*containersv1alpha1.ComponentContainerImage, error) {
+				return &containersv1alpha1.ComponentContainerImage{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace:    resource.GetNamespace(),
 						GenerateName: fmt.Sprintf("%s-", resource.GetName()),
@@ -508,20 +508,20 @@ func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](condit
 							},
 						),
 					},
-					Spec: containersv1alpha1.WasmtimeContainerSpec{
+					Spec: containersv1alpha1.ComponentContainerImageSpec{
 						Ref:                  resource.GetGenericContainerSpec().Ref,
 						ImageRef:             imageRef,
 						GenericComponentSpec: resource.GetGenericContainerSpec().GenericComponentSpec,
 					},
 				}, nil
 			},
-			ChildObjectManager: &reconcilers.UpdatingObjectManager[*containersv1alpha1.WasmtimeContainer]{
-				MergeBeforeUpdate: func(current, desired *containersv1alpha1.WasmtimeContainer) {
+			ChildObjectManager: &reconcilers.UpdatingObjectManager[*containersv1alpha1.ComponentContainerImage]{
+				MergeBeforeUpdate: func(current, desired *containersv1alpha1.ComponentContainerImage) {
 					current.Labels = desired.Labels
 					current.Spec = desired.Spec
 				},
 			},
-			ReflectChildStatusOnParentWithError: func(ctx context.Context, parent containersv1alpha1.GenericContainer, child *containersv1alpha1.WasmtimeContainer, err error) error {
+			ReflectChildStatusOnParentWithError: func(ctx context.Context, parent containersv1alpha1.GenericContainer, child *containersv1alpha1.ComponentContainerImage, err error) error {
 				if err != nil {
 					if apierrs.IsInvalid(err) {
 						parent.GetConditionManager(ctx).MarkFalse(conditionType, "Invalid", "%s", apierrs.ReasonForError(err))
@@ -538,24 +538,24 @@ func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](condit
 
 				// avoid premature reconciliation, check generation and ready condition
 				if child.Generation != child.Status.ObservedGeneration {
-					parent.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for WasmtimeContainer %s to reconcile", child.Name)
+					parent.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for ComponentContainerImage %s to reconcile", child.Name)
 					return ErrGenerationMismatch
 				}
-				if ready := child.Status.GetCondition(containersv1alpha1.WasmtimeContainerConditionReady); !apis.ConditionIsTrue(ready) {
+				if ready := child.Status.GetCondition(containersv1alpha1.ComponentContainerImageConditionReady); !apis.ConditionIsTrue(ready) {
 					if ready == nil {
 						ready = &metav1.Condition{Reason: "Initializing"}
 					}
 					if apis.ConditionIsFalse(ready) {
-						parent.GetConditionManager(ctx).MarkUnknown(conditionType, "NotReady", "WasmtimeContainer %s is not ready", child.Name)
+						parent.GetConditionManager(ctx).MarkUnknown(conditionType, "NotReady", "ComponentContainerImage %s is not ready", child.Name)
 					} else {
-						parent.GetConditionManager(ctx).MarkUnknown(conditionType, "NotReady", "WasmtimeContainer %s is not ready", child.Name)
+						parent.GetConditionManager(ctx).MarkUnknown(conditionType, "NotReady", "ComponentContainerImage %s is not ready", child.Name)
 					}
 					return ErrDurable
 				}
 
 				if child.Status.Image == "" {
 					// should never be ready and missing an image, but ya know
-					parent.GetConditionManager(ctx).MarkFalse(conditionType, "ImageMissing", "WasmtimeContainer %s is missing image", child.Name)
+					parent.GetConditionManager(ctx).MarkFalse(conditionType, "ImageMissing", "ComponentContainerImage %s is missing image", child.Name)
 					return ErrDurable
 				}
 

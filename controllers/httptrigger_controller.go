@@ -47,7 +47,7 @@ func HttpTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.HttpTrigger]{
 		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.HttpTrigger, *containersv1alpha1.HttpTriggerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.HttpTrigger]{
-				WasmContainerChildReconciler[*containersv1alpha1.HttpTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey, imageRef),
+				ComponentContainerImageChildReconciler[*containersv1alpha1.HttpTrigger](containersv1alpha1.CronTriggerConditionComponentContainerImageReady, childLabelKey, imageRef),
 				HttpDeploymentChildReconciler(childLabelKey),
 				HttpServiceChildReconciler(childLabelKey),
 			},

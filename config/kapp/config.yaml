@@ -26,9 +26,9 @@ waitRules:
       - apiGroupKindMatcher: {apiGroup: wa8s.reconciler.io, kind: ComponentDuck}
       - apiGroupKindMatcher: {apiGroup: wa8s.reconciler.io, kind: Composition}
       - apiGroupKindMatcher: {apiGroup: wa8s.reconciler.io, kind: ConfigStore}
+      - apiGroupKindMatcher: {apiGroup: containers.wa8s.reconciler.io, kind: ComponentContainerImage}
       - apiGroupKindMatcher: {apiGroup: containers.wa8s.reconciler.io, kind: CronTrigger}
       - apiGroupKindMatcher: {apiGroup: containers.wa8s.reconciler.io, kind: HttpTrigger}
-      - apiGroupKindMatcher: {apiGroup: containers.wa8s.reconciler.io, kind: WasmtimeContainer}
       - apiGroupKindMatcher: {apiGroup: containers.wa8s.reconciler.io, kind: WrpcTrigger}
       - apiGroupKindMatcher: {apiGroup: registries.wa8s.reconciler.io, kind: ClusterImage}
       - apiGroupKindMatcher: {apiGroup: registries.wa8s.reconciler.io, kind: ClusterRepository}

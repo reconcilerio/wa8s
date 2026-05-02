@@ -35,19 +35,19 @@ import (
 	"reconciler.io/wa8s/registry"
 )
 
-// +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers/finalizers,verbs=update
+// +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=componentcontainerimages,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=componentcontainerimages/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=componentcontainerimages/finalizers,verbs=update
 // +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
-func WasmtimeContainerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.WasmtimeContainer] {
-	return &reconcilers.ResourceReconciler[*containersv1alpha1.WasmtimeContainer]{
-		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.WasmtimeContainer, *containersv1alpha1.WasmtimeContainerList]{
-			Reconciler: reconcilers.Sequence[*containersv1alpha1.WasmtimeContainer]{
-				reconcilers.Always[*containersv1alpha1.WasmtimeContainer]{
+func ComponentContainerImageReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.ComponentContainerImage] {
+	return &reconcilers.ResourceReconciler[*containersv1alpha1.ComponentContainerImage]{
+		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.ComponentContainerImage, *containersv1alpha1.ComponentContainerImageList]{
+			Reconciler: reconcilers.Sequence[*containersv1alpha1.ComponentContainerImage]{
+				reconcilers.Always[*containersv1alpha1.ComponentContainerImage]{
 					ResolveComponent(),
-					ResolveImage[*containersv1alpha1.WasmtimeContainer](containersv1alpha1.WasmtimeContainerConditionImageReady),
-					ResolveRepository[*containersv1alpha1.WasmtimeContainer](containersv1alpha1.WasmtimeContainerConditionRepositoryReady),
+					ResolveImage[*containersv1alpha1.ComponentContainerImage](containersv1alpha1.ComponentContainerImageConditionImageReady),
+					ResolveRepository[*containersv1alpha1.ComponentContainerImage](containersv1alpha1.ComponentContainerImageConditionRepositoryReady),
 				},
 				AppendComponent(),
 			},
@@ -57,22 +57,22 @@ func WasmtimeContainerReconciler(c reconcilers.Config) *reconcilers.ResourceReco
 	}
 }
 
-func ResolveComponent() reconcilers.SubReconciler[*containersv1alpha1.WasmtimeContainer] {
-	return &reconcilers.SyncReconciler[*containersv1alpha1.WasmtimeContainer]{
+func ResolveComponent() reconcilers.SubReconciler[*containersv1alpha1.ComponentContainerImage] {
+	return &reconcilers.SyncReconciler[*containersv1alpha1.ComponentContainerImage]{
 		Setup: func(ctx context.Context, mgr manager.Manager, bldr *builder.TypedBuilder[reconcile.Request]) error {
 			bldr.WatchesRawSource(ComponentDuckBroker.TrackedSource(ctx))
 
 			return nil
 		},
-		Sync: func(ctx context.Context, resource *containersv1alpha1.WasmtimeContainer) error {
+		Sync: func(ctx context.Context, resource *containersv1alpha1.ComponentContainerImage) error {
 			component, err := ResolveComponentReference(ctx, resource.Spec.Ref)
 			if err != nil {
 				if errors.Is(err, ErrNotComponent) {
-					resource.GetConditionManager(ctx).MarkFalse(containersv1alpha1.WasmtimeContainerConditionComponentPulled, "NotComponent", "%s %s is not a component", resource.Spec.Ref.APIVersion, resource.Spec.Ref.Kind)
+					resource.GetConditionManager(ctx).MarkFalse(containersv1alpha1.ComponentContainerImageConditionComponentPulled, "NotComponent", "%s %s is not a component", resource.Spec.Ref.APIVersion, resource.Spec.Ref.Kind)
 					return reconcilers.ErrHaltSubReconcilers
 				}
 				if apierrs.IsNotFound(err) {
-					resource.GetConditionManager(ctx).MarkFalse(containersv1alpha1.WasmtimeContainerConditionComponentPulled, "ComponentNotFound", "%s %s not found", resource.Spec.Ref.Kind, resource.Spec.Ref.Name)
+					resource.GetConditionManager(ctx).MarkFalse(containersv1alpha1.ComponentContainerImageConditionComponentPulled, "ComponentNotFound", "%s %s not found", resource.Spec.Ref.Kind, resource.Spec.Ref.Name)
 					return ErrDurable
 				}
 				return err
@@ -81,7 +81,7 @@ func ResolveComponent() reconcilers.SubReconciler[*containersv1alpha1.WasmtimeCo
 			trace := append(ComponentTraceStasher.RetrieveOrEmpty(ctx), SynthesizeSpan(ctx, component))
 			ComponentTraceStasher.Store(ctx, trace)
 			if hasCycle, sanitizedTrace := DetectTraceCycle(trace, resource); hasCycle {
-				resource.GetConditionManager(ctx).MarkFalse(containersv1alpha1.WasmtimeContainerConditionComponentPulled, "CycleDetected", "components may not reference themselves directly or transitively")
+				resource.GetConditionManager(ctx).MarkFalse(containersv1alpha1.ComponentContainerImageConditionComponentPulled, "CycleDetected", "components may not reference themselves directly or transitively")
 				resource.Status.Trace = sanitizedTrace
 				return ErrDurable
 			}
@@ -91,7 +91,7 @@ func ResolveComponent() reconcilers.SubReconciler[*containersv1alpha1.WasmtimeCo
 			}
 			// avoid premature reconciliation, check generation and ready condition
 			if component.Generation != component.Status.ObservedGeneration {
-				resource.GetConditionManager(ctx).MarkUnknown(containersv1alpha1.WasmtimeContainerConditionComponentPulled, "Blocked", "waiting for %s %s to reconcile", resource.Spec.Ref.Kind, resource.Spec.Ref.Name)
+				resource.GetConditionManager(ctx).MarkUnknown(containersv1alpha1.ComponentContainerImageConditionComponentPulled, "Blocked", "waiting for %s %s to reconcile", resource.Spec.Ref.Kind, resource.Spec.Ref.Name)
 				return ErrGenerationMismatch
 			}
 			if ready := component.Status.GetCondition(componentsv1alpha1.ComponentDuckConditionReady); !apis.ConditionIsTrue(ready) {
@@ -99,21 +99,21 @@ func ResolveComponent() reconcilers.SubReconciler[*containersv1alpha1.WasmtimeCo
 					ready = &metav1.Condition{Reason: "Initializing"}
 				}
 				if apis.ConditionIsFalse(ready) {
-					resource.GetConditionManager(ctx).MarkFalse(containersv1alpha1.WasmtimeContainerConditionComponentPulled, "NotReady", "%s %s is not ready", resource.Spec.Ref.Kind, resource.Spec.Ref.Name)
+					resource.GetConditionManager(ctx).MarkFalse(containersv1alpha1.ComponentContainerImageConditionComponentPulled, "NotReady", "%s %s is not ready", resource.Spec.Ref.Kind, resource.Spec.Ref.Name)
 				} else {
-					resource.GetConditionManager(ctx).MarkUnknown(containersv1alpha1.WasmtimeContainerConditionComponentPulled, "NotReady", "%s %s is not ready", resource.Spec.Ref.Kind, resource.Spec.Ref.Name)
+					resource.GetConditionManager(ctx).MarkUnknown(containersv1alpha1.ComponentContainerImageConditionComponentPulled, "NotReady", "%s %s is not ready", resource.Spec.Ref.Kind, resource.Spec.Ref.Name)
 				}
 				return ErrDurable
 			}
 
 			if component.Status.Image == "" {
 				// should never be ready and missing an image, but ya know
-				resource.GetConditionManager(ctx).MarkFalse(containersv1alpha1.WasmtimeContainerConditionComponentPulled, "ImageMissing", "%s %s is missing image", resource.Spec.Ref.Kind, resource.Spec.Ref.Name)
+				resource.GetConditionManager(ctx).MarkFalse(containersv1alpha1.ComponentContainerImageConditionComponentPulled, "ImageMissing", "%s %s is missing image", resource.Spec.Ref.Kind, resource.Spec.Ref.Name)
 				return ErrDurable
 			}
 
 			RepositoryKeychainStasher.Clear(ctx)
-			if _, err := ResolveRepository[*componentsv1alpha1.ComponentDuck](containersv1alpha1.WasmtimeContainerConditionComponentPulled).Reconcile(ctx, component); err != nil {
+			if _, err := ResolveRepository[*componentsv1alpha1.ComponentDuck](containersv1alpha1.ComponentContainerImageConditionComponentPulled).Reconcile(ctx, component); err != nil {
 				return err
 			}
 			keychain, err := RepositoryKeychainStasher.RetrieveOrError(ctx)
@@ -133,16 +133,16 @@ func ResolveComponent() reconcilers.SubReconciler[*containersv1alpha1.WasmtimeCo
 
 			ComponentStasher.Store(ctx, componentBytes)
 			ComponentConfigStasher.Store(ctx, config)
-			resource.GetConditionManager(ctx).MarkTrue(containersv1alpha1.WasmtimeContainerConditionComponentPulled, "Resolved", "")
+			resource.GetConditionManager(ctx).MarkTrue(containersv1alpha1.ComponentContainerImageConditionComponentPulled, "Resolved", "")
 
 			return nil
 		},
 	}
 }
 
-func AppendComponent() reconcilers.SubReconciler[*containersv1alpha1.WasmtimeContainer] {
-	return &reconcilers.SyncReconciler[*containersv1alpha1.WasmtimeContainer]{
-		Sync: func(ctx context.Context, resource *containersv1alpha1.WasmtimeContainer) error {
+func AppendComponent() reconcilers.SubReconciler[*containersv1alpha1.ComponentContainerImage] {
+	return &reconcilers.SyncReconciler[*containersv1alpha1.ComponentContainerImage]{
+		Sync: func(ctx context.Context, resource *containersv1alpha1.ComponentContainerImage) error {
 			keychain := RepositoryKeychainStasher.RetrieveOrDie(ctx)
 			tagRef := RepositoryTagStasher.RetrieveOrDie(ctx)
 			component := ComponentStasher.RetrieveOrDie(ctx)
@@ -154,7 +154,7 @@ func AppendComponent() reconcilers.SubReconciler[*containersv1alpha1.WasmtimeCon
 			}
 
 			RepositoryDigestStasher.Store(ctx, digestRef)
-			resource.GetConditionManager(ctx).MarkTrue(containersv1alpha1.WasmtimeContainerConditionPushed, "Pushed", "")
+			resource.GetConditionManager(ctx).MarkTrue(containersv1alpha1.ComponentContainerImageConditionPushed, "Pushed", "")
 			resource.Status.Image = digestRef.Name()
 
 			return nil

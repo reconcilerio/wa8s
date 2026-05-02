@@ -2,17 +2,17 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: wasmtimecontainers.containers.wa8s.reconciler.io
+  name: componentcontainerimages.containers.wa8s.reconciler.io
 spec:
   group: containers.wa8s.reconciler.io
   names:
     categories:
       - wa8s
       - wa8s-container
-    kind: WasmtimeContainer
-    listKind: WasmtimeContainerList
-    plural: wasmtimecontainers
-    singular: wasmtimecontainer
+    kind: ComponentContainerImage
+    listKind: ComponentContainerImageList
+    plural: componentcontainerimages
+    singular: componentcontainerimage
   scope: Namespaced
   versions:
     - additionalPrinterColumns:
@@ -28,7 +28,7 @@ spec:
       name: v1alpha1
       schema:
         openAPIV3Schema:
-          description: WasmtimeContainer is the Schema for the components API
+          description: ComponentContainerImage is the Schema for the components API
           properties:
             apiVersion:
               description: |-
@@ -48,7 +48,7 @@ spec:
             metadata:
               type: object
             spec:
-              description: WasmtimeContainerSpec defines the desired state of WasmtimeContainer
+              description: ComponentContainerImageSpec defines the desired state of ComponentContainerImage
               properties:
                 imageRef:
                   description: ImageRef holding wasmtime base image
@@ -85,7 +85,7 @@ spec:
                   type: object
               type: object
             status:
-              description: WasmtimeContainerStatus defines the observed state of WasmtimeContainer
+              description: ComponentContainerImageStatus defines the observed state of ComponentContainerImage
               properties:
                 conditions:
                   description: Conditions the latest available observations of a resource's current state.

@@ -23,9 +23,9 @@ import (
 )
 
 const (
-	CronTriggerConditionReady                  = apis.ConditionReady
-	CronTriggerConditionWasmtimeContainerReady = "WasmtimeContainerReady"
-	CronTriggerConditionCronJobReady           = "CronJobReady"
+	CronTriggerConditionReady                        = apis.ConditionReady
+	CronTriggerConditionComponentContainerImageReady = "ComponentContainerImageReady"
+	CronTriggerConditionCronJobReady                 = "CronJobReady"
 )
 
 func (s *CronTrigger) GetConditionsAccessor() apis.ConditionsAccessor {
@@ -39,7 +39,7 @@ func (s *CronTrigger) GetConditionSet() apis.ConditionSet {
 func (s *CronTriggerStatus) GetConditionSet() apis.ConditionSet {
 	return apis.NewLivingConditionSetWithHappyReason(
 		"Ready",
-		CronTriggerConditionWasmtimeContainerReady,
+		CronTriggerConditionComponentContainerImageReady,
 		CronTriggerConditionCronJobReady,
 	)
 }

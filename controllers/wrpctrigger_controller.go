@@ -48,7 +48,7 @@ func WrpcTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.WrpcTrigger]{
 		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.WrpcTrigger, *containersv1alpha1.WrpcTriggerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.WrpcTrigger]{
-				WasmContainerChildReconciler[*containersv1alpha1.WrpcTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey, imageRef),
+				ComponentContainerImageChildReconciler[*containersv1alpha1.WrpcTrigger](containersv1alpha1.CronTriggerConditionComponentContainerImageReady, childLabelKey, imageRef),
 				WrpcDeploymentChildReconciler(childLabelKey, wrpcPort),
 				WrpcServiceChildReconciler(childLabelKey, wrpcPort),
 			},

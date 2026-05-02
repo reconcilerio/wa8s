@@ -30,8 +30,8 @@ import (
 // +die:field:name=Ref,die=ComponentReferenceDie,package=reconciler.io/wa8s/apis/components/v1alpha1
 // +die:field:name=ImageRef,die=ImageReferenceDie,package=reconciler.io/wa8s/apis/registries/v1alpha1
 
-// WasmtimeContainerSpec defines the desired state of WasmtimeContainer
-type WasmtimeContainerSpec struct {
+// ComponentContainerImageSpec defines the desired state of ComponentContainerImage
+type ComponentContainerImageSpec struct {
 	componentsv1alpha1.GenericComponentSpec `json:",inline"`
 
 	// Ref references the component to convert to an image
@@ -43,8 +43,8 @@ type WasmtimeContainerSpec struct {
 // +die
 // +die:field:name=GenericComponentStatus,die=GenericComponentStatusDie,package=reconciler.io/wa8s/apis/components/v1alpha1
 
-// WasmtimeContainerStatus defines the observed state of WasmtimeContainer
-type WasmtimeContainerStatus struct {
+// ComponentContainerImageStatus defines the observed state of ComponentContainerImage
+type ComponentContainerImageStatus struct {
 	apis.Status                               `json:",inline"`
 	componentsv1alpha1.GenericComponentStatus `json:",inline"`
 }
@@ -57,47 +57,47 @@ type WasmtimeContainerStatus struct {
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +die:object=true
 
-// WasmtimeContainer is the Schema for the components API
-type WasmtimeContainer struct {
+// ComponentContainerImage is the Schema for the components API
+type ComponentContainerImage struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   WasmtimeContainerSpec   `json:"spec,omitempty"`
-	Status WasmtimeContainerStatus `json:"status,omitempty"`
+	Spec   ComponentContainerImageSpec   `json:"spec,omitempty"`
+	Status ComponentContainerImageStatus `json:"status,omitempty"`
 }
 
 // TODO this isn't a component, but it might be close enough
-var _ componentsv1alpha1.ComponentLike = (*WasmtimeContainer)(nil)
-var _ registriesv1alpha1.ImageReferencer = (*WasmtimeContainer)(nil)
+var _ componentsv1alpha1.ComponentLike = (*ComponentContainerImage)(nil)
+var _ registriesv1alpha1.ImageReferencer = (*ComponentContainerImage)(nil)
 
-func (r *WasmtimeContainer) GetGenericComponentSpec() *componentsv1alpha1.GenericComponentSpec {
+func (r *ComponentContainerImage) GetGenericComponentSpec() *componentsv1alpha1.GenericComponentSpec {
 	return &r.Spec.GenericComponentSpec
 }
 
-func (r *WasmtimeContainer) GetGenericComponentStatus() *componentsv1alpha1.GenericComponentStatus {
+func (r *ComponentContainerImage) GetGenericComponentStatus() *componentsv1alpha1.GenericComponentStatus {
 	return &r.Status.GenericComponentStatus
 }
 
-func (r *WasmtimeContainer) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
+func (r *ComponentContainerImage) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
 	return &r.Spec.RepositoryRef
 }
 
-func (r *WasmtimeContainer) GetImageReference() *registriesv1alpha1.ImageReference {
+func (r *ComponentContainerImage) GetImageReference() *registriesv1alpha1.ImageReference {
 	return &r.Spec.ImageRef
 }
 
 // +kubebuilder:object:root=true
 
-// WasmtimeContainerList contains a list of WasmtimeContainer
-type WasmtimeContainerList struct {
+// ComponentContainerImageList contains a list of ComponentContainerImage
+type ComponentContainerImageList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []WasmtimeContainer `json:"items"`
+	Items           []ComponentContainerImage `json:"items"`
 }
 
 func init() {
 	schemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypes(GroupVersion, &WasmtimeContainer{}, &WasmtimeContainerList{})
+		s.AddKnownTypes(GroupVersion, &ComponentContainerImage{}, &ComponentContainerImageList{})
 		return nil
 	})
 }

@@ -189,30 +189,30 @@ func TestHttpTriggerDie_MissingMethods(t *testingx.T) {
 	}
 }
 
-func TestWasmtimeContainerSpecDie_MissingMethods(t *testingx.T) {
-	die := WasmtimeContainerSpecBlank
+func TestComponentContainerImageSpecDie_MissingMethods(t *testingx.T) {
+	die := ComponentContainerImageSpecBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for WasmtimeContainerSpecDie: %s", diff.List())
+		t.Errorf("found missing fields for ComponentContainerImageSpecDie: %s", diff.List())
 	}
 }
 
-func TestWasmtimeContainerStatusDie_MissingMethods(t *testingx.T) {
-	die := WasmtimeContainerStatusBlank
+func TestComponentContainerImageStatusDie_MissingMethods(t *testingx.T) {
+	die := ComponentContainerImageStatusBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for WasmtimeContainerStatusDie: %s", diff.List())
+		t.Errorf("found missing fields for ComponentContainerImageStatusDie: %s", diff.List())
 	}
 }
 
-func TestWasmtimeContainerDie_MissingMethods(t *testingx.T) {
-	die := WasmtimeContainerBlank
+func TestComponentContainerImageDie_MissingMethods(t *testingx.T) {
+	die := ComponentContainerImageBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for WasmtimeContainerDie: %s", diff.List())
+		t.Errorf("found missing fields for ComponentContainerImageDie: %s", diff.List())
 	}
 }
 

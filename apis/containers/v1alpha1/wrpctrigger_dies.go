@@ -24,10 +24,10 @@ import (
 )
 
 var (
-	WrpcTriggerConditionReadyBlank                  = diemetav1.ConditionBlank.Type(WrpcTriggerConditionReady).Status(metav1.ConditionUnknown).Reason("Initializing")
-	WrpcTriggerConditionWasmtimeContainerReadyBlank = diemetav1.ConditionBlank.Type(WrpcTriggerConditionWasmtimeContainerReady).Status(metav1.ConditionUnknown).Reason("Initializing")
-	WrpcTriggerConditionDeploymentReadyBlank        = diemetav1.ConditionBlank.Type(WrpcTriggerConditionDeploymentReady).Status(metav1.ConditionUnknown).Reason("Initializing")
-	WrpcTriggerConditionServiceReadyBlank           = diemetav1.ConditionBlank.Type(WrpcTriggerConditionServiceReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	WrpcTriggerConditionReadyBlank                        = diemetav1.ConditionBlank.Type(WrpcTriggerConditionReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	WrpcTriggerConditionComponentContainerImageReadyBlank = diemetav1.ConditionBlank.Type(WrpcTriggerConditionComponentContainerImageReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	WrpcTriggerConditionDeploymentReadyBlank              = diemetav1.ConditionBlank.Type(WrpcTriggerConditionDeploymentReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	WrpcTriggerConditionServiceReadyBlank                 = diemetav1.ConditionBlank.Type(WrpcTriggerConditionServiceReady).Status(metav1.ConditionUnknown).Reason("Initializing")
 )
 
 func (d *WrpcTriggerStatusDie) InitializeConditionsDie() *WrpcTriggerStatusDie {

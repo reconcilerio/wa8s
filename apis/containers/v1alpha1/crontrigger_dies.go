@@ -24,9 +24,9 @@ import (
 )
 
 var (
-	CronTriggerConditionReadyBlank                  = diemetav1.ConditionBlank.Type(CronTriggerConditionReady).Status(metav1.ConditionUnknown).Reason("Initializing")
-	CronTriggerConditionWasmtimeContainerReadyBlank = diemetav1.ConditionBlank.Type(CronTriggerConditionWasmtimeContainerReady).Status(metav1.ConditionUnknown).Reason("Initializing")
-	CronTriggerConditionCronJobReadyBlank           = diemetav1.ConditionBlank.Type(CronTriggerConditionCronJobReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	CronTriggerConditionReadyBlank                        = diemetav1.ConditionBlank.Type(CronTriggerConditionReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	CronTriggerConditionComponentContainerImageReadyBlank = diemetav1.ConditionBlank.Type(CronTriggerConditionComponentContainerImageReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	CronTriggerConditionCronJobReadyBlank                 = diemetav1.ConditionBlank.Type(CronTriggerConditionCronJobReady).Status(metav1.ConditionUnknown).Reason("Initializing")
 )
 
 func (d *CronTriggerStatusDie) InitializeConditionsDie() *CronTriggerStatusDie {

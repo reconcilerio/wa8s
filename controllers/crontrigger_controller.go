@@ -45,7 +45,7 @@ func CronTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.CronTrigger]{
 		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.CronTrigger, *containersv1alpha1.CronTriggerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.CronTrigger]{
-				WasmContainerChildReconciler[*containersv1alpha1.CronTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey, imageRef),
+				ComponentContainerImageChildReconciler[*containersv1alpha1.CronTrigger](containersv1alpha1.CronTriggerConditionComponentContainerImageReady, childLabelKey, imageRef),
 				CronJobChildReconciler(childLabelKey),
 			},
 		},
