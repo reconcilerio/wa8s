@@ -30,7 +30,9 @@ waitRules:
       - apiGroupKindMatcher: {apiGroup: containers.wa8s.reconciler.io, kind: HttpTrigger}
       - apiGroupKindMatcher: {apiGroup: containers.wa8s.reconciler.io, kind: WasmtimeContainer}
       - apiGroupKindMatcher: {apiGroup: containers.wa8s.reconciler.io, kind: WrpcTrigger}
+      - apiGroupKindMatcher: {apiGroup: registries.wa8s.reconciler.io, kind: ClusterImage}
       - apiGroupKindMatcher: {apiGroup: registries.wa8s.reconciler.io, kind: ClusterRepository}
+      - apiGroupKindMatcher: {apiGroup: registries.wa8s.reconciler.io, kind: Image}
       - apiGroupKindMatcher: {apiGroup: registries.wa8s.reconciler.io, kind: Repository}
       - apiGroupKindMatcher: {apiGroup: services.wa8s.reconciler.io, kind: ClusterServiceLifecycle}
       - apiGroupKindMatcher: {apiGroup: services.wa8s.reconciler.io, kind: ServiceBinding}

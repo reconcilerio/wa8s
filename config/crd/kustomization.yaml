@@ -10,7 +10,9 @@ resources:
 - bases/containers.wa8s.reconciler.io_httptriggers.yaml
 - bases/containers.wa8s.reconciler.io_wrpctriggers.yaml
 - bases/containers.wa8s.reconciler.io_wasmtimecontainers.yaml
+- bases/registries.wa8s.reconciler.io_clusterimages.yaml
 - bases/registries.wa8s.reconciler.io_clusterrepositories.yaml
+- bases/registries.wa8s.reconciler.io_images.yaml
 - bases/registries.wa8s.reconciler.io_repositories.yaml
 - bases/services.wa8s.reconciler.io_clusterservicelifecycles.yaml
 - bases/services.wa8s.reconciler.io_servicebindings.yaml
@@ -29,6 +31,7 @@ patches:
 # [CERTMANAGER] To enable cert-manager, uncomment all the sections with [CERTMANAGER] prefix.
 # patches here are for enabling the CA injection for each CRD
 - path: patches/cainjection_in_clustercomponents.yaml
+- path: patches/cainjection_in_clusterimages.yaml
 - path: patches/cainjection_in_clusterrepositories.yaml
 - path: patches/cainjection_in_clusterservicelifecycles.yaml
 - path: patches/cainjection_in_components.yaml
@@ -36,6 +39,7 @@ patches:
 - path: patches/cainjection_in_configstores.yaml
 - path: patches/cainjection_in_crontriggers.yaml
 - path: patches/cainjection_in_httptriggers.yaml
+- path: patches/cainjection_in_images.yaml
 - path: patches/cainjection_in_repositories.yaml
 - path: patches/cainjection_in_servicebindings.yaml
 - path: patches/cainjection_in_serviceclients.yaml

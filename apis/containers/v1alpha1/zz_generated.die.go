@@ -5474,27 +5474,20 @@ func (d *WasmtimeContainerSpecDie) RefDie(fn func(d *componentsv1alpha1.Componen
 	})
 }
 
-// ServiceAccountRefDie mutates ServiceAccountRef as a die.
+// ImageRefDie mutates ImageRef as a die.
 //
-// ServiceAccountRef references the service account holding image pull secrets for the image
-func (d *WasmtimeContainerSpecDie) ServiceAccountRefDie(fn func(d *registriesv1alpha1.ServiceAccountReferenceDie)) *WasmtimeContainerSpecDie {
+// ImageRef holding wasmtime base image
+func (d *WasmtimeContainerSpecDie) ImageRefDie(fn func(d *registriesv1alpha1.ImageReferenceDie)) *WasmtimeContainerSpecDie {
 	return d.DieStamp(func(r *WasmtimeContainerSpec) {
-		d := registriesv1alpha1.ServiceAccountReferenceBlank.DieImmutable(false).DieFeed(r.ServiceAccountRef)
+		d := registriesv1alpha1.ImageReferenceBlank.DieImmutable(false).DieFeed(r.ImageRef)
 		fn(d)
-		r.ServiceAccountRef = d.DieRelease()
+		r.ImageRef = d.DieRelease()
 	})
 }
 
 func (d *WasmtimeContainerSpecDie) GenericComponentSpec(v componentsv1alpha1.GenericComponentSpec) *WasmtimeContainerSpecDie {
 	return d.DieStamp(func(r *WasmtimeContainerSpec) {
 		r.GenericComponentSpec = v
-	})
-}
-
-// BaseImage in an oci repository holding wasmtime
-func (d *WasmtimeContainerSpecDie) BaseImage(v string) *WasmtimeContainerSpecDie {
-	return d.DieStamp(func(r *WasmtimeContainerSpec) {
-		r.BaseImage = v
 	})
 }
 
@@ -5505,10 +5498,10 @@ func (d *WasmtimeContainerSpecDie) Ref(v componentsv1alpha1.ComponentReference) 
 	})
 }
 
-// ServiceAccountRef references the service account holding image pull secrets for the image
-func (d *WasmtimeContainerSpecDie) ServiceAccountRef(v registriesv1alpha1.ServiceAccountReference) *WasmtimeContainerSpecDie {
+// ImageRef holding wasmtime base image
+func (d *WasmtimeContainerSpecDie) ImageRef(v registriesv1alpha1.ImageReference) *WasmtimeContainerSpecDie {
 	return d.DieStamp(func(r *WasmtimeContainerSpec) {
-		r.ServiceAccountRef = v
+		r.ImageRef = v
 	})
 }
 

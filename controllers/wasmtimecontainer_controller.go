@@ -46,6 +46,7 @@ func WasmtimeContainerReconciler(c reconcilers.Config) *reconcilers.ResourceReco
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.WasmtimeContainer]{
 				reconcilers.Always[*containersv1alpha1.WasmtimeContainer]{
 					ResolveComponent(),
+					ResolveImage[*containersv1alpha1.WasmtimeContainer](containersv1alpha1.WasmtimeContainerConditionImageReady),
 					ResolveRepository[*containersv1alpha1.WasmtimeContainer](containersv1alpha1.WasmtimeContainerConditionRepositoryReady),
 				},
 				AppendComponent(),
@@ -145,13 +146,9 @@ func AppendComponent() reconcilers.SubReconciler[*containersv1alpha1.WasmtimeCon
 			keychain := RepositoryKeychainStasher.RetrieveOrDie(ctx)
 			tagRef := RepositoryTagStasher.RetrieveOrDie(ctx)
 			component := ComponentStasher.RetrieveOrDie(ctx)
+			image := RemoteImageStasher.RetrieveOrDie(ctx)
 
-			baseRef, err := name.ParseReference(resource.Spec.BaseImage, name.WeakValidation)
-			if err != nil {
-				return err
-			}
-
-			digestRef, err := registry.AppendComponent(ctx, baseRef, tagRef, component, remote.WithAuthFromKeychain(keychain))
+			digestRef, err := registry.AppendComponent(ctx, image, tagRef, component, remote.WithAuthFromKeychain(keychain))
 			if err != nil {
 				return err
 			}

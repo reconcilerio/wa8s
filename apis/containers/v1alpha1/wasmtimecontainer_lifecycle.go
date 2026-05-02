@@ -24,6 +24,7 @@ import (
 
 const (
 	WasmtimeContainerConditionReady           = apis.ConditionReady
+	WasmtimeContainerConditionImageReady      = "ImageReady"
 	WasmtimeContainerConditionRepositoryReady = "RepositoryReady"
 	WasmtimeContainerConditionComponentPulled = "ComponentPulled"
 	WasmtimeContainerConditionPushed          = "WasmtimeContainerPushed"
@@ -40,6 +41,7 @@ func (s *WasmtimeContainer) GetConditionSet() apis.ConditionSet {
 func (s *WasmtimeContainerStatus) GetConditionSet() apis.ConditionSet {
 	return apis.NewLivingConditionSetWithHappyReason(
 		"Ready",
+		WasmtimeContainerConditionImageReady,
 		WasmtimeContainerConditionRepositoryReady,
 		WasmtimeContainerConditionComponentPulled,
 		WasmtimeContainerConditionPushed,

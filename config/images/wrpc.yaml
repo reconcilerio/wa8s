@@ -1,0 +1,7 @@
+---
+apiVersion: registries.wa8s.reconciler.io/v1alpha1
+kind: ClusterImage
+metadata:
+  name: wrpc
+spec:
+  image: ghcr.io/bytecodealliance/wrpc:0.16.0@sha256:c074aad5fb466d8a5c6583d257fb9c413a3f73bea046f74bbee9f6891919db8f

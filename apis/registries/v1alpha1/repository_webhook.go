@@ -61,7 +61,6 @@ func (r *ClusterRepository) Default(ctx context.Context) error {
 	ctx = validation.StashResource(ctx, r)
 
 	if r.Spec.ServiceAccountRef.Namespace == "" {
-		// TODO parameterize
 		r.Spec.ServiceAccountRef.Namespace = defaults.Namespace()
 	}
 	if err := r.Spec.Default(ctx); err != nil {

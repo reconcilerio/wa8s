@@ -27,6 +27,7 @@ import (
 	"reconciler.io/runtime/reconcilers"
 
 	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
+	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 )
 
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=crontriggers,verbs=get;list;watch;create;update;patch;delete
@@ -36,12 +37,15 @@ import (
 
 func CronTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.CronTrigger] {
 	childLabelKey := fmt.Sprintf("%s/cron-trigger", containersv1alpha1.GroupVersion.Group)
-	baseImage := ""
+	imageRef := registriesv1alpha1.ImageReference{
+		Kind: "ClusterImage",
+		Name: "wasmtime",
+	}
 
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.CronTrigger]{
 		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.CronTrigger, *containersv1alpha1.CronTriggerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.CronTrigger]{
-				WasmContainerChildReconciler[*containersv1alpha1.CronTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey, baseImage),
+				WasmContainerChildReconciler[*containersv1alpha1.CronTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey, imageRef),
 				CronJobChildReconciler(childLabelKey),
 			},
 		},

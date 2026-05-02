@@ -26,6 +26,16 @@ import (
 
 // +kubebuilder:object:generate=false
 
+type ImageReferencer interface {
+	runtime.Object
+	metav1.Object
+
+	GetImageReference() *ImageReference
+	GetConditionManager(ctx context.Context) apis.ConditionManager
+}
+
+// +kubebuilder:object:generate=false
+
 type RepositoryReferencer interface {
 	runtime.Object
 	metav1.Object

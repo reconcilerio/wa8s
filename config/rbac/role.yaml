@@ -127,7 +127,9 @@ rules:
 - apiGroups:
   - registries.wa8s.reconciler.io
   resources:
+  - clusterimages
   - clusterrepositories
+  - images
   - repositories
   verbs:
   - create
@@ -140,14 +142,18 @@ rules:
 - apiGroups:
   - registries.wa8s.reconciler.io
   resources:
+  - clusterimages/finalizers
   - clusterrepositories/finalizers
+  - images/finalizers
   - repositories/finalizers
   verbs:
   - update
 - apiGroups:
   - registries.wa8s.reconciler.io
   resources:
+  - clusterimages/status
   - clusterrepositories/status
+  - images/status
   - repositories/status
   verbs:
   - get

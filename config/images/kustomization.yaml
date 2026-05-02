@@ -1,0 +1,3 @@
+resources:
+- wasmtime.yaml
+- wrpc.yaml

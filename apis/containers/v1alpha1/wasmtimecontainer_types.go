@@ -28,18 +28,16 @@ import (
 // +die
 // +die:field:name=GenericComponentSpec,die=GenericComponentSpecDie,package=reconciler.io/wa8s/apis/components/v1alpha1
 // +die:field:name=Ref,die=ComponentReferenceDie,package=reconciler.io/wa8s/apis/components/v1alpha1
-// +die:field:name=ServiceAccountRef,die=ServiceAccountReferenceDie,package=reconciler.io/wa8s/apis/registries/v1alpha1
+// +die:field:name=ImageRef,die=ImageReferenceDie,package=reconciler.io/wa8s/apis/registries/v1alpha1
 
 // WasmtimeContainerSpec defines the desired state of WasmtimeContainer
 type WasmtimeContainerSpec struct {
 	componentsv1alpha1.GenericComponentSpec `json:",inline"`
 
-	// BaseImage in an oci repository holding wasmtime
-	BaseImage string `json:"baseImage,omitempty"`
 	// Ref references the component to convert to an image
 	Ref componentsv1alpha1.ComponentReference `json:"ref,omitempty"`
-	// ServiceAccountRef references the service account holding image pull secrets for the image
-	ServiceAccountRef registriesv1alpha1.ServiceAccountReference `json:"serviceAccountRef,omitempty"`
+	// ImageRef holding wasmtime base image
+	ImageRef registriesv1alpha1.ImageReference `json:"imageRef,omitempty"`
 }
 
 // +die
@@ -70,6 +68,7 @@ type WasmtimeContainer struct {
 
 // TODO this isn't a component, but it might be close enough
 var _ componentsv1alpha1.ComponentLike = (*WasmtimeContainer)(nil)
+var _ registriesv1alpha1.ImageReferencer = (*WasmtimeContainer)(nil)
 
 func (r *WasmtimeContainer) GetGenericComponentSpec() *componentsv1alpha1.GenericComponentSpec {
 	return &r.Spec.GenericComponentSpec
@@ -81,6 +80,10 @@ func (r *WasmtimeContainer) GetGenericComponentStatus() *componentsv1alpha1.Gene
 
 func (r *WasmtimeContainer) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
 	return &r.Spec.RepositoryRef
+}
+
+func (r *WasmtimeContainer) GetImageReference() *registriesv1alpha1.ImageReference {
+	return &r.Spec.ImageRef
 }
 
 // +kubebuilder:object:root=true

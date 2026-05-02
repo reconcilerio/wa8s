@@ -25,6 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	"reconciler.io/wa8s/apis"
+	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 	"reconciler.io/wa8s/validation"
 )
 
@@ -52,14 +53,16 @@ func (r *WasmtimeContainerSpec) Default(ctx context.Context) error {
 	if err := r.GenericComponentSpec.Default(ctx); err != nil {
 		return err
 	}
-	if r.BaseImage == "" {
-		// TODO sustainably build this image, for now check hack/wasmtime
-		r.BaseImage = "ghcr.io/reconcilerio/wa8s/wasmtime:40.0.0@sha256:75aacd237a24bbb56b7aa31fdc0e723bf870da23808f67b951be2e25c2b0d8e4"
-	}
 	if err := r.Ref.Default(ctx); err != nil {
 		return err
 	}
-	if err := r.ServiceAccountRef.Default(ctx); err != nil {
+	if r.ImageRef == (registriesv1alpha1.ImageReference{}) {
+		r.ImageRef = registriesv1alpha1.ImageReference{
+			Kind: "ClusterImage",
+			Name: "wasmtime",
+		}
+	}
+	if err := r.ImageRef.Default(ctx); err != nil {
 		return err
 	}
 
@@ -103,12 +106,8 @@ func (r *WasmtimeContainerSpec) Validate(ctx context.Context, fldPath *field.Pat
 	errs := field.ErrorList{}
 
 	errs = append(errs, r.GenericComponentSpec.Validate(ctx, fldPath)...)
-	if r.BaseImage == "" {
-		// defaulted
-		errs = append(errs, field.Required(fldPath.Child("baseImage"), ""))
-	}
 	errs = append(errs, r.Ref.Validate(ctx, fldPath.Child("ref"))...)
-	errs = append(errs, r.ServiceAccountRef.Validate(ctx, fldPath.Child("serviceAccountRef"))...)
+	errs = append(errs, r.ImageRef.Validate(ctx, fldPath.Child("imageRef"))...)
 
 	return errs
 }

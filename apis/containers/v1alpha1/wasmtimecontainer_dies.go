@@ -25,6 +25,7 @@ import (
 
 var (
 	WasmtimeContainerConditionReadyBlank           = diemetav1.ConditionBlank.Type(WasmtimeContainerConditionReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	WasmtimeContainerConditionImageReadyBlank      = diemetav1.ConditionBlank.Type(WasmtimeContainerConditionImageReady).Status(metav1.ConditionUnknown).Reason("Initializing")
 	WasmtimeContainerConditionRepositoryReadyBlank = diemetav1.ConditionBlank.Type(WasmtimeContainerConditionRepositoryReady).Status(metav1.ConditionUnknown).Reason("Initializing")
 	WasmtimeContainerConditionPushedBlank          = diemetav1.ConditionBlank.Type(WasmtimeContainerConditionPushed).Status(metav1.ConditionUnknown).Reason("Initializing")
 )

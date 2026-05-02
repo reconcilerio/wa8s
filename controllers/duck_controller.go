@@ -66,6 +66,131 @@ func ResolveComponentReference(ctx context.Context, ref componentsv1alpha1.Compo
 	return component, nil
 }
 
+// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=images,verbs=get;list;watch
+// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterimages,verbs=get;list;watch
+
+func ResolveImage[IR registriesv1alpha1.ImageReferencer](conditionType string) reconcilers.SubReconciler[IR] {
+	return &reconcilers.SyncReconciler[IR]{
+		Setup: func(ctx context.Context, mgr manager.Manager, bldr *builder.TypedBuilder[reconcile.Request]) error {
+			bldr.Watches(&registriesv1alpha1.Image{}, reconcilers.EnqueueTracked(ctx))
+			bldr.Watches(&registriesv1alpha1.ClusterImage{}, reconcilers.EnqueueTracked(ctx))
+
+			return nil
+		},
+		Sync: func(ctx context.Context, resource IR) error {
+			c := reconcilers.RetrieveConfigOrDie(ctx)
+			conditionManager := resource.GetConditionManager(ctx)
+
+			imageRef := resource.GetImageReference()
+			var image registriesv1alpha1.GenericImage
+			if imageRef.Kind == "ClusterImage" {
+				image = &registriesv1alpha1.ClusterImage{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: imageRef.Name,
+					},
+				}
+			} else {
+				image = &registriesv1alpha1.Image{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: resource.GetNamespace(),
+						Name:      imageRef.Name,
+					},
+				}
+			}
+			if err := c.TrackAndGet(ctx, client.ObjectKeyFromObject(image), image); err != nil {
+				if apierrs.IsNotFound(err) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "ImageNotFound", "%s %s not found", imageRef.Kind, imageRef.Name)
+					return ErrDurable
+				}
+				return err
+			}
+
+			// avoid premature reconciliation, check generation and ready condition
+			if image.GetGeneration() != image.GetStatus().ObservedGeneration {
+				resource.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for %s %s to reconcile", imageRef.Kind, imageRef.Name)
+				return ErrGenerationMismatch
+			}
+			image.GetStatus().InitializeConditions(ctx)
+			if ready := image.GetStatus().GetCondition(registriesv1alpha1.ImageConditionReady); !apis.ConditionIsTrue(ready) {
+				if apis.ConditionIsFalse(ready) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "ImageNotReady", "%s: %s", ready.Reason, ready.Message)
+				} else {
+					resource.GetConditionManager(ctx).MarkUnknown(conditionType, "ImageNotReady", "%s: %s", ready.Reason, ready.Message)
+				}
+				return ErrDurable
+			}
+
+			if err := image.Default(ctx); err != nil {
+				return err
+			}
+
+			// get keychain for image from repository
+			repositoryRef := image.GetSpec().RepositoryRef
+			var repository registriesv1alpha1.GenericRepository
+			if repositoryRef.Kind == "ClusterRepository" {
+				repository = &registriesv1alpha1.ClusterRepository{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: repositoryRef.Name,
+					},
+				}
+			} else {
+				repository = &registriesv1alpha1.Repository{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: resource.GetNamespace(),
+						Name:      repositoryRef.Name,
+					},
+				}
+			}
+			if err := c.TrackAndGet(ctx, client.ObjectKeyFromObject(repository), repository); err != nil {
+				if apierrs.IsNotFound(err) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotFound", "%s %s not found", repositoryRef.Kind, repositoryRef.Name)
+					return ErrDurable
+				}
+				return err
+			}
+
+			// avoid premature reconciliation, check generation and ready condition
+			if repository.GetGeneration() != repository.GetStatus().ObservedGeneration {
+				resource.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for %s %s to reconcile", repositoryRef.Kind, repositoryRef.Name)
+				return ErrGenerationMismatch
+			}
+			repository.GetStatus().InitializeConditions(ctx)
+			if ready := repository.GetStatus().GetCondition(registriesv1alpha1.RepositoryConditionReady); !apis.ConditionIsTrue(ready) {
+				if apis.ConditionIsFalse(ready) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
+				} else {
+					resource.GetConditionManager(ctx).MarkUnknown(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
+				}
+				return ErrDurable
+			}
+
+			if err := repository.Default(ctx); err != nil {
+				return err
+			}
+
+			keychain, err := registry.KeychainManager.Get(repository)
+			if err != nil {
+				return errors.Join(err, ErrTransient)
+			}
+			if kc, err := RepositoryKeychainStasher.RetrieveOrError(ctx); err == nil {
+				// merge with existing stashed keychain
+				keychain = authn.NewMultiKeychain(keychain, kc)
+			}
+
+			imageDigest, err := name.NewDigest(image.GetStatus().Image, name.StrictValidation)
+			if err != nil {
+				return err
+			}
+			// TODO should we verify the image is accessible?
+			RemoteImageStasher.Store(ctx, imageDigest)
+
+			conditionManager.MarkTrue(conditionType, "Ready", "")
+
+			return nil
+		},
+	}
+}
+
 // +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=repositories,verbs=get;list;watch
 // +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterrepositories,verbs=get;list;watch
 
@@ -368,7 +493,7 @@ func DetectTraceCycle(trace []componentsv1alpha1.ComponentSpan, component client
 
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers,verbs=get;list;watch;create;update;patch;delete
 
-func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](conditionType, childLabelKey, baseImage string) reconcilers.SubReconciler[GC] {
+func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](conditionType, childLabelKey string, imageRef registriesv1alpha1.ImageReference) reconcilers.SubReconciler[GC] {
 	return &reconcilers.CastResource[GC, containersv1alpha1.GenericContainer]{
 		Reconciler: &reconcilers.ChildReconciler[containersv1alpha1.GenericContainer, *containersv1alpha1.WasmtimeContainer, *containersv1alpha1.WasmtimeContainerList]{
 			DesiredChild: func(ctx context.Context, resource containersv1alpha1.GenericContainer) (*containersv1alpha1.WasmtimeContainer, error) {
@@ -385,8 +510,7 @@ func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](condit
 					},
 					Spec: containersv1alpha1.WasmtimeContainerSpec{
 						Ref:                  resource.GetGenericContainerSpec().Ref,
-						BaseImage:            baseImage,
-						ServiceAccountRef:    resource.GetGenericContainerSpec().ServiceAccountRef,
+						ImageRef:             imageRef,
 						GenericComponentSpec: resource.GetGenericContainerSpec().GenericComponentSpec,
 					},
 				}, nil

@@ -2,18 +2,18 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: wasmtimecontainers.containers.wa8s.reconciler.io
+  name: clusterimages.registries.wa8s.reconciler.io
 spec:
-  group: containers.wa8s.reconciler.io
+  group: registries.wa8s.reconciler.io
   names:
     categories:
       - wa8s
-      - wa8s-container
-    kind: WasmtimeContainer
-    listKind: WasmtimeContainerList
-    plural: wasmtimecontainers
-    singular: wasmtimecontainer
-  scope: Namespaced
+      - wa8s-registry
+    kind: ClusterImage
+    listKind: ClusterImageList
+    plural: clusterimages
+    singular: clusterimage
+  scope: Cluster
   versions:
     - additionalPrinterColumns:
         - jsonPath: .status.conditions[?(@.type=="Ready")].status
@@ -28,7 +28,7 @@ spec:
       name: v1alpha1
       schema:
         openAPIV3Schema:
-          description: WasmtimeContainer is the Schema for the components API
+          description: ClusterImage is the Schema for the images API
           properties:
             apiVersion:
               description: |-
@@ -48,44 +48,33 @@ spec:
             metadata:
               type: object
             spec:
-              description: WasmtimeContainerSpec defines the desired state of WasmtimeContainer
+              description: ImageSpec defines the desired state of Image
               properties:
-                imageRef:
-                  description: ImageRef holding wasmtime base image
-                  properties:
-                    kind:
-                      type: string
-                    name:
-                      type: string
-                    namespace:
-                      type: string
-                  required:
-                    - name
-                  type: object
-                ref:
-                  description: Ref references the component to convert to an image
-                  properties:
-                    apiVersion:
-                      type: string
-                    kind:
-                      type: string
-                    name:
-                      type: string
-                    namespace:
-                      type: string
-                  required:
-                    - name
-                  type: object
+                image:
+                  description: Image in an oci repository to be copied
+                  type: string
                 repositoryRef:
+                  description: RepositoryRef defines the destination repository for the image
                   properties:
                     kind:
                       type: string
                     name:
                       type: string
+                  type: object
+                serviceAccountRef:
+                  description: ServiceAccountRef references the service account holding image pull secrets for the image source
+                  properties:
+                    name:
+                      type: string
+                    namespace:
+                      description: Namespace containing the ServiceAccount, only allowed for ClusterRepository resources
+                      type: string
+                  required:
+                    - name
                   type: object
               type: object
             status:
-              description: WasmtimeContainerStatus defines the observed state of WasmtimeContainer
+              description: ImageStatus defines the observed state of Image
               properties:
                 conditions:
                   description: Conditions the latest available observations of a resource's current state.
@@ -144,7 +133,7 @@ spec:
                     type: object
                   type: array
                 image:
-                  description: Image resolved from an oci repository holding the wasm component
+                  description: Image resolved from an oci repository
                   type: string
                 observedGeneration:
                   description: |-
@@ -152,47 +141,6 @@ spec:
                     was last processed by the controller.
                   format: int64
                   type: integer
-                trace:
-                  items:
-                    properties:
-                      cycleOmitted:
-                        type: boolean
-                      digest:
-                        type: string
-                      group:
-                        type: string
-                      kind:
-                        type: string
-                      name:
-                        type: string
-                      namespace:
-                        type: string
-                      trace:
-                        x-kubernetes-preserve-unknown-fields: true
-                      uid:
-                        description: |-
-                          UID is a type that holds unique ID values, including UUIDs.  Because we
-                          don't ONLY use UUIDs, this is an alias to string.  Being a type captures
-                          intent and helps make sure that UIDs and names do not get conflated.
-                        type: string
-                    required:
-                      - group
-                      - kind
-                      - name
-                      - uid
-                    type: object
-                  type: array
-                wit:
-                  properties:
-                    exports:
-                      items:
-                        type: string
-                      type: array
-                    imports:
-                      items:
-                        type: string
-                      type: array
-                  type: object
               type: object
           type: object
       served: true

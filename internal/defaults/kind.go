@@ -42,6 +42,10 @@ func APIVersionForKind(kind string) string {
 		return containersv1alpha1
 	case "WrpcTrigger":
 		return containersv1alpha1
+	case "Image":
+		return registriesv1alpha1
+	case "ClusterImage":
+		return registriesv1alpha1
 	case "Repository":
 		return registriesv1alpha1
 	case "ClusterRepository":

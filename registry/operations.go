@@ -232,17 +232,12 @@ func AppendComponent(ctx context.Context, base name.Reference, target name.Tag, 
 	}
 	opts = append(opts, remote.WithContext(ctx), remote.WithTransport(transport))
 
-	// copy base image into the target repository
-	relocatedBase, err := Copy(ctx, base, target, opts...)
-	if err != nil {
-		return name.Digest{}, err
-	}
-	baseDesc, err := remote.Get(relocatedBase, opts...)
+	baseDesc, err := remote.Get(base, opts...)
 	if err != nil {
 		return name.Digest{}, err
 	}
 	if !baseDesc.MediaType.IsIndex() {
-		return name.Digest{}, fmt.Errorf("expected %s to be an index, got %q", relocatedBase, baseDesc.MediaType)
+		return name.Digest{}, fmt.Errorf("expected %s to be an index, got %q", base, baseDesc.MediaType)
 	}
 	baseIndex, err := baseDesc.ImageIndex()
 	if err != nil {
