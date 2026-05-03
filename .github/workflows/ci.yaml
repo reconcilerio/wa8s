@@ -157,7 +157,7 @@ jobs:
           ${KO} resolve --platform ${KO_PLATFORMS} -f config/wa8s.yaml >> "${scratch}/config/reconcilerio-wa8s.yaml"
           
           cat hack/boilerplate.yaml.txt > "${scratch}/config/reconcilerio-wa8s-services.yaml"
-          ${KO} resolve --platform ${KO_PLATFORMS} -f config/wa8s.yaml >> "${scratch}/config/reconcilerio-wa8s-services.yaml"
+          ${KO} resolve --platform ${KO_PLATFORMS} -f config/wa8s-services.yaml >> "${scratch}/config/reconcilerio-wa8s-services.yaml"
 
           ${KBLD} --imgpkg-lock-output "${scratch}/.imgpkg/images.yml" \
             -f "${scratch}/config/reconcilerio-wa8s.yaml" \
@@ -356,7 +356,7 @@ jobs:
         EOF
 
           ${KAPP} deploy -a reconcilerio-wa8s -n apps --wait-timeout 5m -y \
-            -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config/wa8s.yaml) \
+            -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config/reconcilerio-wa8s.yaml) \
             -f bundle/kapp \
             -f ca.yaml \
             -f clusterrepository.yaml
@@ -364,7 +364,7 @@ jobs:
 
         echo "##[group]Deploy reconcilerio-wa8s-services"
           ${KAPP} deploy -a reconcilerio-wa8s-services -n apps --wait-timeout 5m -y \
-            -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config/wa8s-services.yaml) \
+            -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config/reconcilerio-wa8s-services.yaml) \
             -f bundle/kapp
         echo "##[endgroup]"
     - name: Valkey service
