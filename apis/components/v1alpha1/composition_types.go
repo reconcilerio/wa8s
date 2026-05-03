@@ -59,8 +59,8 @@ type CompositionDependency struct {
 	Config    *GenericConfigStoreSpec `json:"config,omitempty"`
 	OCI       *OCIReference           `json:"oci,omitempty"`
 	// Composition is schema equivalent to CompositionSpec, but schemaless to breaking out of recursive type nesting.
-	// +kubebuilder:pruning:PreserveUnknownFields
-	// +kubebuilder:validation:Schemaless
+	//+kubebuilder:pruning:PreserveUnknownFields
+	//+kubebuilder:validation:Schemaless
 	Composition *GenericCompositionSpec `json:"composition,omitempty"`
 }
 
@@ -83,12 +83,12 @@ type CompositionDependencyStatus struct {
 	WIT       WIT    `json:"wit,omitempty"`
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:resource:categories=wa8s;wa8s-component
-// +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
-// +kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
-// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+//+kubebuilder:object:root=true
+//+kubebuilder:resource:categories=wa8s;wa8s-component
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +die:object=true
 
 // Composition is the Schema for the Compositions API
@@ -114,7 +114,7 @@ func (r *Composition) GetRepositoryReference() *registriesv1alpha1.RepositoryRef
 	return &r.Spec.RepositoryRef
 }
 
-// +kubebuilder:object:root=true
+//+kubebuilder:object:root=true
 
 // CompositionList contains a list of Composition
 type CompositionList struct {

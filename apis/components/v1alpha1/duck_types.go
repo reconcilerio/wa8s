@@ -62,13 +62,13 @@ type ComponentSpan struct {
 	Kind      string    `json:"kind"`
 	Namespace string    `json:"namespace,omitempty"`
 	Name      string    `json:"name"`
-	// +kubebuilder:pruning:PreserveUnknownFields
-	// +kubebuilder:validation:Schemaless
+	//+kubebuilder:pruning:PreserveUnknownFields
+	//+kubebuilder:validation:Schemaless
 	Trace        []ComponentSpan `json:"trace,omitempty"`
 	CycleOmitted bool            `json:"cycleOmitted,omitempty"`
 }
 
-// +kubebuilder:object:generate=false
+//+kubebuilder:object:generate=false
 
 type ComponentLike interface {
 	runtime.Object

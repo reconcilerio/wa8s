@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    control-plane: wa8s-services-manager
+    app.kubernetes.io/name: wa8s
+    app.kubernetes.io/managed-by: kustomize
+  name: wa8s-services-manager-metrics-service
+spec:
+  ports:
+  - name: https
+    port: 8443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    control-plane: wa8s-services-manager

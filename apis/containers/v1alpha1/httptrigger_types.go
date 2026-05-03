@@ -43,12 +43,12 @@ type HttpTriggerStatus struct {
 	URL                    string `json:"url,omitempty"`
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:resource:categories=wa8s;wa8s-container
-// +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
-// +kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
-// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+//+kubebuilder:object:root=true
+//+kubebuilder:resource:categories=wa8s;wa8s-container
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +die:object=true
 
 // HttpTrigger is the Schema for the components API
@@ -84,7 +84,7 @@ func (r *HttpTrigger) GetRepositoryReference() *registriesv1alpha1.RepositoryRef
 	return &r.Spec.RepositoryRef
 }
 
-// +kubebuilder:object:root=true
+//+kubebuilder:object:root=true
 
 // HttpTriggerList contains a list of HttpTrigger
 type HttpTriggerList struct {

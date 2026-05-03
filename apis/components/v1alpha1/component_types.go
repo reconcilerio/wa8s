@@ -69,7 +69,7 @@ type ComponentStatus struct {
 	GenericComponentStatus `json:",inline"`
 }
 
-// +kubebuilder:object:generate=false
+//+kubebuilder:object:generate=false
 
 type GenericComponent interface {
 	runtime.Object
@@ -83,12 +83,12 @@ type GenericComponent interface {
 	GetConditionManager(ctx context.Context) apis.ConditionManager
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:resource:categories=wa8s;wa8s-component
-// +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
-// +kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
-// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+//+kubebuilder:object:root=true
+//+kubebuilder:resource:categories=wa8s;wa8s-component
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +die:object=true
 
 // Component is the Schema for the components API
@@ -129,7 +129,7 @@ func (r *Component) GetServiceAccountReference() *registriesv1alpha1.ServiceAcco
 	return &r.Spec.OCI.ServiceAccountRef
 }
 
-// +kubebuilder:object:root=true
+//+kubebuilder:object:root=true
 
 // ComponentList contains a list of Component
 type ComponentList struct {
@@ -138,12 +138,12 @@ type ComponentList struct {
 	Items           []Component `json:"items"`
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:resource:scope=Cluster,categories=wa8s;wa8s-component
-// +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
-// +kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
-// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+//+kubebuilder:object:root=true
+//+kubebuilder:resource:scope=Cluster,categories=wa8s;wa8s-component
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +die:object=true,spec=DieComponentSpec,status=DieComponentStatus
 
 // ClusterComponent is the Schema for the components API
@@ -184,7 +184,7 @@ func (r *ClusterComponent) GetServiceAccountReference() *registriesv1alpha1.Serv
 	return &r.Spec.OCI.ServiceAccountRef
 }
 
-// +kubebuilder:object:root=true
+//+kubebuilder:object:root=true
 
 // ClusterComponentList contains a list of Component
 type ClusterComponentList struct {

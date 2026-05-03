@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: wa8s
     app.kubernetes.io/managed-by: kustomize
-  name: leader-election-role
+  name: wa8s-leader-election-role
 rules:
 - apiGroups:
   - ""

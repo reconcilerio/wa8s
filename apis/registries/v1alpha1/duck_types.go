@@ -24,7 +24,7 @@ import (
 	"reconciler.io/runtime/apis"
 )
 
-// +kubebuilder:object:generate=false
+//+kubebuilder:object:generate=false
 
 type ImageReferencer interface {
 	runtime.Object
@@ -34,7 +34,7 @@ type ImageReferencer interface {
 	GetConditionManager(ctx context.Context) apis.ConditionManager
 }
 
-// +kubebuilder:object:generate=false
+//+kubebuilder:object:generate=false
 
 type RepositoryReferencer interface {
 	runtime.Object
@@ -44,7 +44,7 @@ type RepositoryReferencer interface {
 	GetConditionManager(ctx context.Context) apis.ConditionManager
 }
 
-// +kubebuilder:object:generate=false
+//+kubebuilder:object:generate=false
 
 type ServiceAccountReferencer interface {
 	runtime.Object

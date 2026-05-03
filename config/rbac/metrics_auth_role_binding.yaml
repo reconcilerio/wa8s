@@ -8,4 +8,4 @@ roleRef:
   name: wa8s-metrics-auth-role
 subjects:
 - kind: ServiceAccount
-  name: controller-manager
+  name: wa8s-manager

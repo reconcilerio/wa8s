@@ -43,12 +43,12 @@ type WrpcTriggerStatus struct {
 	URL                    string `json:"url,omitempty"`
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:resource:categories=wa8s;wa8s-container
-// +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
-// +kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
-// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+//+kubebuilder:object:root=true
+//+kubebuilder:resource:categories=wa8s;wa8s-container
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +die:object=true
 
 // WrpcTrigger is the Schema for the components API
@@ -84,7 +84,7 @@ func (r *WrpcTrigger) GetRepositoryReference() *registriesv1alpha1.RepositoryRef
 	return &r.Spec.RepositoryRef
 }
 
-// +kubebuilder:object:root=true
+//+kubebuilder:object:root=true
 
 // WrpcTriggerList contains a list of WrpcTrigger
 type WrpcTriggerList struct {

@@ -32,8 +32,8 @@ import (
 	"reconciler.io/wa8s/validation"
 )
 
-//+kubebuilder:webhook:path=/validate-wa8s-reconciler-io-v1alpha1-component,mutating=false,failurePolicy=fail,sideEffects=None,groups=wa8s.reconciler.io,resources=components,verbs=create;update,versions=v1alpha1,name=v1alpha1.components.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
-//+kubebuilder:webhook:path=/validate-wa8s-reconciler-io-v1alpha1-clustercomponent,mutating=false,failurePolicy=fail,sideEffects=None,groups=wa8s.reconciler.io,resources=clustercomponents,verbs=create;update,versions=v1alpha1,name=v1alpha1.clustercomponents.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
+//+kubebuilder:webhook:path=/validate-wa8s-reconciler-io-v1alpha1-component,mutating=false,failurePolicy=fail,sideEffects=None,groups=wa8s.reconciler.io,resources=components,verbs=create;update,versions=v1alpha1,name=v1alpha1.components.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1},serviceName=wa8s-manager-webhook
+//+kubebuilder:webhook:path=/validate-wa8s-reconciler-io-v1alpha1-clustercomponent,mutating=false,failurePolicy=fail,sideEffects=None,groups=wa8s.reconciler.io,resources=clustercomponents,verbs=create;update,versions=v1alpha1,name=v1alpha1.clustercomponents.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1},serviceName=wa8s-manager-webhook
 
 func (r *Component) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr, r).

@@ -9,7 +9,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-wa8s-reconciler-io-v1alpha1-clustercomponent
   failurePolicy: Fail
@@ -30,7 +30,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-registries-wa8s-reconciler-io-v1alpha1-clusterimage
   failurePolicy: Fail
@@ -51,7 +51,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-registries-wa8s-reconciler-io-v1alpha1-clusterrepository
   failurePolicy: Fail
@@ -72,28 +72,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
-      namespace: system
-      path: /validate-services-wa8s-reconciler-io-v1alpha1-clusterservicelifecycle
-  failurePolicy: Fail
-  name: v1alpha1.clusterservicelifecycles.services.wa8s.reconciler.io
-  rules:
-  - apiGroups:
-    - services.wa8s.reconciler.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - clusterservicelifecycles
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  - v1beta1
-  clientConfig:
-    service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-containers-wa8s-reconciler-io-v1alpha1-componentcontainerimage
   failurePolicy: Fail
@@ -114,7 +93,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-wa8s-reconciler-io-v1alpha1-component
   failurePolicy: Fail
@@ -135,7 +114,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-wa8s-reconciler-io-v1alpha1-composition
   failurePolicy: Fail
@@ -156,7 +135,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-wa8s-reconciler-io-v1alpha1-configstore
   failurePolicy: Fail
@@ -177,7 +156,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-containers-wa8s-reconciler-io-v1alpha1-crontrigger
   failurePolicy: Fail
@@ -198,7 +177,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-containers-wa8s-reconciler-io-v1alpha1-httptrigger
   failurePolicy: Fail
@@ -219,7 +198,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-registries-wa8s-reconciler-io-v1alpha1-image
   failurePolicy: Fail
@@ -240,7 +219,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-registries-wa8s-reconciler-io-v1alpha1-repository
   failurePolicy: Fail
@@ -261,114 +240,7 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: webhook-service
-      namespace: system
-      path: /validate-services-wa8s-reconciler-io-v1alpha1-servicebinding
-  failurePolicy: Fail
-  name: v1alpha1.servicebindings.services.wa8s.reconciler.io
-  rules:
-  - apiGroups:
-    - services.wa8s.reconciler.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - servicebindings
-    - servicebindings/status
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  - v1beta1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-services-wa8s-reconciler-io-v1alpha1-serviceclient
-  failurePolicy: Fail
-  name: v1alpha1.serviceclients.services.wa8s.reconciler.io
-  rules:
-  - apiGroups:
-    - services.wa8s.reconciler.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - serviceclients
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  - v1beta1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-services-wa8s-reconciler-io-v1alpha1-serviceinstance
-  failurePolicy: Fail
-  name: v1alpha1.serviceinstances.services.wa8s.reconciler.io
-  rules:
-  - apiGroups:
-    - services.wa8s.reconciler.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - serviceinstances
-    - serviceinstances/status
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  - v1beta1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-services-wa8s-reconciler-io-v1alpha1-servicelifecycle
-  failurePolicy: Fail
-  name: v1alpha1.servicelifecycles.services.wa8s.reconciler.io
-  rules:
-  - apiGroups:
-    - services.wa8s.reconciler.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - servicelifecycles
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  - v1beta1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-services-wa8s-reconciler-io-v1alpha1-serviceresourcedefinition
-  failurePolicy: Fail
-  name: v1alpha1.serviceresourcedefinitions.services.wa8s.reconciler.io
-  rules:
-  - apiGroups:
-    - services.wa8s.reconciler.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - serviceresourcedefinitions
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  - v1beta1
-  clientConfig:
-    service:
-      name: webhook-service
+      name: wa8s-manager-webhook
       namespace: system
       path: /validate-containers-wa8s-reconciler-io-v1alpha1-wrpctrigger
   failurePolicy: Fail

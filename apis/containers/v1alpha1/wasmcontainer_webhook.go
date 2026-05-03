@@ -29,7 +29,7 @@ import (
 	"reconciler.io/wa8s/validation"
 )
 
-//+kubebuilder:webhook:path=/validate-containers-wa8s-reconciler-io-v1alpha1-componentcontainerimage,mutating=false,failurePolicy=fail,sideEffects=None,groups=containers.wa8s.reconciler.io,resources=componentcontainerimages,verbs=create;update,versions=v1alpha1,name=v1alpha1.componentcontainerimages.containers.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
+//+kubebuilder:webhook:path=/validate-containers-wa8s-reconciler-io-v1alpha1-componentcontainerimage,mutating=false,failurePolicy=fail,sideEffects=None,groups=containers.wa8s.reconciler.io,resources=componentcontainerimages,verbs=create;update,versions=v1alpha1,name=v1alpha1.componentcontainerimages.containers.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1},serviceName=wa8s-manager-webhook
 
 func (r *ComponentContainerImage) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr, r).

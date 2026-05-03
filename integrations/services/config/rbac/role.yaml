@@ -1,0 +1,136 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wa8s-services-manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ""
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - containers.wa8s.reconciler.io
+  resources:
+  - componentcontainerimages
+  - httptriggers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - duck.reconciler.io
+  resources:
+  - ducktypes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - registries.wa8s.reconciler.io
+  resources:
+  - clusterimages
+  - clusterrepositories
+  - images
+  - repositories
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - services.wa8s.reconciler.io
+  resources:
+  - clusterservicelifecycles
+  - servicebindings
+  - serviceclients
+  - serviceinstances
+  - servicelifecycles
+  - serviceresourcedefinitions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - services.wa8s.reconciler.io
+  resources:
+  - clusterservicelifecycles/finalizers
+  - servicebindings/finalizers
+  - serviceclients/finalizers
+  - serviceinstances/finalizers
+  - servicelifecycles/finalizers
+  - serviceresourcedefinitions/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - services.wa8s.reconciler.io
+  resources:
+  - clusterservicelifecycles/status
+  - servicebindings/status
+  - serviceclients/status
+  - serviceinstances/status
+  - servicelifecycles/status
+  - serviceresourcedefinitions/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - componentducks
+  - components
+  - compositions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch

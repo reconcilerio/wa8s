@@ -11,7 +11,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      control-plane: controller-manager
+      control-plane: wa8s-manager
   policyTypes:
     - Ingress
   ingress:

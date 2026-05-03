@@ -28,7 +28,7 @@ import (
 	"reconciler.io/wa8s/validation"
 )
 
-//+kubebuilder:webhook:path=/validate-containers-wa8s-reconciler-io-v1alpha1-httptrigger,mutating=false,failurePolicy=fail,sideEffects=None,groups=containers.wa8s.reconciler.io,resources=httptriggers,verbs=create;update,versions=v1alpha1,name=v1alpha1.httptriggers.containers.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
+//+kubebuilder:webhook:path=/validate-containers-wa8s-reconciler-io-v1alpha1-httptrigger,mutating=false,failurePolicy=fail,sideEffects=None,groups=containers.wa8s.reconciler.io,resources=httptriggers,verbs=create;update,versions=v1alpha1,name=v1alpha1.httptriggers.containers.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1},serviceName=wa8s-manager-webhook
 
 func (r *HttpTrigger) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr, r).
