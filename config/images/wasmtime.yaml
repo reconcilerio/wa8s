@@ -4,4 +4,4 @@ kind: ClusterImage
 metadata:
   name: wasmtime
 spec:
-  image: ghcr.io/reconcilerio/wa8s/wasmtime:40.0.0@sha256:75aacd237a24bbb56b7aa31fdc0e723bf870da23808f67b951be2e25c2b0d8e4
+  image: ghcr.io/reconcilerio/wa8s/wasmtime:44.0.1@sha256:3560003ce6e930ed7d494bd90d2b2526b4c1ae0af2ef14da7dbab4724610dd1e
