@@ -431,7 +431,13 @@ jobs:
         set +o errexit
         set -o nounset
         set +o pipefail
-
+ 
+        echo "##[group]kubectl get all -n wa8s-system"
+          kubectl get all -n wa8s-system
+        echo "##[endgroup]"
+        echo "##[group]kubectl get all -n wa8s-system -oyaml"
+          kubectl get all -n wa8s-system -oyaml
+        echo "##[endgroup]"
         echo "##[group]kubectl get wa8s --all-namespaces"
           kubectl get wa8s --all-namespaces
         echo "##[endgroup]"
