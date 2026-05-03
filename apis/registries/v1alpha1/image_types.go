@@ -57,7 +57,7 @@ type ImageStatus struct {
 	Image string `json:"image,omitempty"`
 }
 
-// +kubebuilder:object:generate=false
+//+kubebuilder:object:generate=false
 
 type GenericImage interface {
 	runtime.Object
@@ -71,12 +71,12 @@ type GenericImage interface {
 	GetConditionManager(ctx context.Context) apis.ConditionManager
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:resource:categories=wa8s;wa8s-registry
-// +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
-// +kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
-// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+//+kubebuilder:object:root=true
+//+kubebuilder:resource:categories=wa8s;wa8s-registry
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +die:object=true
 
 // Image is the Schema for the images API
@@ -106,7 +106,7 @@ func (r *Image) GetServiceAccountReference() *ServiceAccountReference {
 	return &r.Spec.ServiceAccountRef
 }
 
-// +kubebuilder:object:root=true
+//+kubebuilder:object:root=true
 
 // ImageList contains a list of Image
 type ImageList struct {
@@ -115,12 +115,12 @@ type ImageList struct {
 	Items           []Image `json:"items"`
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:resource:scope=Cluster,categories=wa8s;wa8s-registry
-// +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
-// +kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
-// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+//+kubebuilder:object:root=true
+//+kubebuilder:resource:scope=Cluster,categories=wa8s;wa8s-registry
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +die:object=true,spec=DieImageSpec,status=DieImageStatus
 
 // ClusterImage is the Schema for the images API
@@ -150,7 +150,7 @@ func (r *ClusterImage) GetServiceAccountReference() *ServiceAccountReference {
 	return &r.Spec.ServiceAccountRef
 }
 
-// +kubebuilder:object:root=true
+//+kubebuilder:object:root=true
 
 // ClusterImageList contains a list of Image
 type ClusterImageList struct {

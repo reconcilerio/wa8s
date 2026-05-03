@@ -45,8 +45,8 @@ import (
 var ComponentDuckBroker duckclient.Broker
 var ErrNotComponent = errors.New("referenced apiVersion kind is not a component")
 
-// +kubebuilder:rbac:groups=duck.reconciler.io,resources=ducktypes,verbs=get;list;watch
-// +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=componentducks,verbs=get;list;watch
+//+kubebuilder:rbac:groups=duck.reconciler.io,resources=ducktypes,verbs=get;list;watch
+//+kubebuilder:rbac:groups=wa8s.reconciler.io,resources=componentducks,verbs=get;list;watch
 
 func ResolveComponentReference(ctx context.Context, ref componentsv1alpha1.ComponentReference) (*componentsv1alpha1.ComponentDuck, error) {
 	componentClient := duckclient.New(
@@ -66,8 +66,8 @@ func ResolveComponentReference(ctx context.Context, ref componentsv1alpha1.Compo
 	return component, nil
 }
 
-// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=images,verbs=get;list;watch
-// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterimages,verbs=get;list;watch
+//+kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=images,verbs=get;list;watch
+//+kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterimages,verbs=get;list;watch
 
 func ResolveImage[IR registriesv1alpha1.ImageReferencer](conditionType string) reconcilers.SubReconciler[IR] {
 	return &reconcilers.SyncReconciler[IR]{
@@ -168,7 +168,7 @@ func ResolveImage[IR registriesv1alpha1.ImageReferencer](conditionType string) r
 				return err
 			}
 
-			keychain, err := registry.KeychainManager.Get(repository)
+			keychain, err := registry.KeychainForRepo(ctx, repository)
 			if err != nil {
 				return errors.Join(err, ErrTransient)
 			}
@@ -192,8 +192,8 @@ func ResolveImage[IR registriesv1alpha1.ImageReferencer](conditionType string) r
 	}
 }
 
-// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=repositories,verbs=get;list;watch
-// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterrepositories,verbs=get;list;watch
+//+kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=repositories,verbs=get;list;watch
+//+kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterrepositories,verbs=get;list;watch
 
 func ResolveRepository[RR registriesv1alpha1.RepositoryReferencer](conditionType string) reconcilers.SubReconciler[RR] {
 	return &reconcilers.SyncReconciler[RR]{
@@ -249,7 +249,7 @@ func ResolveRepository[RR registriesv1alpha1.RepositoryReferencer](conditionType
 			if err := repository.Default(ctx); err != nil {
 				return err
 			}
-			keychain, err := registry.KeychainManager.Get(repository)
+			keychain, err := registry.KeychainForRepo(ctx, repository)
 			if err != nil {
 				return errors.Join(err, ErrTransient)
 			}
@@ -280,7 +280,7 @@ func ResolveKeychain[SAR registriesv1alpha1.ServiceAccountReferencer](conditionT
 				return nil
 			}
 
-			keychain, err := registry.KeychainManager.CreateForServiceAccountRef(ctx, *ref)
+			keychain, err := registry.KeychainForServiceAccountRef(ctx, *ref)
 			if err != nil {
 				if apierrs.IsNotFound(err) {
 					status := err.(apierrs.APIStatus).Status()
@@ -333,7 +333,7 @@ func PushComponent[GC componentsv1alpha1.ComponentLike](conditionType string) re
 	}
 }
 
-// +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=components,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=wa8s.reconciler.io,resources=components,verbs=get;list;watch;create;update;patch;delete
 
 func ComponentChildReconciler[GC componentsv1alpha1.ComponentLike](conditionType, childLabelKey string, ourChild func(resource componentsv1alpha1.ComponentLike, child *componentsv1alpha1.Component) bool) reconcilers.SubReconciler[GC] {
 	return &reconcilers.CastResource[GC, componentsv1alpha1.ComponentLike]{
@@ -492,7 +492,7 @@ func DetectTraceCycle(trace []componentsv1alpha1.ComponentSpan, component client
 	return hasCycle, sanitized
 }
 
-// +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=componentcontainerimages,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=componentcontainerimages,verbs=get;list;watch;create;update;patch;delete
 
 func ComponentContainerImageChildReconciler[GC containersv1alpha1.GenericContainer](conditionType, childLabelKey string, imageRef registriesv1alpha1.ImageReference) reconcilers.SubReconciler[GC] {
 	return &reconcilers.CastResource[GC, containersv1alpha1.GenericContainer]{

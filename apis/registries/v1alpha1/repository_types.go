@@ -56,7 +56,7 @@ type RepositoryStatus struct {
 	apis.Status `json:",inline"`
 }
 
-// +kubebuilder:object:generate=false
+//+kubebuilder:object:generate=false
 
 type GenericRepository interface {
 	runtime.Object
@@ -68,12 +68,12 @@ type GenericRepository interface {
 	GetConditionManager(ctx context.Context) apis.ConditionManager
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:resource:categories=wa8s;wa8s-registry
-// +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
-// +kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
-// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+//+kubebuilder:object:root=true
+//+kubebuilder:resource:categories=wa8s;wa8s-registry
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +die:object=true
 
 // Repository is the Schema for the Repositorys API
@@ -95,7 +95,7 @@ func (r *Repository) GetStatus() *RepositoryStatus {
 	return &r.Status
 }
 
-// +kubebuilder:object:root=true
+//+kubebuilder:object:root=true
 
 // RepositoryList contains a list of Repository
 type RepositoryList struct {
@@ -104,12 +104,12 @@ type RepositoryList struct {
 	Items           []Repository `json:"items"`
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:resource:scope=Cluster,categories=wa8s;wa8s-registry
-// +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
-// +kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
-// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+//+kubebuilder:object:root=true
+//+kubebuilder:resource:scope=Cluster,categories=wa8s;wa8s-registry
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +die:object=true,spec=DieRepositorySpec,status=DieRepositoryStatus
 
 // ClusterRepository is the Schema for the ClusterRepositories API
@@ -131,7 +131,7 @@ func (r *ClusterRepository) GetStatus() *RepositoryStatus {
 	return &r.Status
 }
 
-// +kubebuilder:object:root=true
+//+kubebuilder:object:root=true
 
 // ClusterRepositoryList contains a list of Repository
 type ClusterRepositoryList struct {

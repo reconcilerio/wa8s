@@ -155,9 +155,13 @@ jobs:
         echo "##[group]Build"
           cat hack/boilerplate.yaml.txt > "${scratch}/config/reconcilerio-wa8s.yaml"
           ${KO} resolve --platform ${KO_PLATFORMS} -f config/wa8s.yaml >> "${scratch}/config/reconcilerio-wa8s.yaml"
+          
+          cat hack/boilerplate.yaml.txt > "${scratch}/config/reconcilerio-wa8s-services.yaml"
+          ${KO} resolve --platform ${KO_PLATFORMS} -f config/wa8s.yaml >> "${scratch}/config/reconcilerio-wa8s-services.yaml"
 
           ${KBLD} --imgpkg-lock-output "${scratch}/.imgpkg/images.yml" \
             -f "${scratch}/config/reconcilerio-wa8s.yaml" \
+            -f "${scratch}/config/reconcilerio-wa8s-services.yaml" \
             > /dev/null
         echo "##[endgroup]"
 
@@ -317,17 +321,20 @@ jobs:
         set -o nounset
         set -o pipefail
 
-        echo "##[group]Create namespace"
+        echo "##[group]Create apps namespace"
           kubectl create ns apps
         echo "##[endgroup]"
+
         echo "##[group]Deploy cert-manager"
           ${KAPP} deploy -a cert-manager -n apps --wait-timeout 5m -y \
             -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.2/cert-manager.yaml
         echo "##[endgroup]"
+        
         echo "##[group]Deploy reconcilerio-ducks"
           ${KAPP} deploy -a reconcilerio-ducks -n apps --wait-timeout 5m -y \
             -f https://github.com/reconcilerio/ducks/releases/download/v0.4.0/reconcilerio-ducks-v0.4.0.yaml
         echo "##[endgroup]"
+
         echo "##[group]Deploy reconcilerio-wa8s"
           kubectl create secret generic local-ca \
             --namespace wa8s-system \
@@ -349,12 +356,17 @@ jobs:
         EOF
 
           ${KAPP} deploy -a reconcilerio-wa8s -n apps --wait-timeout 5m -y \
-            -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config) \
+            -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config/wa8s.yaml) \
             -f bundle/kapp \
             -f ca.yaml \
             -f clusterrepository.yaml
         echo "##[endgroup]"
 
+        echo "##[group]Deploy reconcilerio-wa8s-services"
+          ${KAPP} deploy -a reconcilerio-wa8s-services -n apps --wait-timeout 5m -y \
+            -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config/wa8s-services.yaml) \
+            -f bundle/kapp
+        echo "##[endgroup]"
     - name: Valkey service
       run: |
         set -o errexit
@@ -426,8 +438,11 @@ jobs:
         echo "##[group]kubectl get wa8s --all-namespaces -oyaml"
           kubectl get wa8s --all-namespaces -oyaml
         echo "##[endgroup]"
-        echo "##[group]kubectl logs -n wa8s-system -l control-plane=controller-manager --tail 10000"
-          kubectl logs -n wa8s-system -l control-plane=controller-manager --tail 10000
+        echo "##[group]kubectl logs -n wa8s-system -l control-plane=wa8s-manager --tail 10000"
+          kubectl logs -n wa8s-system -l control-plane=wa8s-manager --tail 10000
+        echo "##[endgroup]"
+        echo "##[group]kubectl logs -n wa8s-system -l control-plane=wa8s-services-manager --tail 10000"
+          kubectl logs -n wa8s-system -l control-plane=wa8s-services-manager --tail 10000
         echo "##[endgroup]"
         echo "##[group]kubectl logs -n reconcilerio-system -l control-plane=controller-manager --tail 10000"
           kubectl logs -n reconcilerio-system -l control-plane=controller-manager --tail 10000
@@ -442,8 +457,14 @@ jobs:
         set -o pipefail
 
         echo "##[group]Delete Valkey service"
-          kubectl delete -f examples/valkey-service/ --timeout 1m
-          kubectl delete -f examples/valkey-service/prereq/ --timeout 1m
+          kubectl delete -f examples/valkey-service/04-*.yaml --timeout 1m
+          kubectl delete -f examples/valkey-service/03-*.yaml --timeout 1m
+          kubectl delete -f examples/valkey-service/02-*.yaml --timeout 1m
+          kubectl delete -f examples/valkey-service/prereq/01-*.yaml --timeout 1m
+          kubectl delete -f examples/valkey-service/prereq/00-*.yaml --timeout 1m
+        echo "##[endgroup]"
+        echo "##[group]Delete reconcilerio-wa8s-services"
+          ${KAPP} delete -a reconcilerio-wa8s-services -n apps --wait-timeout 5m -y
         echo "##[endgroup]"
         echo "##[group]Delete reconcilerio-wa8s"
           ${KAPP} delete -a reconcilerio-wa8s -n apps --wait-timeout 5m -y
@@ -523,6 +544,10 @@ jobs:
         cp hack/boilerplate.yaml.txt reconcilerio-wa8s.yaml
         ${KBLD} -f ${scratch}/config/reconcilerio-wa8s.yaml -f ${scratch}/.imgpkg/images.yml \
           >> reconcilerio-wa8s.yaml
+
+        cp hack/boilerplate.yaml.txt reconcilerio-wa8s-services.yaml
+        ${KBLD} -f ${scratch}/config/reconcilerio-wa8s-services.yaml -f ${scratch}/.imgpkg/images.yml \
+          >> reconcilerio-wa8s-services.yaml
     - name: Rename artifacts with version
       run: |
         set -o errexit
@@ -533,6 +558,7 @@ jobs:
 
         cp reconcilerio-wa8s-bundle.tar reconcilerio-wa8s-bundle-${version}.tar
         cp reconcilerio-wa8s.yaml reconcilerio-wa8s-${version}.yaml
+        cp reconcilerio-wa8s-services.yaml reconcilerio-wa8s-services-${version}.yaml
     - name: Draft GitHub Release
       uses: softprops/action-gh-release@v3
       with:
@@ -540,5 +566,6 @@ jobs:
         files: |
           reconcilerio-wa8s-bundle-${{ steps.get_version.outputs.VERSION }}.tar
           reconcilerio-wa8s-${{ steps.get_version.outputs.VERSION }}.yaml
+          reconcilerio-wa8s-services-${{ steps.get_version.outputs.VERSION }}.yaml
         fail_on_unmatched_files: true
         token: ${{ secrets.GITHUB_TOKEN }}

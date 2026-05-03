@@ -3,10 +3,10 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    control-plane: controller-manager
+    control-plane: wa8s-manager
     app.kubernetes.io/name: wa8s
     app.kubernetes.io/managed-by: kustomize
-  name: controller-manager-metrics-monitor
+  name: wa8s-manager-metrics-monitor
 spec:
   endpoints:
     - path: /metrics
@@ -26,4 +26,4 @@ spec:
         insecureSkipVerify: true
   selector:
     matchLabels:
-      control-plane: controller-manager
+      control-plane: wa8s-manager

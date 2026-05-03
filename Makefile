@@ -31,14 +31,20 @@ help: ## Display this help.
 .PHONY: manifests
 manifests: internal-manifests ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(foreach file,$(wildcard config/crd/bases/*.yaml),$(shell $(YQ) -i 'del(.metadata.annotations["controller-gen.kubebuilder.io/version"]) | del(.metadata.annotations | select(length==0))' ${file}))
+	$(foreach file,$(wildcard integrations/services/config/crd/bases/*.yaml),$(shell $(YQ) -i 'del(.metadata.annotations["controller-gen.kubebuilder.io/version"]) | del(.metadata.annotations | select(length==0))' ${file}))
+
 	cat hack/boilerplate.yaml.txt > config/wa8s.yaml
 	$(KUSTOMIZE) build config/default >> config/wa8s.yaml
-	cp config/crd/bases/services.wa8s.reconciler.io_serviceclientducks.yaml apis/services/v1alpha1/serviceclientducks.yaml
-	cp config/crd/bases/services.wa8s.reconciler.io_serviceinstanceducks.yaml apis/services/v1alpha1/serviceinstanceducks.yaml
+	cat hack/boilerplate.yaml.txt > config/wa8s-services.yaml
+	$(KUSTOMIZE) build integrations/services/config/default >> config/wa8s-services.yaml
+
+	cp integrations/services/config/crd/bases/services.wa8s.reconciler.io_serviceclientducks.yaml integrations/services/apis/services/v1alpha1/serviceclientducks.yaml
+	cp integrations/services/config/crd/bases/services.wa8s.reconciler.io_serviceinstanceducks.yaml integrations/services/apis/services/v1alpha1/serviceinstanceducks.yaml
 
 .PHONY: internal-manifests
 internal-manifests:
-	$(CONTROLLER_GEN) rbac:roleName=wa8s-manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) paths="./apis/...;./controllers/...;./internal/controllers/..." rbac:roleName=wa8s-manager-role crd webhook output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) paths="./integrations/services/...;./controllers/..." rbac:roleName=wa8s-services-manager-role crd webhook output:crd:artifacts:config=integrations/services/config/crd/bases output:rbac:artifacts:config=integrations/services/config/rbac output:webhook:artifacts:config=integrations/services/config/webhook
 
 .PHONY: generate
 generate: components ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
@@ -99,13 +105,19 @@ logs: ## Watch logs from the wa8s-system namespace
 
 .PHONY: logs-manager
 logs-manager: ## Watch logs from the wa8s manager
-	@$(STERN) -n wa8s-system -l control-plane=controller-manager
+	@$(STERN) -n wa8s-system -l control-plane
 
 .PHONY: deploy
 deploy: generate manifests ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	$(KAPP) deploy -a $(KAPP_APP) -n $(KAPP_APP_NAMESPACE) -c \
 		-f config/kapp \
 		-f <($(KO) resolve --platform $(KO_PLATFORMS) -f config/wa8s.yaml)
+
+.PHONY: deploy-services
+deploy-services: generate manifests ## Deploy controller to the K8s cluster specified in ~/.kube/config.
+	$(KAPP) deploy -a $(KAPP_APP)-services -n $(KAPP_APP_NAMESPACE) -c \
+		-f config/kapp \
+		-f <($(KO) resolve --platform $(KO_PLATFORMS) -f config/wa8s-services.yaml)
 
 .PHONY: deploy-cert-manager
 deploy-cert-manager: ## Deploy cert-manager to the K8s cluster specified in ~/.kube/config.
@@ -125,11 +137,20 @@ undeploy-ducks: ## Undeploy cert-manager from the K8s cluster specified in ~/.ku
 
 .PHONY: undeploy
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
+	$(KAPP) delete -a $(KAPP_APP)-services -n $(KAPP_APP_NAMESPACE)
 	$(KAPP) delete -a $(KAPP_APP) -n $(KAPP_APP_NAMESPACE)
 
 .PHONY: kind-deploy
 kind-deploy: ## Deploy to a running local kind cluster
-	KO_DOCKER_REPO=kind.local make deploy
+	KO_DOCKER_REPO=kind.local $(MAKE) deploy deploy-services
+
+.PHONY: kind-deploy-core
+kind-deploy-core: ## Deploy to a running local kind cluster
+	KO_DOCKER_REPO=kind.local $(MAKE) deploy
+
+.PHONY: kind-deploy-services
+kind-deploy-services: ## Deploy to a running local kind cluster
+	KO_DOCKER_REPO=kind.local $(MAKE) deploy-services
 
 ##@ Dependencies
 

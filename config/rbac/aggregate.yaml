@@ -10,6 +10,9 @@ aggregationRule:
   - matchExpressions:
     - key: wa8s.reconciler.io/manager
       operator: Exists
+  - matchLabels:
+      ducks.reconciler.io/role: view
+      ducks.reconciler.io/type: componentducks.wa8s.reconciler.io
 rules: [] # The control plane automatically fills in the rules
 
 ---
@@ -26,4 +29,4 @@ roleRef:
   name: wa8s-manager-aggregate-role
 subjects:
 - kind: ServiceAccount
-  name: controller-manager
+  name: wa8s-manager

@@ -49,12 +49,12 @@ type ComponentContainerImageStatus struct {
 	componentsv1alpha1.GenericComponentStatus `json:",inline"`
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:resource:categories=wa8s;wa8s-container
-// +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
-// +kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
-// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+//+kubebuilder:object:root=true
+//+kubebuilder:resource:categories=wa8s;wa8s-container
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Reason",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].reason`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +die:object=true
 
 // ComponentContainerImage is the Schema for the components API
@@ -86,7 +86,7 @@ func (r *ComponentContainerImage) GetImageReference() *registriesv1alpha1.ImageR
 	return &r.Spec.ImageRef
 }
 
-// +kubebuilder:object:root=true
+//+kubebuilder:object:root=true
 
 // ComponentContainerImageList contains a list of ComponentContainerImage
 type ComponentContainerImageList struct {

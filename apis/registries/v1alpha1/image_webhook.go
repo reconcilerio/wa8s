@@ -30,8 +30,8 @@ import (
 	"reconciler.io/wa8s/validation"
 )
 
-//+kubebuilder:webhook:path=/validate-registries-wa8s-reconciler-io-v1alpha1-image,mutating=false,failurePolicy=fail,sideEffects=None,groups=registries.wa8s.reconciler.io,resources=images,verbs=create;update,versions=v1alpha1,name=v1alpha1.images.registries.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
-//+kubebuilder:webhook:path=/validate-registries-wa8s-reconciler-io-v1alpha1-clusterimage,mutating=false,failurePolicy=fail,sideEffects=None,groups=registries.wa8s.reconciler.io,resources=clusterimages,verbs=create;update,versions=v1alpha1,name=v1alpha1.clusterimages.registries.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1}
+//+kubebuilder:webhook:path=/validate-registries-wa8s-reconciler-io-v1alpha1-image,mutating=false,failurePolicy=fail,sideEffects=None,groups=registries.wa8s.reconciler.io,resources=images,verbs=create;update,versions=v1alpha1,name=v1alpha1.images.registries.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1},serviceName=wa8s-manager-webhook
+//+kubebuilder:webhook:path=/validate-registries-wa8s-reconciler-io-v1alpha1-clusterimage,mutating=false,failurePolicy=fail,sideEffects=None,groups=registries.wa8s.reconciler.io,resources=clusterimages,verbs=create;update,versions=v1alpha1,name=v1alpha1.clusterimages.registries.wa8s.reconciler.io,admissionReviewVersions={v1,v1beta1},serviceName=wa8s-manager-webhook
 
 func (r *Image) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr, r).

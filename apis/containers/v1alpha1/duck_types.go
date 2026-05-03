@@ -179,7 +179,7 @@ type WIT struct {
 	Exports []string `json:"exports,omitempty"`
 }
 
-// +kubebuilder:object:generate=false
+//+kubebuilder:object:generate=false
 
 type GenericContainer interface {
 	runtime.Object
