@@ -176,6 +176,7 @@ func ResolveImage[IR registriesv1alpha1.ImageReferencer](conditionType string) r
 				// merge with existing stashed keychain
 				keychain = authn.NewMultiKeychain(keychain, kc)
 			}
+			RepositoryKeychainStasher.Store(ctx, keychain)
 
 			imageDigest, err := name.NewDigest(image.GetStatus().Image, name.StrictValidation)
 			if err != nil {
