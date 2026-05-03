@@ -3040,7 +3040,7 @@ spec:
   - registry.wa8s-system.svc.cluster.local
   issuerRef:
     kind: Issuer
-    name: selfsigned-issuer
+    name: wa8s-selfsigned-issuer
   secretName: registry-cert
 ---
 apiVersion: cert-manager.io/v1
