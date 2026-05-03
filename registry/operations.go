@@ -27,6 +27,7 @@ import (
 
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
+	"github.com/google/go-containerregistry/pkg/v1/empty"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/stream"
@@ -231,38 +232,58 @@ func AppendComponent(ctx context.Context, base name.Reference, target name.Tag, 
 	}
 	opts = append(opts, remote.WithContext(ctx), remote.WithTransport(transport))
 
-	// copy base image into the target repository
-	relocatedBase, err := Copy(ctx, base, target, opts...)
+	baseDesc, err := remote.Get(base, opts...)
+	if err != nil {
+		return name.Digest{}, err
+	}
+	if !baseDesc.MediaType.IsIndex() {
+		return name.Digest{}, fmt.Errorf("expected %s to be an index, got %q", base, baseDesc.MediaType)
+	}
+	baseIndex, err := baseDesc.ImageIndex()
+	if err != nil {
+		return name.Digest{}, err
+	}
+	baseManifest, err := baseIndex.IndexManifest()
 	if err != nil {
 		return name.Digest{}, err
 	}
 
-	// append component layer
-	layer, err := componentAsLayer(component)
-	if err != nil {
-		return name.Digest{}, err
-	}
-	baseImg, err := remote.Image(relocatedBase, opts...)
-	if err != nil {
-		return name.Digest{}, err
-	}
-	// TODO what if the image is an index?
-	img, err := mutate.AppendLayers(baseImg, layer)
+	// layer to append to each image in the index
+	componentLayer, err := componentAsLayer(component)
 	if err != nil {
 		return name.Digest{}, err
 	}
 
-	// push appended image
-	pusher, err := remote.NewPusher(opts...)
-	if err != nil {
-		return name.Digest{}, err
+	adds := []mutate.IndexAddendum{}
+	for _, m := range baseManifest.Manifests {
+		if !m.MediaType.IsImage() {
+			// ignore non-images
+			continue
+		}
+
+		baseImage, err := baseIndex.Image(m.Digest)
+		if err != nil {
+			return name.Digest{}, err
+		}
+		image, err := mutate.AppendLayers(baseImage, componentLayer)
+		if err != nil {
+			return name.Digest{}, err
+		}
+
+		adds = append(adds, mutate.IndexAddendum{
+			Add: image,
+			Descriptor: v1.Descriptor{
+				Platform: m.Platform,
+			},
+		})
 	}
-	if err := pusher.Push(ctx, target, img); err != nil {
+	index := mutate.AppendManifests(empty.Index, adds...)
+	if err := remote.WriteIndex(target, index, opts...); err != nil {
 		return name.Digest{}, err
 	}
 
 	// resulting digested ref
-	digest, err := img.Digest()
+	digest, err := index.Digest()
 	if err != nil {
 		return name.Digest{}, err
 	}

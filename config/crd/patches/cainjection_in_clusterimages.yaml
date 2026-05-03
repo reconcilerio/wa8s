@@ -4,4 +4,4 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: $(NAMESPACE)/$(CERTIFICATE_NAME)
-  name: wasmtimecontainers.containers.wa8s.reconciler.io
+  name: clusterimages.registries.wa8s.reconciler.io

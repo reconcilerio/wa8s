@@ -23,10 +23,10 @@ import (
 )
 
 const (
-	WrpcTriggerConditionReady                  = apis.ConditionReady
-	WrpcTriggerConditionWasmtimeContainerReady = "WasmtimeContainerReady"
-	WrpcTriggerConditionDeploymentReady        = "DeploymentReady"
-	WrpcTriggerConditionServiceReady           = "ServiceReady"
+	WrpcTriggerConditionReady                        = apis.ConditionReady
+	WrpcTriggerConditionComponentContainerImageReady = "ComponentContainerImageReady"
+	WrpcTriggerConditionDeploymentReady              = "DeploymentReady"
+	WrpcTriggerConditionServiceReady                 = "ServiceReady"
 )
 
 func (s *WrpcTrigger) GetConditionsAccessor() apis.ConditionsAccessor {
@@ -40,7 +40,7 @@ func (s *WrpcTrigger) GetConditionSet() apis.ConditionSet {
 func (s *WrpcTriggerStatus) GetConditionSet() apis.ConditionSet {
 	return apis.NewLivingConditionSetWithHappyReason(
 		"Ready",
-		WrpcTriggerConditionWasmtimeContainerReady,
+		WrpcTriggerConditionComponentContainerImageReady,
 		WrpcTriggerConditionDeploymentReady,
 		WrpcTriggerConditionServiceReady,
 	)

@@ -24,10 +24,10 @@ import (
 )
 
 var (
-	HttpTriggerConditionReadyBlank                  = diemetav1.ConditionBlank.Type(HttpTriggerConditionReady).Status(metav1.ConditionUnknown).Reason("Initializing")
-	HttpTriggerConditionWasmtimeContainerReadyBlank = diemetav1.ConditionBlank.Type(HttpTriggerConditionWasmtimeContainerReady).Status(metav1.ConditionUnknown).Reason("Initializing")
-	HttpTriggerConditionDeploymentReadyBlank        = diemetav1.ConditionBlank.Type(HttpTriggerConditionDeploymentReady).Status(metav1.ConditionUnknown).Reason("Initializing")
-	HttpTriggerConditionServiceReadyBlank           = diemetav1.ConditionBlank.Type(HttpTriggerConditionServiceReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	HttpTriggerConditionReadyBlank                        = diemetav1.ConditionBlank.Type(HttpTriggerConditionReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	HttpTriggerConditionComponentContainerImageReadyBlank = diemetav1.ConditionBlank.Type(HttpTriggerConditionComponentContainerImageReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	HttpTriggerConditionDeploymentReadyBlank              = diemetav1.ConditionBlank.Type(HttpTriggerConditionDeploymentReady).Status(metav1.ConditionUnknown).Reason("Initializing")
+	HttpTriggerConditionServiceReadyBlank                 = diemetav1.ConditionBlank.Type(HttpTriggerConditionServiceReady).Status(metav1.ConditionUnknown).Reason("Initializing")
 )
 
 func (d *HttpTriggerStatusDie) InitializeConditionsDie() *HttpTriggerStatusDie {

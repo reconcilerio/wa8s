@@ -84,9 +84,9 @@ rules:
 - apiGroups:
   - containers.wa8s.reconciler.io
   resources:
+  - componentcontainerimages
   - crontriggers
   - httptriggers
-  - wasmtimecontainers
   - wrpctriggers
   verbs:
   - create
@@ -99,18 +99,18 @@ rules:
 - apiGroups:
   - containers.wa8s.reconciler.io
   resources:
+  - componentcontainerimages/finalizers
   - crontriggers/finalizers
   - httptriggers/finalizers
-  - wasmtimecontainers/finalizers
   - wrpctriggers/finalizers
   verbs:
   - update
 - apiGroups:
   - containers.wa8s.reconciler.io
   resources:
+  - componentcontainerimages/status
   - crontriggers/status
   - httptriggers/status
-  - wasmtimecontainers/status
   - wrpctriggers/status
   verbs:
   - get
@@ -127,7 +127,9 @@ rules:
 - apiGroups:
   - registries.wa8s.reconciler.io
   resources:
+  - clusterimages
   - clusterrepositories
+  - images
   - repositories
   verbs:
   - create
@@ -140,14 +142,18 @@ rules:
 - apiGroups:
   - registries.wa8s.reconciler.io
   resources:
+  - clusterimages/finalizers
   - clusterrepositories/finalizers
+  - images/finalizers
   - repositories/finalizers
   verbs:
   - update
 - apiGroups:
   - registries.wa8s.reconciler.io
   resources:
+  - clusterimages/status
   - clusterrepositories/status
+  - images/status
   - repositories/status
   verbs:
   - get
@@ -230,12 +236,3 @@ rules:
   - get
   - patch
   - update
-- apiGroups:
-  - wa8s.reconciler.io
-  resources:
-  - clusterrepositories
-  - repositories
-  verbs:
-  - get
-  - list
-  - watch

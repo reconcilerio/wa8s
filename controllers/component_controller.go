@@ -22,7 +22,6 @@ import (
 	"fmt"
 
 	"github.com/go-logr/logr"
-	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	corev1 "k8s.io/api/core/v1"
@@ -65,7 +64,7 @@ func genericComponentReconciler(c reconcilers.Config, t componentsv1alpha1.Gener
 			Reconciler: reconcilers.Sequence[componentsv1alpha1.GenericComponent]{
 				reconcilers.Always[componentsv1alpha1.GenericComponent]{
 					ResolveRepository[componentsv1alpha1.GenericComponent](componentsv1alpha1.ComponentConditionRepositoryReady),
-					ResolveKeychain(),
+					ResolveKeychain[componentsv1alpha1.GenericComponent](componentsv1alpha1.ComponentConditionCopied),
 				},
 				CopyComponent(),
 				ReflectComponentableStatus[componentsv1alpha1.GenericComponent](),
@@ -73,35 +72,6 @@ func genericComponentReconciler(c reconcilers.Config, t componentsv1alpha1.Gener
 		},
 
 		Config: c,
-	}
-}
-
-func ResolveKeychain() *reconcilers.SyncReconciler[componentsv1alpha1.GenericComponent] {
-	return &reconcilers.SyncReconciler[componentsv1alpha1.GenericComponent]{
-		Sync: func(ctx context.Context, resource componentsv1alpha1.GenericComponent) error {
-			if resource.GetSpec().OCI == nil {
-				return nil
-			}
-
-			keychain, err := registry.KeychainManager.CreateForServiceAccountRef(ctx, resource.GetSpec().OCI.ServiceAccountRef)
-			if err != nil {
-				if apierrs.IsNotFound(err) {
-					status := err.(apierrs.APIStatus).Status()
-					kind := status.Kind
-					name := status.Details.Name
-					resource.GetConditionManager(ctx).MarkFalse(componentsv1alpha1.ComponentConditionCopied, fmt.Sprintf("%sNotFound", kind), "%s %s not found", kind, name)
-					return ErrDurable
-				}
-				return err
-			}
-
-			if kc, err := RepositoryKeychainStasher.RetrieveOrError(ctx); err == nil {
-				// merge with existing stashed keychain
-				keychain = authn.NewMultiKeychain(keychain, kc)
-			}
-			RepositoryKeychainStasher.Store(ctx, keychain)
-			return nil
-		},
 	}
 }
 

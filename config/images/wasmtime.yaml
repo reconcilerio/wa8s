@@ -1,0 +1,7 @@
+---
+apiVersion: registries.wa8s.reconciler.io/v1alpha1
+kind: ClusterImage
+metadata:
+  name: wasmtime
+spec:
+  image: ghcr.io/reconcilerio/wa8s/wasmtime:40.0.0@sha256:75aacd237a24bbb56b7aa31fdc0e723bf870da23808f67b951be2e25c2b0d8e4

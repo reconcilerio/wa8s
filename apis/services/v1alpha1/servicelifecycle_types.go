@@ -26,6 +26,7 @@ import (
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
+	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 )
 
 // +die
@@ -105,6 +106,10 @@ func (r *ServiceLifecycle) GetGenericComponentStatus() *componentsv1alpha1.Gener
 	return &r.Status.GenericComponentStatus
 }
 
+func (r *ServiceLifecycle) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
+	return &r.Spec.RepositoryRef
+}
+
 // +kubebuilder:object:root=true
 
 // ServiceLifecycleList contains a list of ServiceLifecycle
@@ -149,6 +154,10 @@ func (r *ClusterServiceLifecycle) GetGenericComponentSpec() *componentsv1alpha1.
 
 func (r *ClusterServiceLifecycle) GetGenericComponentStatus() *componentsv1alpha1.GenericComponentStatus {
 	return &r.Status.GenericComponentStatus
+}
+
+func (r *ClusterServiceLifecycle) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
+	return &r.Spec.RepositoryRef
 }
 
 // +kubebuilder:object:root=true

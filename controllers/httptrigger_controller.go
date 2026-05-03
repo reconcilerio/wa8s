@@ -29,6 +29,7 @@ import (
 	"reconciler.io/runtime/reconcilers"
 
 	containersv1alpha1 "reconciler.io/wa8s/apis/containers/v1alpha1"
+	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 )
 
 // +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=httptriggers,verbs=get;list;watch;create;update;patch;delete
@@ -38,12 +39,15 @@ import (
 
 func HttpTriggerReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*containersv1alpha1.HttpTrigger] {
 	childLabelKey := fmt.Sprintf("%s/http-trigger", containersv1alpha1.GroupVersion.Group)
-	baseImage := ""
+	imageRef := registriesv1alpha1.ImageReference{
+		Kind: "ClusterImage",
+		Name: "wasmtime",
+	}
 
 	return &reconcilers.ResourceReconciler[*containersv1alpha1.HttpTrigger]{
 		Reconciler: &reconcilers.SuppressTransientErrors[*containersv1alpha1.HttpTrigger, *containersv1alpha1.HttpTriggerList]{
 			Reconciler: reconcilers.Sequence[*containersv1alpha1.HttpTrigger]{
-				WasmContainerChildReconciler[*containersv1alpha1.HttpTrigger](containersv1alpha1.CronTriggerConditionWasmtimeContainerReady, childLabelKey, baseImage),
+				ComponentContainerImageChildReconciler[*containersv1alpha1.HttpTrigger](containersv1alpha1.CronTriggerConditionComponentContainerImageReady, childLabelKey, imageRef),
 				HttpDeploymentChildReconciler(childLabelKey),
 				HttpServiceChildReconciler(childLabelKey),
 			},

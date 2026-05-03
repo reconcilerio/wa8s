@@ -184,6 +184,7 @@ type WIT struct {
 type GenericContainer interface {
 	runtime.Object
 	metav1.Object
+	registriesv1alpha1.RepositoryReferencer
 
 	GetGenericContainerSpec() *GenericContainerSpec
 	GetGenericContainerStatus() *GenericContainerStatus
@@ -221,6 +222,14 @@ func (r *ContainerDuck) GetGenericContainerSpec() *GenericContainerSpec {
 
 func (r *ContainerDuck) GetGenericContainerStatus() *GenericContainerStatus {
 	return &r.Status.GenericContainerStatus
+}
+
+func (r *ContainerDuck) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
+	return &r.Spec.RepositoryRef
+}
+
+func (r *ContainerDuck) GetServiceAccountReference() *registriesv1alpha1.ServiceAccountReference {
+	return &r.Spec.ServiceAccountRef
 }
 
 // +kubebuilder:object:root=true

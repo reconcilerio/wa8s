@@ -214,6 +214,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := controllers.ImageReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Image")
+		os.Exit(1)
+	}
+	if err = (&registriesv1alpha1.Image{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "Image")
+		os.Exit(1)
+	}
+
+	if err := controllers.ClusterImageReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ClusterImage")
+		os.Exit(1)
+	}
+	if err = (&registriesv1alpha1.ClusterImage{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "ClusterImage")
+		os.Exit(1)
+	}
+
 	if err := controllers.ConfigStoreReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ConfigStore")
 		os.Exit(1)
@@ -250,12 +268,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := controllers.WasmtimeContainerReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "WasmtimeContainer")
+	if err := controllers.ComponentContainerImageReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ComponentContainerImage")
 		os.Exit(1)
 	}
-	if err = (&containersv1alpha1.WasmtimeContainer{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create webhook", "webhook", "WasmtimeContainer")
+	if err = (&containersv1alpha1.ComponentContainerImage{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "ComponentContainerImage")
 		os.Exit(1)
 	}
 

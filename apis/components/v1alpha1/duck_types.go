@@ -73,6 +73,7 @@ type ComponentSpan struct {
 type ComponentLike interface {
 	runtime.Object
 	metav1.Object
+	registriesv1alpha1.RepositoryReferencer
 
 	GetGenericComponentSpec() *GenericComponentSpec
 	GetGenericComponentStatus() *GenericComponentStatus
@@ -110,6 +111,10 @@ func (r *ComponentDuck) GetGenericComponentSpec() *GenericComponentSpec {
 
 func (r *ComponentDuck) GetGenericComponentStatus() *GenericComponentStatus {
 	return &r.Status.GenericComponentStatus
+}
+
+func (r *ComponentDuck) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
+	return &r.Spec.RepositoryRef
 }
 
 // +kubebuilder:object:root=true

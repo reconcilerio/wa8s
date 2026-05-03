@@ -23,6 +23,7 @@ import (
 	"reconciler.io/runtime/apis"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
+	registriesv1alpha1 "reconciler.io/wa8s/apis/registries/v1alpha1"
 )
 
 // +die
@@ -99,6 +100,10 @@ func (r *CronTrigger) GetGenericComponentSpec() *componentsv1alpha1.GenericCompo
 
 func (r *CronTrigger) GetGenericComponentStatus() *componentsv1alpha1.GenericComponentStatus {
 	return &r.Status.GenericComponentStatus
+}
+
+func (r *CronTrigger) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
+	return &r.Spec.RepositoryRef
 }
 
 // +kubebuilder:object:root=true

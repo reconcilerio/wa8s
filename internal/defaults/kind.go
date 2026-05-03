@@ -34,14 +34,18 @@ func APIVersionForKind(kind string) string {
 		return componentsv1alpha1
 	case "ConfigStore":
 		return componentsv1alpha1
+	case "ComponentContainerImage":
+		return containersv1alpha1
 	case "CronTrigger":
 		return containersv1alpha1
 	case "HttpTrigger":
 		return containersv1alpha1
-	case "WasmtimeContainer":
-		return containersv1alpha1
 	case "WrpcTrigger":
 		return containersv1alpha1
+	case "Image":
+		return registriesv1alpha1
+	case "ClusterImage":
+		return registriesv1alpha1
 	case "Repository":
 		return registriesv1alpha1
 	case "ClusterRepository":

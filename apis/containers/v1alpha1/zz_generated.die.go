@@ -5208,16 +5208,16 @@ func (d *HttpTriggerDie) Status(v HttpTriggerStatus) *HttpTriggerDie {
 	})
 }
 
-var WasmtimeContainerSpecBlank = (&WasmtimeContainerSpecDie{}).DieFeed(WasmtimeContainerSpec{})
+var ComponentContainerImageSpecBlank = (&ComponentContainerImageSpecDie{}).DieFeed(ComponentContainerImageSpec{})
 
-type WasmtimeContainerSpecDie struct {
+type ComponentContainerImageSpecDie struct {
 	mutable bool
-	r       WasmtimeContainerSpec
-	seal    WasmtimeContainerSpec
+	r       ComponentContainerImageSpec
+	seal    ComponentContainerImageSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-func (d *WasmtimeContainerSpecDie) DieImmutable(immutable bool) *WasmtimeContainerSpecDie {
+func (d *ComponentContainerImageSpecDie) DieImmutable(immutable bool) *ComponentContainerImageSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
@@ -5227,12 +5227,12 @@ func (d *WasmtimeContainerSpecDie) DieImmutable(immutable bool) *WasmtimeContain
 }
 
 // DieFeed returns a new die with the provided resource.
-func (d *WasmtimeContainerSpecDie) DieFeed(r WasmtimeContainerSpec) *WasmtimeContainerSpecDie {
+func (d *ComponentContainerImageSpecDie) DieFeed(r ComponentContainerImageSpec) *ComponentContainerImageSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &WasmtimeContainerSpecDie{
+	return &ComponentContainerImageSpecDie{
 		mutable: d.mutable,
 		r:       r,
 		seal:    d.seal,
@@ -5240,15 +5240,15 @@ func (d *WasmtimeContainerSpecDie) DieFeed(r WasmtimeContainerSpec) *WasmtimeCon
 }
 
 // DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-func (d *WasmtimeContainerSpecDie) DieFeedPtr(r *WasmtimeContainerSpec) *WasmtimeContainerSpecDie {
+func (d *ComponentContainerImageSpecDie) DieFeedPtr(r *ComponentContainerImageSpec) *ComponentContainerImageSpecDie {
 	if r == nil {
-		r = &WasmtimeContainerSpec{}
+		r = &ComponentContainerImageSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
 // DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
-func (d *WasmtimeContainerSpecDie) DieFeedDuck(v any) *WasmtimeContainerSpecDie {
+func (d *ComponentContainerImageSpecDie) DieFeedDuck(v any) *ComponentContainerImageSpecDie {
 	data, err := json.Marshal(v)
 	if err != nil {
 		panic(err)
@@ -5257,8 +5257,8 @@ func (d *WasmtimeContainerSpecDie) DieFeedDuck(v any) *WasmtimeContainerSpecDie 
 }
 
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
-func (d *WasmtimeContainerSpecDie) DieFeedJSON(j []byte) *WasmtimeContainerSpecDie {
-	r := WasmtimeContainerSpec{}
+func (d *ComponentContainerImageSpecDie) DieFeedJSON(j []byte) *ComponentContainerImageSpecDie {
+	r := ComponentContainerImageSpec{}
 	if err := json.Unmarshal(j, &r); err != nil {
 		panic(err)
 	}
@@ -5266,8 +5266,8 @@ func (d *WasmtimeContainerSpecDie) DieFeedJSON(j []byte) *WasmtimeContainerSpecD
 }
 
 // DieFeedYAML returns a new die with the provided YAML. Panics on error.
-func (d *WasmtimeContainerSpecDie) DieFeedYAML(y []byte) *WasmtimeContainerSpecDie {
-	r := WasmtimeContainerSpec{}
+func (d *ComponentContainerImageSpecDie) DieFeedYAML(y []byte) *ComponentContainerImageSpecDie {
+	r := ComponentContainerImageSpec{}
 	if err := yaml.Unmarshal(y, &r); err != nil {
 		panic(err)
 	}
@@ -5275,7 +5275,7 @@ func (d *WasmtimeContainerSpecDie) DieFeedYAML(y []byte) *WasmtimeContainerSpecD
 }
 
 // DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
-func (d *WasmtimeContainerSpecDie) DieFeedYAMLFile(name string) *WasmtimeContainerSpecDie {
+func (d *ComponentContainerImageSpecDie) DieFeedYAMLFile(name string) *ComponentContainerImageSpecDie {
 	y, err := osx.ReadFile(name)
 	if err != nil {
 		panic(err)
@@ -5284,7 +5284,7 @@ func (d *WasmtimeContainerSpecDie) DieFeedYAMLFile(name string) *WasmtimeContain
 }
 
 // DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *WasmtimeContainerSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *WasmtimeContainerSpecDie {
+func (d *ComponentContainerImageSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *ComponentContainerImageSpecDie {
 	j, err := json.Marshal(raw)
 	if err != nil {
 		panic(err)
@@ -5293,7 +5293,7 @@ func (d *WasmtimeContainerSpecDie) DieFeedRawExtension(raw runtime.RawExtension)
 }
 
 // DieRelease returns the resource managed by the die.
-func (d *WasmtimeContainerSpecDie) DieRelease() WasmtimeContainerSpec {
+func (d *ComponentContainerImageSpecDie) DieRelease() ComponentContainerImageSpec {
 	if d.mutable {
 		return d.r
 	}
@@ -5301,13 +5301,13 @@ func (d *WasmtimeContainerSpecDie) DieRelease() WasmtimeContainerSpec {
 }
 
 // DieReleasePtr returns a pointer to the resource managed by the die.
-func (d *WasmtimeContainerSpecDie) DieReleasePtr() *WasmtimeContainerSpec {
+func (d *ComponentContainerImageSpecDie) DieReleasePtr() *ComponentContainerImageSpec {
 	r := d.DieRelease()
 	return &r
 }
 
 // DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
-func (d *WasmtimeContainerSpecDie) DieReleaseDuck(v any) any {
+func (d *ComponentContainerImageSpecDie) DieReleaseDuck(v any) any {
 	data := d.DieReleaseJSON()
 	if err := json.Unmarshal(data, v); err != nil {
 		panic(err)
@@ -5316,7 +5316,7 @@ func (d *WasmtimeContainerSpecDie) DieReleaseDuck(v any) any {
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
-func (d *WasmtimeContainerSpecDie) DieReleaseJSON() []byte {
+func (d *ComponentContainerImageSpecDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
 	j, err := json.Marshal(r)
 	if err != nil {
@@ -5326,7 +5326,7 @@ func (d *WasmtimeContainerSpecDie) DieReleaseJSON() []byte {
 }
 
 // DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
-func (d *WasmtimeContainerSpecDie) DieReleaseYAML() []byte {
+func (d *ComponentContainerImageSpecDie) DieReleaseYAML() []byte {
 	r := d.DieReleasePtr()
 	y, err := yaml.Marshal(r)
 	if err != nil {
@@ -5336,7 +5336,7 @@ func (d *WasmtimeContainerSpecDie) DieReleaseYAML() []byte {
 }
 
 // DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *WasmtimeContainerSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+func (d *ComponentContainerImageSpecDie) DieReleaseRawExtension() runtime.RawExtension {
 	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
 	if err := json.Unmarshal(j, &raw); err != nil {
@@ -5346,7 +5346,7 @@ func (d *WasmtimeContainerSpecDie) DieReleaseRawExtension() runtime.RawExtension
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-func (d *WasmtimeContainerSpecDie) DieStamp(fn func(r *WasmtimeContainerSpec)) *WasmtimeContainerSpecDie {
+func (d *ComponentContainerImageSpecDie) DieStamp(fn func(r *ComponentContainerImageSpec)) *ComponentContainerImageSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
@@ -5355,8 +5355,8 @@ func (d *WasmtimeContainerSpecDie) DieStamp(fn func(r *WasmtimeContainerSpec)) *
 // Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
-func (d *WasmtimeContainerSpecDie) DieStampAt(jp string, fn interface{}) *WasmtimeContainerSpecDie {
-	return d.DieStamp(func(r *WasmtimeContainerSpec) {
+func (d *ComponentContainerImageSpecDie) DieStampAt(jp string, fn interface{}) *ComponentContainerImageSpecDie {
+	return d.DieStamp(func(r *ComponentContainerImageSpec) {
 		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
 			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
 		}
@@ -5391,8 +5391,8 @@ func (d *WasmtimeContainerSpecDie) DieStampAt(jp string, fn interface{}) *Wasmti
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *WasmtimeContainerSpecDie) DieWith(fns ...func(d *WasmtimeContainerSpecDie)) *WasmtimeContainerSpecDie {
-	nd := WasmtimeContainerSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+func (d *ComponentContainerImageSpecDie) DieWith(fns ...func(d *ComponentContainerImageSpecDie)) *ComponentContainerImageSpecDie {
+	nd := ComponentContainerImageSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
 	for _, fn := range fns {
 		if fn != nil {
 			fn(nd)
@@ -5402,9 +5402,9 @@ func (d *WasmtimeContainerSpecDie) DieWith(fns ...func(d *WasmtimeContainerSpecD
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-func (d *WasmtimeContainerSpecDie) DeepCopy() *WasmtimeContainerSpecDie {
+func (d *ComponentContainerImageSpecDie) DeepCopy() *ComponentContainerImageSpecDie {
 	r := *d.r.DeepCopy()
-	return &WasmtimeContainerSpecDie{
+	return &ComponentContainerImageSpecDie{
 		mutable: d.mutable,
 		r:       r,
 		seal:    d.seal,
@@ -5412,12 +5412,12 @@ func (d *WasmtimeContainerSpecDie) DeepCopy() *WasmtimeContainerSpecDie {
 }
 
 // DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
-func (d *WasmtimeContainerSpecDie) DieSeal() *WasmtimeContainerSpecDie {
+func (d *ComponentContainerImageSpecDie) DieSeal() *ComponentContainerImageSpecDie {
 	return d.DieSealFeed(d.r)
 }
 
 // DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
-func (d *WasmtimeContainerSpecDie) DieSealFeed(r WasmtimeContainerSpec) *WasmtimeContainerSpecDie {
+func (d *ComponentContainerImageSpecDie) DieSealFeed(r ComponentContainerImageSpec) *ComponentContainerImageSpecDie {
 	if !d.mutable {
 		d = d.DeepCopy()
 	}
@@ -5426,37 +5426,37 @@ func (d *WasmtimeContainerSpecDie) DieSealFeed(r WasmtimeContainerSpec) *Wasmtim
 }
 
 // DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
-func (d *WasmtimeContainerSpecDie) DieSealFeedPtr(r *WasmtimeContainerSpec) *WasmtimeContainerSpecDie {
+func (d *ComponentContainerImageSpecDie) DieSealFeedPtr(r *ComponentContainerImageSpec) *ComponentContainerImageSpecDie {
 	if r == nil {
-		r = &WasmtimeContainerSpec{}
+		r = &ComponentContainerImageSpec{}
 	}
 	return d.DieSealFeed(*r)
 }
 
 // DieSealRelease returns the sealed resource managed by the die.
-func (d *WasmtimeContainerSpecDie) DieSealRelease() WasmtimeContainerSpec {
+func (d *ComponentContainerImageSpecDie) DieSealRelease() ComponentContainerImageSpec {
 	return *d.seal.DeepCopy()
 }
 
 // DieSealReleasePtr returns the sealed resource pointer managed by the die.
-func (d *WasmtimeContainerSpecDie) DieSealReleasePtr() *WasmtimeContainerSpec {
+func (d *ComponentContainerImageSpecDie) DieSealReleasePtr() *ComponentContainerImageSpec {
 	r := d.DieSealRelease()
 	return &r
 }
 
 // DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
-func (d *WasmtimeContainerSpecDie) DieDiff(opts ...cmp.Option) string {
+func (d *ComponentContainerImageSpecDie) DieDiff(opts ...cmp.Option) string {
 	return cmp.Diff(d.seal, d.r, opts...)
 }
 
 // DiePatch generates a patch between the current value of the die and the sealed value.
-func (d *WasmtimeContainerSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+func (d *ComponentContainerImageSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
 // GenericComponentSpecDie mutates GenericComponentSpec as a die.
-func (d *WasmtimeContainerSpecDie) GenericComponentSpecDie(fn func(d *componentsv1alpha1.GenericComponentSpecDie)) *WasmtimeContainerSpecDie {
-	return d.DieStamp(func(r *WasmtimeContainerSpec) {
+func (d *ComponentContainerImageSpecDie) GenericComponentSpecDie(fn func(d *componentsv1alpha1.GenericComponentSpecDie)) *ComponentContainerImageSpecDie {
+	return d.DieStamp(func(r *ComponentContainerImageSpec) {
 		d := componentsv1alpha1.GenericComponentSpecBlank.DieImmutable(false).DieFeed(r.GenericComponentSpec)
 		fn(d)
 		r.GenericComponentSpec = d.DieRelease()
@@ -5466,62 +5466,55 @@ func (d *WasmtimeContainerSpecDie) GenericComponentSpecDie(fn func(d *components
 // RefDie mutates Ref as a die.
 //
 // Ref references the component to convert to an image
-func (d *WasmtimeContainerSpecDie) RefDie(fn func(d *componentsv1alpha1.ComponentReferenceDie)) *WasmtimeContainerSpecDie {
-	return d.DieStamp(func(r *WasmtimeContainerSpec) {
+func (d *ComponentContainerImageSpecDie) RefDie(fn func(d *componentsv1alpha1.ComponentReferenceDie)) *ComponentContainerImageSpecDie {
+	return d.DieStamp(func(r *ComponentContainerImageSpec) {
 		d := componentsv1alpha1.ComponentReferenceBlank.DieImmutable(false).DieFeed(r.Ref)
 		fn(d)
 		r.Ref = d.DieRelease()
 	})
 }
 
-// ServiceAccountRefDie mutates ServiceAccountRef as a die.
+// ImageRefDie mutates ImageRef as a die.
 //
-// ServiceAccountRef references the service account holding image pull secrets for the image
-func (d *WasmtimeContainerSpecDie) ServiceAccountRefDie(fn func(d *registriesv1alpha1.ServiceAccountReferenceDie)) *WasmtimeContainerSpecDie {
-	return d.DieStamp(func(r *WasmtimeContainerSpec) {
-		d := registriesv1alpha1.ServiceAccountReferenceBlank.DieImmutable(false).DieFeed(r.ServiceAccountRef)
+// ImageRef holding wasmtime base image
+func (d *ComponentContainerImageSpecDie) ImageRefDie(fn func(d *registriesv1alpha1.ImageReferenceDie)) *ComponentContainerImageSpecDie {
+	return d.DieStamp(func(r *ComponentContainerImageSpec) {
+		d := registriesv1alpha1.ImageReferenceBlank.DieImmutable(false).DieFeed(r.ImageRef)
 		fn(d)
-		r.ServiceAccountRef = d.DieRelease()
+		r.ImageRef = d.DieRelease()
 	})
 }
 
-func (d *WasmtimeContainerSpecDie) GenericComponentSpec(v componentsv1alpha1.GenericComponentSpec) *WasmtimeContainerSpecDie {
-	return d.DieStamp(func(r *WasmtimeContainerSpec) {
+func (d *ComponentContainerImageSpecDie) GenericComponentSpec(v componentsv1alpha1.GenericComponentSpec) *ComponentContainerImageSpecDie {
+	return d.DieStamp(func(r *ComponentContainerImageSpec) {
 		r.GenericComponentSpec = v
 	})
 }
 
-// BaseImage in an oci repository holding wasmtime
-func (d *WasmtimeContainerSpecDie) BaseImage(v string) *WasmtimeContainerSpecDie {
-	return d.DieStamp(func(r *WasmtimeContainerSpec) {
-		r.BaseImage = v
-	})
-}
-
 // Ref references the component to convert to an image
-func (d *WasmtimeContainerSpecDie) Ref(v componentsv1alpha1.ComponentReference) *WasmtimeContainerSpecDie {
-	return d.DieStamp(func(r *WasmtimeContainerSpec) {
+func (d *ComponentContainerImageSpecDie) Ref(v componentsv1alpha1.ComponentReference) *ComponentContainerImageSpecDie {
+	return d.DieStamp(func(r *ComponentContainerImageSpec) {
 		r.Ref = v
 	})
 }
 
-// ServiceAccountRef references the service account holding image pull secrets for the image
-func (d *WasmtimeContainerSpecDie) ServiceAccountRef(v registriesv1alpha1.ServiceAccountReference) *WasmtimeContainerSpecDie {
-	return d.DieStamp(func(r *WasmtimeContainerSpec) {
-		r.ServiceAccountRef = v
+// ImageRef holding wasmtime base image
+func (d *ComponentContainerImageSpecDie) ImageRef(v registriesv1alpha1.ImageReference) *ComponentContainerImageSpecDie {
+	return d.DieStamp(func(r *ComponentContainerImageSpec) {
+		r.ImageRef = v
 	})
 }
 
-var WasmtimeContainerStatusBlank = (&WasmtimeContainerStatusDie{}).DieFeed(WasmtimeContainerStatus{})
+var ComponentContainerImageStatusBlank = (&ComponentContainerImageStatusDie{}).DieFeed(ComponentContainerImageStatus{})
 
-type WasmtimeContainerStatusDie struct {
+type ComponentContainerImageStatusDie struct {
 	mutable bool
-	r       WasmtimeContainerStatus
-	seal    WasmtimeContainerStatus
+	r       ComponentContainerImageStatus
+	seal    ComponentContainerImageStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-func (d *WasmtimeContainerStatusDie) DieImmutable(immutable bool) *WasmtimeContainerStatusDie {
+func (d *ComponentContainerImageStatusDie) DieImmutable(immutable bool) *ComponentContainerImageStatusDie {
 	if d.mutable == !immutable {
 		return d
 	}
@@ -5531,12 +5524,12 @@ func (d *WasmtimeContainerStatusDie) DieImmutable(immutable bool) *WasmtimeConta
 }
 
 // DieFeed returns a new die with the provided resource.
-func (d *WasmtimeContainerStatusDie) DieFeed(r WasmtimeContainerStatus) *WasmtimeContainerStatusDie {
+func (d *ComponentContainerImageStatusDie) DieFeed(r ComponentContainerImageStatus) *ComponentContainerImageStatusDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &WasmtimeContainerStatusDie{
+	return &ComponentContainerImageStatusDie{
 		mutable: d.mutable,
 		r:       r,
 		seal:    d.seal,
@@ -5544,15 +5537,15 @@ func (d *WasmtimeContainerStatusDie) DieFeed(r WasmtimeContainerStatus) *Wasmtim
 }
 
 // DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-func (d *WasmtimeContainerStatusDie) DieFeedPtr(r *WasmtimeContainerStatus) *WasmtimeContainerStatusDie {
+func (d *ComponentContainerImageStatusDie) DieFeedPtr(r *ComponentContainerImageStatus) *ComponentContainerImageStatusDie {
 	if r == nil {
-		r = &WasmtimeContainerStatus{}
+		r = &ComponentContainerImageStatus{}
 	}
 	return d.DieFeed(*r)
 }
 
 // DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
-func (d *WasmtimeContainerStatusDie) DieFeedDuck(v any) *WasmtimeContainerStatusDie {
+func (d *ComponentContainerImageStatusDie) DieFeedDuck(v any) *ComponentContainerImageStatusDie {
 	data, err := json.Marshal(v)
 	if err != nil {
 		panic(err)
@@ -5561,8 +5554,8 @@ func (d *WasmtimeContainerStatusDie) DieFeedDuck(v any) *WasmtimeContainerStatus
 }
 
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
-func (d *WasmtimeContainerStatusDie) DieFeedJSON(j []byte) *WasmtimeContainerStatusDie {
-	r := WasmtimeContainerStatus{}
+func (d *ComponentContainerImageStatusDie) DieFeedJSON(j []byte) *ComponentContainerImageStatusDie {
+	r := ComponentContainerImageStatus{}
 	if err := json.Unmarshal(j, &r); err != nil {
 		panic(err)
 	}
@@ -5570,8 +5563,8 @@ func (d *WasmtimeContainerStatusDie) DieFeedJSON(j []byte) *WasmtimeContainerSta
 }
 
 // DieFeedYAML returns a new die with the provided YAML. Panics on error.
-func (d *WasmtimeContainerStatusDie) DieFeedYAML(y []byte) *WasmtimeContainerStatusDie {
-	r := WasmtimeContainerStatus{}
+func (d *ComponentContainerImageStatusDie) DieFeedYAML(y []byte) *ComponentContainerImageStatusDie {
+	r := ComponentContainerImageStatus{}
 	if err := yaml.Unmarshal(y, &r); err != nil {
 		panic(err)
 	}
@@ -5579,7 +5572,7 @@ func (d *WasmtimeContainerStatusDie) DieFeedYAML(y []byte) *WasmtimeContainerSta
 }
 
 // DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
-func (d *WasmtimeContainerStatusDie) DieFeedYAMLFile(name string) *WasmtimeContainerStatusDie {
+func (d *ComponentContainerImageStatusDie) DieFeedYAMLFile(name string) *ComponentContainerImageStatusDie {
 	y, err := osx.ReadFile(name)
 	if err != nil {
 		panic(err)
@@ -5588,7 +5581,7 @@ func (d *WasmtimeContainerStatusDie) DieFeedYAMLFile(name string) *WasmtimeConta
 }
 
 // DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *WasmtimeContainerStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *WasmtimeContainerStatusDie {
+func (d *ComponentContainerImageStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *ComponentContainerImageStatusDie {
 	j, err := json.Marshal(raw)
 	if err != nil {
 		panic(err)
@@ -5597,7 +5590,7 @@ func (d *WasmtimeContainerStatusDie) DieFeedRawExtension(raw runtime.RawExtensio
 }
 
 // DieRelease returns the resource managed by the die.
-func (d *WasmtimeContainerStatusDie) DieRelease() WasmtimeContainerStatus {
+func (d *ComponentContainerImageStatusDie) DieRelease() ComponentContainerImageStatus {
 	if d.mutable {
 		return d.r
 	}
@@ -5605,13 +5598,13 @@ func (d *WasmtimeContainerStatusDie) DieRelease() WasmtimeContainerStatus {
 }
 
 // DieReleasePtr returns a pointer to the resource managed by the die.
-func (d *WasmtimeContainerStatusDie) DieReleasePtr() *WasmtimeContainerStatus {
+func (d *ComponentContainerImageStatusDie) DieReleasePtr() *ComponentContainerImageStatus {
 	r := d.DieRelease()
 	return &r
 }
 
 // DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
-func (d *WasmtimeContainerStatusDie) DieReleaseDuck(v any) any {
+func (d *ComponentContainerImageStatusDie) DieReleaseDuck(v any) any {
 	data := d.DieReleaseJSON()
 	if err := json.Unmarshal(data, v); err != nil {
 		panic(err)
@@ -5620,7 +5613,7 @@ func (d *WasmtimeContainerStatusDie) DieReleaseDuck(v any) any {
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
-func (d *WasmtimeContainerStatusDie) DieReleaseJSON() []byte {
+func (d *ComponentContainerImageStatusDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
 	j, err := json.Marshal(r)
 	if err != nil {
@@ -5630,7 +5623,7 @@ func (d *WasmtimeContainerStatusDie) DieReleaseJSON() []byte {
 }
 
 // DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
-func (d *WasmtimeContainerStatusDie) DieReleaseYAML() []byte {
+func (d *ComponentContainerImageStatusDie) DieReleaseYAML() []byte {
 	r := d.DieReleasePtr()
 	y, err := yaml.Marshal(r)
 	if err != nil {
@@ -5640,7 +5633,7 @@ func (d *WasmtimeContainerStatusDie) DieReleaseYAML() []byte {
 }
 
 // DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *WasmtimeContainerStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+func (d *ComponentContainerImageStatusDie) DieReleaseRawExtension() runtime.RawExtension {
 	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
 	if err := json.Unmarshal(j, &raw); err != nil {
@@ -5650,7 +5643,7 @@ func (d *WasmtimeContainerStatusDie) DieReleaseRawExtension() runtime.RawExtensi
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-func (d *WasmtimeContainerStatusDie) DieStamp(fn func(r *WasmtimeContainerStatus)) *WasmtimeContainerStatusDie {
+func (d *ComponentContainerImageStatusDie) DieStamp(fn func(r *ComponentContainerImageStatus)) *ComponentContainerImageStatusDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
@@ -5659,8 +5652,8 @@ func (d *WasmtimeContainerStatusDie) DieStamp(fn func(r *WasmtimeContainerStatus
 // Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
-func (d *WasmtimeContainerStatusDie) DieStampAt(jp string, fn interface{}) *WasmtimeContainerStatusDie {
-	return d.DieStamp(func(r *WasmtimeContainerStatus) {
+func (d *ComponentContainerImageStatusDie) DieStampAt(jp string, fn interface{}) *ComponentContainerImageStatusDie {
+	return d.DieStamp(func(r *ComponentContainerImageStatus) {
 		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
 			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
 		}
@@ -5695,8 +5688,8 @@ func (d *WasmtimeContainerStatusDie) DieStampAt(jp string, fn interface{}) *Wasm
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *WasmtimeContainerStatusDie) DieWith(fns ...func(d *WasmtimeContainerStatusDie)) *WasmtimeContainerStatusDie {
-	nd := WasmtimeContainerStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+func (d *ComponentContainerImageStatusDie) DieWith(fns ...func(d *ComponentContainerImageStatusDie)) *ComponentContainerImageStatusDie {
+	nd := ComponentContainerImageStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
 	for _, fn := range fns {
 		if fn != nil {
 			fn(nd)
@@ -5706,9 +5699,9 @@ func (d *WasmtimeContainerStatusDie) DieWith(fns ...func(d *WasmtimeContainerSta
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-func (d *WasmtimeContainerStatusDie) DeepCopy() *WasmtimeContainerStatusDie {
+func (d *ComponentContainerImageStatusDie) DeepCopy() *ComponentContainerImageStatusDie {
 	r := *d.r.DeepCopy()
-	return &WasmtimeContainerStatusDie{
+	return &ComponentContainerImageStatusDie{
 		mutable: d.mutable,
 		r:       r,
 		seal:    d.seal,
@@ -5716,12 +5709,12 @@ func (d *WasmtimeContainerStatusDie) DeepCopy() *WasmtimeContainerStatusDie {
 }
 
 // DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
-func (d *WasmtimeContainerStatusDie) DieSeal() *WasmtimeContainerStatusDie {
+func (d *ComponentContainerImageStatusDie) DieSeal() *ComponentContainerImageStatusDie {
 	return d.DieSealFeed(d.r)
 }
 
 // DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
-func (d *WasmtimeContainerStatusDie) DieSealFeed(r WasmtimeContainerStatus) *WasmtimeContainerStatusDie {
+func (d *ComponentContainerImageStatusDie) DieSealFeed(r ComponentContainerImageStatus) *ComponentContainerImageStatusDie {
 	if !d.mutable {
 		d = d.DeepCopy()
 	}
@@ -5730,66 +5723,66 @@ func (d *WasmtimeContainerStatusDie) DieSealFeed(r WasmtimeContainerStatus) *Was
 }
 
 // DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
-func (d *WasmtimeContainerStatusDie) DieSealFeedPtr(r *WasmtimeContainerStatus) *WasmtimeContainerStatusDie {
+func (d *ComponentContainerImageStatusDie) DieSealFeedPtr(r *ComponentContainerImageStatus) *ComponentContainerImageStatusDie {
 	if r == nil {
-		r = &WasmtimeContainerStatus{}
+		r = &ComponentContainerImageStatus{}
 	}
 	return d.DieSealFeed(*r)
 }
 
 // DieSealRelease returns the sealed resource managed by the die.
-func (d *WasmtimeContainerStatusDie) DieSealRelease() WasmtimeContainerStatus {
+func (d *ComponentContainerImageStatusDie) DieSealRelease() ComponentContainerImageStatus {
 	return *d.seal.DeepCopy()
 }
 
 // DieSealReleasePtr returns the sealed resource pointer managed by the die.
-func (d *WasmtimeContainerStatusDie) DieSealReleasePtr() *WasmtimeContainerStatus {
+func (d *ComponentContainerImageStatusDie) DieSealReleasePtr() *ComponentContainerImageStatus {
 	r := d.DieSealRelease()
 	return &r
 }
 
 // DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
-func (d *WasmtimeContainerStatusDie) DieDiff(opts ...cmp.Option) string {
+func (d *ComponentContainerImageStatusDie) DieDiff(opts ...cmp.Option) string {
 	return cmp.Diff(d.seal, d.r, opts...)
 }
 
 // DiePatch generates a patch between the current value of the die and the sealed value.
-func (d *WasmtimeContainerStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+func (d *ComponentContainerImageStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
 // GenericComponentStatusDie mutates GenericComponentStatus as a die.
-func (d *WasmtimeContainerStatusDie) GenericComponentStatusDie(fn func(d *componentsv1alpha1.GenericComponentStatusDie)) *WasmtimeContainerStatusDie {
-	return d.DieStamp(func(r *WasmtimeContainerStatus) {
+func (d *ComponentContainerImageStatusDie) GenericComponentStatusDie(fn func(d *componentsv1alpha1.GenericComponentStatusDie)) *ComponentContainerImageStatusDie {
+	return d.DieStamp(func(r *ComponentContainerImageStatus) {
 		d := componentsv1alpha1.GenericComponentStatusBlank.DieImmutable(false).DieFeed(r.GenericComponentStatus)
 		fn(d)
 		r.GenericComponentStatus = d.DieRelease()
 	})
 }
 
-func (d *WasmtimeContainerStatusDie) Status(v apis.Status) *WasmtimeContainerStatusDie {
-	return d.DieStamp(func(r *WasmtimeContainerStatus) {
+func (d *ComponentContainerImageStatusDie) Status(v apis.Status) *ComponentContainerImageStatusDie {
+	return d.DieStamp(func(r *ComponentContainerImageStatus) {
 		r.Status = v
 	})
 }
 
-func (d *WasmtimeContainerStatusDie) GenericComponentStatus(v componentsv1alpha1.GenericComponentStatus) *WasmtimeContainerStatusDie {
-	return d.DieStamp(func(r *WasmtimeContainerStatus) {
+func (d *ComponentContainerImageStatusDie) GenericComponentStatus(v componentsv1alpha1.GenericComponentStatus) *ComponentContainerImageStatusDie {
+	return d.DieStamp(func(r *ComponentContainerImageStatus) {
 		r.GenericComponentStatus = v
 	})
 }
 
-var WasmtimeContainerBlank = (&WasmtimeContainerDie{}).DieFeed(WasmtimeContainer{})
+var ComponentContainerImageBlank = (&ComponentContainerImageDie{}).DieFeed(ComponentContainerImage{})
 
-type WasmtimeContainerDie struct {
+type ComponentContainerImageDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
-	r       WasmtimeContainer
-	seal    WasmtimeContainer
+	r       ComponentContainerImage
+	seal    ComponentContainerImage
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-func (d *WasmtimeContainerDie) DieImmutable(immutable bool) *WasmtimeContainerDie {
+func (d *ComponentContainerImageDie) DieImmutable(immutable bool) *ComponentContainerImageDie {
 	if d.mutable == !immutable {
 		return d
 	}
@@ -5799,13 +5792,13 @@ func (d *WasmtimeContainerDie) DieImmutable(immutable bool) *WasmtimeContainerDi
 }
 
 // DieFeed returns a new die with the provided resource.
-func (d *WasmtimeContainerDie) DieFeed(r WasmtimeContainer) *WasmtimeContainerDie {
+func (d *ComponentContainerImageDie) DieFeed(r ComponentContainerImage) *ComponentContainerImageDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &WasmtimeContainerDie{
+	return &ComponentContainerImageDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
@@ -5814,15 +5807,15 @@ func (d *WasmtimeContainerDie) DieFeed(r WasmtimeContainer) *WasmtimeContainerDi
 }
 
 // DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-func (d *WasmtimeContainerDie) DieFeedPtr(r *WasmtimeContainer) *WasmtimeContainerDie {
+func (d *ComponentContainerImageDie) DieFeedPtr(r *ComponentContainerImage) *ComponentContainerImageDie {
 	if r == nil {
-		r = &WasmtimeContainer{}
+		r = &ComponentContainerImage{}
 	}
 	return d.DieFeed(*r)
 }
 
 // DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
-func (d *WasmtimeContainerDie) DieFeedDuck(v any) *WasmtimeContainerDie {
+func (d *ComponentContainerImageDie) DieFeedDuck(v any) *ComponentContainerImageDie {
 	data, err := json.Marshal(v)
 	if err != nil {
 		panic(err)
@@ -5831,8 +5824,8 @@ func (d *WasmtimeContainerDie) DieFeedDuck(v any) *WasmtimeContainerDie {
 }
 
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
-func (d *WasmtimeContainerDie) DieFeedJSON(j []byte) *WasmtimeContainerDie {
-	r := WasmtimeContainer{}
+func (d *ComponentContainerImageDie) DieFeedJSON(j []byte) *ComponentContainerImageDie {
+	r := ComponentContainerImage{}
 	if err := json.Unmarshal(j, &r); err != nil {
 		panic(err)
 	}
@@ -5840,8 +5833,8 @@ func (d *WasmtimeContainerDie) DieFeedJSON(j []byte) *WasmtimeContainerDie {
 }
 
 // DieFeedYAML returns a new die with the provided YAML. Panics on error.
-func (d *WasmtimeContainerDie) DieFeedYAML(y []byte) *WasmtimeContainerDie {
-	r := WasmtimeContainer{}
+func (d *ComponentContainerImageDie) DieFeedYAML(y []byte) *ComponentContainerImageDie {
+	r := ComponentContainerImage{}
 	if err := yaml.Unmarshal(y, &r); err != nil {
 		panic(err)
 	}
@@ -5849,7 +5842,7 @@ func (d *WasmtimeContainerDie) DieFeedYAML(y []byte) *WasmtimeContainerDie {
 }
 
 // DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
-func (d *WasmtimeContainerDie) DieFeedYAMLFile(name string) *WasmtimeContainerDie {
+func (d *ComponentContainerImageDie) DieFeedYAMLFile(name string) *ComponentContainerImageDie {
 	y, err := osx.ReadFile(name)
 	if err != nil {
 		panic(err)
@@ -5858,7 +5851,7 @@ func (d *WasmtimeContainerDie) DieFeedYAMLFile(name string) *WasmtimeContainerDi
 }
 
 // DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *WasmtimeContainerDie) DieFeedRawExtension(raw runtime.RawExtension) *WasmtimeContainerDie {
+func (d *ComponentContainerImageDie) DieFeedRawExtension(raw runtime.RawExtension) *ComponentContainerImageDie {
 	j, err := json.Marshal(raw)
 	if err != nil {
 		panic(err)
@@ -5867,7 +5860,7 @@ func (d *WasmtimeContainerDie) DieFeedRawExtension(raw runtime.RawExtension) *Wa
 }
 
 // DieRelease returns the resource managed by the die.
-func (d *WasmtimeContainerDie) DieRelease() WasmtimeContainer {
+func (d *ComponentContainerImageDie) DieRelease() ComponentContainerImage {
 	if d.mutable {
 		return d.r
 	}
@@ -5875,13 +5868,13 @@ func (d *WasmtimeContainerDie) DieRelease() WasmtimeContainer {
 }
 
 // DieReleasePtr returns a pointer to the resource managed by the die.
-func (d *WasmtimeContainerDie) DieReleasePtr() *WasmtimeContainer {
+func (d *ComponentContainerImageDie) DieReleasePtr() *ComponentContainerImage {
 	r := d.DieRelease()
 	return &r
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
-func (d *WasmtimeContainerDie) DieReleaseUnstructured() *unstructured.Unstructured {
+func (d *ComponentContainerImageDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	if err != nil {
@@ -5893,7 +5886,7 @@ func (d *WasmtimeContainerDie) DieReleaseUnstructured() *unstructured.Unstructur
 }
 
 // DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
-func (d *WasmtimeContainerDie) DieReleaseDuck(v any) any {
+func (d *ComponentContainerImageDie) DieReleaseDuck(v any) any {
 	data := d.DieReleaseJSON()
 	if err := json.Unmarshal(data, v); err != nil {
 		panic(err)
@@ -5902,7 +5895,7 @@ func (d *WasmtimeContainerDie) DieReleaseDuck(v any) any {
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
-func (d *WasmtimeContainerDie) DieReleaseJSON() []byte {
+func (d *ComponentContainerImageDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
 	j, err := json.Marshal(r)
 	if err != nil {
@@ -5912,7 +5905,7 @@ func (d *WasmtimeContainerDie) DieReleaseJSON() []byte {
 }
 
 // DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
-func (d *WasmtimeContainerDie) DieReleaseYAML() []byte {
+func (d *ComponentContainerImageDie) DieReleaseYAML() []byte {
 	r := d.DieReleasePtr()
 	y, err := yaml.Marshal(r)
 	if err != nil {
@@ -5922,7 +5915,7 @@ func (d *WasmtimeContainerDie) DieReleaseYAML() []byte {
 }
 
 // DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *WasmtimeContainerDie) DieReleaseRawExtension() runtime.RawExtension {
+func (d *ComponentContainerImageDie) DieReleaseRawExtension() runtime.RawExtension {
 	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
 	if err := json.Unmarshal(j, &raw); err != nil {
@@ -5932,7 +5925,7 @@ func (d *WasmtimeContainerDie) DieReleaseRawExtension() runtime.RawExtension {
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-func (d *WasmtimeContainerDie) DieStamp(fn func(r *WasmtimeContainer)) *WasmtimeContainerDie {
+func (d *ComponentContainerImageDie) DieStamp(fn func(r *ComponentContainerImage)) *ComponentContainerImageDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
@@ -5941,8 +5934,8 @@ func (d *WasmtimeContainerDie) DieStamp(fn func(r *WasmtimeContainer)) *Wasmtime
 // Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
-func (d *WasmtimeContainerDie) DieStampAt(jp string, fn interface{}) *WasmtimeContainerDie {
-	return d.DieStamp(func(r *WasmtimeContainer) {
+func (d *ComponentContainerImageDie) DieStampAt(jp string, fn interface{}) *ComponentContainerImageDie {
+	return d.DieStamp(func(r *ComponentContainerImage) {
 		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
 			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
 		}
@@ -5977,8 +5970,8 @@ func (d *WasmtimeContainerDie) DieStampAt(jp string, fn interface{}) *WasmtimeCo
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *WasmtimeContainerDie) DieWith(fns ...func(d *WasmtimeContainerDie)) *WasmtimeContainerDie {
-	nd := WasmtimeContainerBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+func (d *ComponentContainerImageDie) DieWith(fns ...func(d *ComponentContainerImageDie)) *ComponentContainerImageDie {
+	nd := ComponentContainerImageBlank.DieFeed(d.DieRelease()).DieImmutable(false)
 	for _, fn := range fns {
 		if fn != nil {
 			fn(nd)
@@ -5988,9 +5981,9 @@ func (d *WasmtimeContainerDie) DieWith(fns ...func(d *WasmtimeContainerDie)) *Wa
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-func (d *WasmtimeContainerDie) DeepCopy() *WasmtimeContainerDie {
+func (d *ComponentContainerImageDie) DeepCopy() *ComponentContainerImageDie {
 	r := *d.r.DeepCopy()
-	return &WasmtimeContainerDie{
+	return &ComponentContainerImageDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
@@ -5999,12 +5992,12 @@ func (d *WasmtimeContainerDie) DeepCopy() *WasmtimeContainerDie {
 }
 
 // DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
-func (d *WasmtimeContainerDie) DieSeal() *WasmtimeContainerDie {
+func (d *ComponentContainerImageDie) DieSeal() *ComponentContainerImageDie {
 	return d.DieSealFeed(d.r)
 }
 
 // DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
-func (d *WasmtimeContainerDie) DieSealFeed(r WasmtimeContainer) *WasmtimeContainerDie {
+func (d *ComponentContainerImageDie) DieSealFeed(r ComponentContainerImage) *ComponentContainerImageDie {
 	if !d.mutable {
 		d = d.DeepCopy()
 	}
@@ -6013,83 +6006,83 @@ func (d *WasmtimeContainerDie) DieSealFeed(r WasmtimeContainer) *WasmtimeContain
 }
 
 // DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
-func (d *WasmtimeContainerDie) DieSealFeedPtr(r *WasmtimeContainer) *WasmtimeContainerDie {
+func (d *ComponentContainerImageDie) DieSealFeedPtr(r *ComponentContainerImage) *ComponentContainerImageDie {
 	if r == nil {
-		r = &WasmtimeContainer{}
+		r = &ComponentContainerImage{}
 	}
 	return d.DieSealFeed(*r)
 }
 
 // DieSealRelease returns the sealed resource managed by the die.
-func (d *WasmtimeContainerDie) DieSealRelease() WasmtimeContainer {
+func (d *ComponentContainerImageDie) DieSealRelease() ComponentContainerImage {
 	return *d.seal.DeepCopy()
 }
 
 // DieSealReleasePtr returns the sealed resource pointer managed by the die.
-func (d *WasmtimeContainerDie) DieSealReleasePtr() *WasmtimeContainer {
+func (d *ComponentContainerImageDie) DieSealReleasePtr() *ComponentContainerImage {
 	r := d.DieSealRelease()
 	return &r
 }
 
 // DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
-func (d *WasmtimeContainerDie) DieDiff(opts ...cmp.Option) string {
+func (d *ComponentContainerImageDie) DieDiff(opts ...cmp.Option) string {
 	return cmp.Diff(d.seal, d.r, opts...)
 }
 
 // DiePatch generates a patch between the current value of the die and the sealed value.
-func (d *WasmtimeContainerDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+func (d *ComponentContainerImageDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-var _ runtime.Object = (*WasmtimeContainerDie)(nil)
+var _ runtime.Object = (*ComponentContainerImageDie)(nil)
 
-func (d *WasmtimeContainerDie) DeepCopyObject() runtime.Object {
+func (d *ComponentContainerImageDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *WasmtimeContainerDie) GetObjectKind() schema.ObjectKind {
+func (d *ComponentContainerImageDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *WasmtimeContainerDie) MarshalJSON() ([]byte, error) {
+func (d *ComponentContainerImageDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *WasmtimeContainerDie) UnmarshalJSON(b []byte) error {
+func (d *ComponentContainerImageDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	resource := &WasmtimeContainer{}
+	resource := &ComponentContainerImage{}
 	err := json.Unmarshal(b, resource)
 	*d = *d.DieFeed(*resource)
 	return err
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *WasmtimeContainerDie) APIVersion(v string) *WasmtimeContainerDie {
-	return d.DieStamp(func(r *WasmtimeContainer) {
+func (d *ComponentContainerImageDie) APIVersion(v string) *ComponentContainerImageDie {
+	return d.DieStamp(func(r *ComponentContainerImage) {
 		r.APIVersion = v
 	})
 }
 
 // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *WasmtimeContainerDie) Kind(v string) *WasmtimeContainerDie {
-	return d.DieStamp(func(r *WasmtimeContainer) {
+func (d *ComponentContainerImageDie) Kind(v string) *ComponentContainerImageDie {
+	return d.DieStamp(func(r *ComponentContainerImage) {
 		r.Kind = v
 	})
 }
 
 // TypeMetadata standard object's type metadata.
-func (d *WasmtimeContainerDie) TypeMetadata(v apismetav1.TypeMeta) *WasmtimeContainerDie {
-	return d.DieStamp(func(r *WasmtimeContainer) {
+func (d *ComponentContainerImageDie) TypeMetadata(v apismetav1.TypeMeta) *ComponentContainerImageDie {
+	return d.DieStamp(func(r *ComponentContainerImage) {
 		r.TypeMeta = v
 	})
 }
 
 // TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
-func (d *WasmtimeContainerDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *WasmtimeContainerDie {
-	return d.DieStamp(func(r *WasmtimeContainer) {
+func (d *ComponentContainerImageDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *ComponentContainerImageDie {
+	return d.DieStamp(func(r *ComponentContainerImage) {
 		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
 		fn(d)
 		r.TypeMeta = d.DieRelease()
@@ -6097,15 +6090,15 @@ func (d *WasmtimeContainerDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *
 }
 
 // Metadata standard object's metadata.
-func (d *WasmtimeContainerDie) Metadata(v apismetav1.ObjectMeta) *WasmtimeContainerDie {
-	return d.DieStamp(func(r *WasmtimeContainer) {
+func (d *ComponentContainerImageDie) Metadata(v apismetav1.ObjectMeta) *ComponentContainerImageDie {
+	return d.DieStamp(func(r *ComponentContainerImage) {
 		r.ObjectMeta = v
 	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
-func (d *WasmtimeContainerDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *WasmtimeContainerDie {
-	return d.DieStamp(func(r *WasmtimeContainer) {
+func (d *ComponentContainerImageDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ComponentContainerImageDie {
+	return d.DieStamp(func(r *ComponentContainerImage) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
 		r.ObjectMeta = d.DieRelease()
@@ -6113,31 +6106,31 @@ func (d *WasmtimeContainerDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Wa
 }
 
 // SpecDie stamps the resource's spec field with a mutable die.
-func (d *WasmtimeContainerDie) SpecDie(fn func(d *WasmtimeContainerSpecDie)) *WasmtimeContainerDie {
-	return d.DieStamp(func(r *WasmtimeContainer) {
-		d := WasmtimeContainerSpecBlank.DieImmutable(false).DieFeed(r.Spec)
+func (d *ComponentContainerImageDie) SpecDie(fn func(d *ComponentContainerImageSpecDie)) *ComponentContainerImageDie {
+	return d.DieStamp(func(r *ComponentContainerImage) {
+		d := ComponentContainerImageSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
 	})
 }
 
 // StatusDie stamps the resource's status field with a mutable die.
-func (d *WasmtimeContainerDie) StatusDie(fn func(d *WasmtimeContainerStatusDie)) *WasmtimeContainerDie {
-	return d.DieStamp(func(r *WasmtimeContainer) {
-		d := WasmtimeContainerStatusBlank.DieImmutable(false).DieFeed(r.Status)
+func (d *ComponentContainerImageDie) StatusDie(fn func(d *ComponentContainerImageStatusDie)) *ComponentContainerImageDie {
+	return d.DieStamp(func(r *ComponentContainerImage) {
+		d := ComponentContainerImageStatusBlank.DieImmutable(false).DieFeed(r.Status)
 		fn(d)
 		r.Status = d.DieRelease()
 	})
 }
 
-func (d *WasmtimeContainerDie) Spec(v WasmtimeContainerSpec) *WasmtimeContainerDie {
-	return d.DieStamp(func(r *WasmtimeContainer) {
+func (d *ComponentContainerImageDie) Spec(v ComponentContainerImageSpec) *ComponentContainerImageDie {
+	return d.DieStamp(func(r *ComponentContainerImage) {
 		r.Spec = v
 	})
 }
 
-func (d *WasmtimeContainerDie) Status(v WasmtimeContainerStatus) *WasmtimeContainerDie {
-	return d.DieStamp(func(r *WasmtimeContainer) {
+func (d *ComponentContainerImageDie) Status(v ComponentContainerImageStatus) *ComponentContainerImageDie {
+	return d.DieStamp(func(r *ComponentContainerImage) {
 		r.Status = v
 	})
 }

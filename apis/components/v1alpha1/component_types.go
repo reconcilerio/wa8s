@@ -76,6 +76,7 @@ type GenericComponent interface {
 	metav1.Object
 	reconcilers.Defaulter
 	ComponentLike
+	registriesv1alpha1.ServiceAccountReferencer
 
 	GetSpec() *ComponentSpec
 	GetStatus() *ComponentStatus
@@ -115,6 +116,17 @@ func (r *Component) GetGenericComponentSpec() *GenericComponentSpec {
 
 func (r *Component) GetGenericComponentStatus() *GenericComponentStatus {
 	return &r.Status.GenericComponentStatus
+}
+
+func (r *Component) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
+	return &r.Spec.RepositoryRef
+}
+
+func (r *Component) GetServiceAccountReference() *registriesv1alpha1.ServiceAccountReference {
+	if r.Spec.OCI == nil {
+		return nil
+	}
+	return &r.Spec.OCI.ServiceAccountRef
 }
 
 // +kubebuilder:object:root=true
@@ -159,6 +171,17 @@ func (r *ClusterComponent) GetGenericComponentSpec() *GenericComponentSpec {
 
 func (r *ClusterComponent) GetGenericComponentStatus() *GenericComponentStatus {
 	return &r.Status.GenericComponentStatus
+}
+
+func (r *ClusterComponent) GetRepositoryReference() *registriesv1alpha1.RepositoryReference {
+	return &r.Spec.RepositoryRef
+}
+
+func (r *ClusterComponent) GetServiceAccountReference() *registriesv1alpha1.ServiceAccountReference {
+	if r.Spec.OCI == nil {
+		return nil
+	}
+	return &r.Spec.OCI.ServiceAccountRef
 }
 
 // +kubebuilder:object:root=true

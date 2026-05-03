@@ -27,6 +27,51 @@ import (
 	testing "reconciler.io/dies/testing"
 )
 
+func TestImageReferenceDie_MissingMethods(t *testingx.T) {
+	die := ImageReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ImageReferenceDie: %s", diff.List())
+	}
+}
+
+func TestImageSpecDie_MissingMethods(t *testingx.T) {
+	die := ImageSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ImageSpecDie: %s", diff.List())
+	}
+}
+
+func TestImageStatusDie_MissingMethods(t *testingx.T) {
+	die := ImageStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ImageStatusDie: %s", diff.List())
+	}
+}
+
+func TestImageDie_MissingMethods(t *testingx.T) {
+	die := ImageBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ImageDie: %s", diff.List())
+	}
+}
+
+func TestClusterImageDie_MissingMethods(t *testingx.T) {
+	die := ClusterImageBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ClusterImageDie: %s", diff.List())
+	}
+}
+
 func TestRepositoryReferenceDie_MissingMethods(t *testingx.T) {
 	die := RepositoryReferenceBlank
 	ignore := []string{}

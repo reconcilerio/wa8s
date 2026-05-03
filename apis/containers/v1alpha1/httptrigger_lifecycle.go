@@ -23,10 +23,10 @@ import (
 )
 
 const (
-	HttpTriggerConditionReady                  = apis.ConditionReady
-	HttpTriggerConditionWasmtimeContainerReady = "WasmtimeContainerReady"
-	HttpTriggerConditionDeploymentReady        = "DeploymentReady"
-	HttpTriggerConditionServiceReady           = "ServiceReady"
+	HttpTriggerConditionReady                        = apis.ConditionReady
+	HttpTriggerConditionComponentContainerImageReady = "ComponentContainerImageReady"
+	HttpTriggerConditionDeploymentReady              = "DeploymentReady"
+	HttpTriggerConditionServiceReady                 = "ServiceReady"
 )
 
 func (s *HttpTrigger) GetConditionsAccessor() apis.ConditionsAccessor {
@@ -40,7 +40,7 @@ func (s *HttpTrigger) GetConditionSet() apis.ConditionSet {
 func (s *HttpTriggerStatus) GetConditionSet() apis.ConditionSet {
 	return apis.NewLivingConditionSetWithHappyReason(
 		"Ready",
-		HttpTriggerConditionWasmtimeContainerReady,
+		HttpTriggerConditionComponentContainerImageReady,
 		HttpTriggerConditionDeploymentReady,
 		HttpTriggerConditionServiceReady,
 	)

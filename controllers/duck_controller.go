@@ -66,84 +66,238 @@ func ResolveComponentReference(ctx context.Context, ref componentsv1alpha1.Compo
 	return component, nil
 }
 
-// +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=repositories,verbs=get;list;watch
-// +kubebuilder:rbac:groups=wa8s.reconciler.io,resources=clusterrepositories,verbs=get;list;watch
+// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=images,verbs=get;list;watch
+// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterimages,verbs=get;list;watch
 
-func ResolveRepository[GC componentsv1alpha1.ComponentLike](conditionType string) reconcilers.SubReconciler[GC] {
-	return &reconcilers.CastResource[GC, componentsv1alpha1.ComponentLike]{
-		Reconciler: &reconcilers.SyncReconciler[componentsv1alpha1.ComponentLike]{
-			Setup: func(ctx context.Context, mgr manager.Manager, bldr *builder.TypedBuilder[reconcile.Request]) error {
-				bldr.Watches(&registriesv1alpha1.Repository{}, reconcilers.EnqueueTracked(ctx))
-				bldr.Watches(&registriesv1alpha1.ClusterRepository{}, reconcilers.EnqueueTracked(ctx))
+func ResolveImage[IR registriesv1alpha1.ImageReferencer](conditionType string) reconcilers.SubReconciler[IR] {
+	return &reconcilers.SyncReconciler[IR]{
+		Setup: func(ctx context.Context, mgr manager.Manager, bldr *builder.TypedBuilder[reconcile.Request]) error {
+			bldr.Watches(&registriesv1alpha1.Image{}, reconcilers.EnqueueTracked(ctx))
+			bldr.Watches(&registriesv1alpha1.ClusterImage{}, reconcilers.EnqueueTracked(ctx))
 
-				return nil
-			},
-			Sync: func(ctx context.Context, resource componentsv1alpha1.ComponentLike) error {
-				c := reconcilers.RetrieveConfigOrDie(ctx)
-				conditionManager := resource.GetConditionManager(ctx)
+			return nil
+		},
+		Sync: func(ctx context.Context, resource IR) error {
+			c := reconcilers.RetrieveConfigOrDie(ctx)
+			conditionManager := resource.GetConditionManager(ctx)
 
-				repositoryRef := resource.GetGenericComponentSpec().RepositoryRef
-				var repository registriesv1alpha1.GenericRepository
-				if repositoryRef.Kind == "ClusterRepository" {
-					repository = &registriesv1alpha1.ClusterRepository{
-						ObjectMeta: metav1.ObjectMeta{
-							Name: repositoryRef.Name,
-						},
-					}
-				} else {
-					repository = &registriesv1alpha1.Repository{
-						ObjectMeta: metav1.ObjectMeta{
-							Namespace: resource.GetNamespace(),
-							Name:      repositoryRef.Name,
-						},
-					}
+			imageRef := resource.GetImageReference()
+			var image registriesv1alpha1.GenericImage
+			if imageRef.Kind == "ClusterImage" {
+				image = &registriesv1alpha1.ClusterImage{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: imageRef.Name,
+					},
 				}
-				if err := c.TrackAndGet(ctx, client.ObjectKeyFromObject(repository), repository); err != nil {
-					if apierrs.IsNotFound(err) {
-						resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotFound", "%s %s not found", repositoryRef.Kind, repositoryRef.Name)
-						return ErrDurable
-					}
-					return err
+			} else {
+				image = &registriesv1alpha1.Image{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: resource.GetNamespace(),
+						Name:      imageRef.Name,
+					},
 				}
-
-				// avoid premature reconciliation, check generation and ready condition
-				if repository.GetGeneration() != repository.GetStatus().ObservedGeneration {
-					resource.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for %s %s to reconcile", repositoryRef.Kind, repositoryRef.Name)
-					return ErrGenerationMismatch
-				}
-				repository.GetStatus().InitializeConditions(ctx)
-				if ready := repository.GetStatus().GetCondition(registriesv1alpha1.RepositoryConditionReady); !apis.ConditionIsTrue(ready) {
-					if apis.ConditionIsFalse(ready) {
-						resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
-					} else {
-						resource.GetConditionManager(ctx).MarkUnknown(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
-					}
+			}
+			if err := c.TrackAndGet(ctx, client.ObjectKeyFromObject(image), image); err != nil {
+				if apierrs.IsNotFound(err) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "ImageNotFound", "%s %s not found", imageRef.Kind, imageRef.Name)
 					return ErrDurable
 				}
+				return err
+			}
 
-				if err := repository.Default(ctx); err != nil {
-					return err
+			// avoid premature reconciliation, check generation and ready condition
+			if image.GetGeneration() != image.GetStatus().ObservedGeneration {
+				resource.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for %s %s to reconcile", imageRef.Kind, imageRef.Name)
+				return ErrGenerationMismatch
+			}
+			image.GetStatus().InitializeConditions(ctx)
+			if ready := image.GetStatus().GetCondition(registriesv1alpha1.ImageConditionReady); !apis.ConditionIsTrue(ready) {
+				if apis.ConditionIsFalse(ready) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "ImageNotReady", "%s: %s", ready.Reason, ready.Message)
+				} else {
+					resource.GetConditionManager(ctx).MarkUnknown(conditionType, "ImageNotReady", "%s: %s", ready.Reason, ready.Message)
 				}
-				keychain, err := registry.KeychainManager.Get(repository)
-				if err != nil {
-					return errors.Join(err, ErrTransient)
-				}
-				if kc, err := RepositoryKeychainStasher.RetrieveOrError(ctx); err == nil {
-					// merge with existing stashed keychain
-					keychain = authn.NewMultiKeychain(keychain, kc)
-				}
-				RepositoryKeychainStasher.Store(ctx, keychain)
+				return ErrDurable
+			}
 
-				tagRef, err := registry.ApplyTemplate(ctx, repository.GetSpec().Template, resource)
-				if err != nil {
-					return err
+			if err := image.Default(ctx); err != nil {
+				return err
+			}
+
+			// get keychain for image from repository
+			repositoryRef := image.GetSpec().RepositoryRef
+			var repository registriesv1alpha1.GenericRepository
+			if repositoryRef.Kind == "ClusterRepository" {
+				repository = &registriesv1alpha1.ClusterRepository{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: repositoryRef.Name,
+					},
 				}
-				RepositoryTagStasher.Store(ctx, tagRef)
+			} else {
+				repository = &registriesv1alpha1.Repository{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: resource.GetNamespace(),
+						Name:      repositoryRef.Name,
+					},
+				}
+			}
+			if err := c.TrackAndGet(ctx, client.ObjectKeyFromObject(repository), repository); err != nil {
+				if apierrs.IsNotFound(err) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotFound", "%s %s not found", repositoryRef.Kind, repositoryRef.Name)
+					return ErrDurable
+				}
+				return err
+			}
 
-				conditionManager.MarkTrue(conditionType, "Ready", "")
+			// avoid premature reconciliation, check generation and ready condition
+			if repository.GetGeneration() != repository.GetStatus().ObservedGeneration {
+				resource.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for %s %s to reconcile", repositoryRef.Kind, repositoryRef.Name)
+				return ErrGenerationMismatch
+			}
+			repository.GetStatus().InitializeConditions(ctx)
+			if ready := repository.GetStatus().GetCondition(registriesv1alpha1.RepositoryConditionReady); !apis.ConditionIsTrue(ready) {
+				if apis.ConditionIsFalse(ready) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
+				} else {
+					resource.GetConditionManager(ctx).MarkUnknown(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
+				}
+				return ErrDurable
+			}
 
+			if err := repository.Default(ctx); err != nil {
+				return err
+			}
+
+			keychain, err := registry.KeychainManager.Get(repository)
+			if err != nil {
+				return errors.Join(err, ErrTransient)
+			}
+			if kc, err := RepositoryKeychainStasher.RetrieveOrError(ctx); err == nil {
+				// merge with existing stashed keychain
+				keychain = authn.NewMultiKeychain(keychain, kc)
+			}
+			RepositoryKeychainStasher.Store(ctx, keychain)
+
+			imageDigest, err := name.NewDigest(image.GetStatus().Image, name.StrictValidation)
+			if err != nil {
+				return err
+			}
+			// TODO should we verify the image is accessible?
+			RemoteImageStasher.Store(ctx, imageDigest)
+
+			conditionManager.MarkTrue(conditionType, "Ready", "")
+
+			return nil
+		},
+	}
+}
+
+// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=repositories,verbs=get;list;watch
+// +kubebuilder:rbac:groups=registries.wa8s.reconciler.io,resources=clusterrepositories,verbs=get;list;watch
+
+func ResolveRepository[RR registriesv1alpha1.RepositoryReferencer](conditionType string) reconcilers.SubReconciler[RR] {
+	return &reconcilers.SyncReconciler[RR]{
+		Setup: func(ctx context.Context, mgr manager.Manager, bldr *builder.TypedBuilder[reconcile.Request]) error {
+			bldr.Watches(&registriesv1alpha1.Repository{}, reconcilers.EnqueueTracked(ctx))
+			bldr.Watches(&registriesv1alpha1.ClusterRepository{}, reconcilers.EnqueueTracked(ctx))
+
+			return nil
+		},
+		Sync: func(ctx context.Context, resource RR) error {
+			c := reconcilers.RetrieveConfigOrDie(ctx)
+			conditionManager := resource.GetConditionManager(ctx)
+
+			repositoryRef := resource.GetRepositoryReference()
+			var repository registriesv1alpha1.GenericRepository
+			if repositoryRef.Kind == "ClusterRepository" {
+				repository = &registriesv1alpha1.ClusterRepository{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: repositoryRef.Name,
+					},
+				}
+			} else {
+				repository = &registriesv1alpha1.Repository{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: resource.GetNamespace(),
+						Name:      repositoryRef.Name,
+					},
+				}
+			}
+			if err := c.TrackAndGet(ctx, client.ObjectKeyFromObject(repository), repository); err != nil {
+				if apierrs.IsNotFound(err) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotFound", "%s %s not found", repositoryRef.Kind, repositoryRef.Name)
+					return ErrDurable
+				}
+				return err
+			}
+
+			// avoid premature reconciliation, check generation and ready condition
+			if repository.GetGeneration() != repository.GetStatus().ObservedGeneration {
+				resource.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for %s %s to reconcile", repositoryRef.Kind, repositoryRef.Name)
+				return ErrGenerationMismatch
+			}
+			repository.GetStatus().InitializeConditions(ctx)
+			if ready := repository.GetStatus().GetCondition(registriesv1alpha1.RepositoryConditionReady); !apis.ConditionIsTrue(ready) {
+				if apis.ConditionIsFalse(ready) {
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
+				} else {
+					resource.GetConditionManager(ctx).MarkUnknown(conditionType, "RepositoryNotReady", "%s: %s", ready.Reason, ready.Message)
+				}
+				return ErrDurable
+			}
+
+			if err := repository.Default(ctx); err != nil {
+				return err
+			}
+			keychain, err := registry.KeychainManager.Get(repository)
+			if err != nil {
+				return errors.Join(err, ErrTransient)
+			}
+			if kc, err := RepositoryKeychainStasher.RetrieveOrError(ctx); err == nil {
+				// merge with existing stashed keychain
+				keychain = authn.NewMultiKeychain(keychain, kc)
+			}
+			RepositoryKeychainStasher.Store(ctx, keychain)
+
+			tagRef, err := registry.ApplyTemplate(ctx, repository.GetSpec().Template, resource)
+			if err != nil {
+				return err
+			}
+			RepositoryTagStasher.Store(ctx, tagRef)
+
+			conditionManager.MarkTrue(conditionType, "Ready", "")
+
+			return nil
+		},
+	}
+}
+
+func ResolveKeychain[SAR registriesv1alpha1.ServiceAccountReferencer](conditionType string) reconcilers.SubReconciler[SAR] {
+	return &reconcilers.SyncReconciler[SAR]{
+		Sync: func(ctx context.Context, resource SAR) error {
+			ref := resource.GetServiceAccountReference()
+			if ref == nil {
 				return nil
-			},
+			}
+
+			keychain, err := registry.KeychainManager.CreateForServiceAccountRef(ctx, *ref)
+			if err != nil {
+				if apierrs.IsNotFound(err) {
+					status := err.(apierrs.APIStatus).Status()
+					kind := status.Kind
+					name := status.Details.Name
+					resource.GetConditionManager(ctx).MarkFalse(conditionType, fmt.Sprintf("%sNotFound", kind), "%s %s not found", kind, name)
+					return ErrDurable
+				}
+				return err
+			}
+
+			if kc, err := RepositoryKeychainStasher.RetrieveOrError(ctx); err == nil {
+				// merge with existing stashed keychain
+				keychain = authn.NewMultiKeychain(keychain, kc)
+			}
+			RepositoryKeychainStasher.Store(ctx, keychain)
+			return nil
 		},
 	}
 }
@@ -338,13 +492,13 @@ func DetectTraceCycle(trace []componentsv1alpha1.ComponentSpan, component client
 	return hasCycle, sanitized
 }
 
-// +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=wasmtimecontainers,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=containers.wa8s.reconciler.io,resources=componentcontainerimages,verbs=get;list;watch;create;update;patch;delete
 
-func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](conditionType, childLabelKey, baseImage string) reconcilers.SubReconciler[GC] {
+func ComponentContainerImageChildReconciler[GC containersv1alpha1.GenericContainer](conditionType, childLabelKey string, imageRef registriesv1alpha1.ImageReference) reconcilers.SubReconciler[GC] {
 	return &reconcilers.CastResource[GC, containersv1alpha1.GenericContainer]{
-		Reconciler: &reconcilers.ChildReconciler[containersv1alpha1.GenericContainer, *containersv1alpha1.WasmtimeContainer, *containersv1alpha1.WasmtimeContainerList]{
-			DesiredChild: func(ctx context.Context, resource containersv1alpha1.GenericContainer) (*containersv1alpha1.WasmtimeContainer, error) {
-				return &containersv1alpha1.WasmtimeContainer{
+		Reconciler: &reconcilers.ChildReconciler[containersv1alpha1.GenericContainer, *containersv1alpha1.ComponentContainerImage, *containersv1alpha1.ComponentContainerImageList]{
+			DesiredChild: func(ctx context.Context, resource containersv1alpha1.GenericContainer) (*containersv1alpha1.ComponentContainerImage, error) {
+				return &containersv1alpha1.ComponentContainerImage{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace:    resource.GetNamespace(),
 						GenerateName: fmt.Sprintf("%s-", resource.GetName()),
@@ -355,21 +509,20 @@ func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](condit
 							},
 						),
 					},
-					Spec: containersv1alpha1.WasmtimeContainerSpec{
+					Spec: containersv1alpha1.ComponentContainerImageSpec{
 						Ref:                  resource.GetGenericContainerSpec().Ref,
-						BaseImage:            baseImage,
-						ServiceAccountRef:    resource.GetGenericContainerSpec().ServiceAccountRef,
+						ImageRef:             imageRef,
 						GenericComponentSpec: resource.GetGenericContainerSpec().GenericComponentSpec,
 					},
 				}, nil
 			},
-			ChildObjectManager: &reconcilers.UpdatingObjectManager[*containersv1alpha1.WasmtimeContainer]{
-				MergeBeforeUpdate: func(current, desired *containersv1alpha1.WasmtimeContainer) {
+			ChildObjectManager: &reconcilers.UpdatingObjectManager[*containersv1alpha1.ComponentContainerImage]{
+				MergeBeforeUpdate: func(current, desired *containersv1alpha1.ComponentContainerImage) {
 					current.Labels = desired.Labels
 					current.Spec = desired.Spec
 				},
 			},
-			ReflectChildStatusOnParentWithError: func(ctx context.Context, parent containersv1alpha1.GenericContainer, child *containersv1alpha1.WasmtimeContainer, err error) error {
+			ReflectChildStatusOnParentWithError: func(ctx context.Context, parent containersv1alpha1.GenericContainer, child *containersv1alpha1.ComponentContainerImage, err error) error {
 				if err != nil {
 					if apierrs.IsInvalid(err) {
 						parent.GetConditionManager(ctx).MarkFalse(conditionType, "Invalid", "%s", apierrs.ReasonForError(err))
@@ -386,24 +539,24 @@ func WasmContainerChildReconciler[GC containersv1alpha1.GenericContainer](condit
 
 				// avoid premature reconciliation, check generation and ready condition
 				if child.Generation != child.Status.ObservedGeneration {
-					parent.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for WasmtimeContainer %s to reconcile", child.Name)
+					parent.GetConditionManager(ctx).MarkUnknown(conditionType, "Blocked", "waiting for ComponentContainerImage %s to reconcile", child.Name)
 					return ErrGenerationMismatch
 				}
-				if ready := child.Status.GetCondition(containersv1alpha1.WasmtimeContainerConditionReady); !apis.ConditionIsTrue(ready) {
+				if ready := child.Status.GetCondition(containersv1alpha1.ComponentContainerImageConditionReady); !apis.ConditionIsTrue(ready) {
 					if ready == nil {
 						ready = &metav1.Condition{Reason: "Initializing"}
 					}
 					if apis.ConditionIsFalse(ready) {
-						parent.GetConditionManager(ctx).MarkUnknown(conditionType, "NotReady", "WasmtimeContainer %s is not ready", child.Name)
+						parent.GetConditionManager(ctx).MarkUnknown(conditionType, "NotReady", "ComponentContainerImage %s is not ready", child.Name)
 					} else {
-						parent.GetConditionManager(ctx).MarkUnknown(conditionType, "NotReady", "WasmtimeContainer %s is not ready", child.Name)
+						parent.GetConditionManager(ctx).MarkUnknown(conditionType, "NotReady", "ComponentContainerImage %s is not ready", child.Name)
 					}
 					return ErrDurable
 				}
 
 				if child.Status.Image == "" {
 					// should never be ready and missing an image, but ya know
-					parent.GetConditionManager(ctx).MarkFalse(conditionType, "ImageMissing", "WasmtimeContainer %s is missing image", child.Name)
+					parent.GetConditionManager(ctx).MarkFalse(conditionType, "ImageMissing", "ComponentContainerImage %s is missing image", child.Name)
 					return ErrDurable
 				}
 
