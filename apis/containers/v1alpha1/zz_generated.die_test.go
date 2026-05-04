@@ -27,6 +27,33 @@ import (
 	testing "reconciler.io/dies/testing"
 )
 
+func TestComponentContainerImageSpecDie_MissingMethods(t *testingx.T) {
+	die := ComponentContainerImageSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ComponentContainerImageSpecDie: %s", diff.List())
+	}
+}
+
+func TestComponentContainerImageStatusDie_MissingMethods(t *testingx.T) {
+	die := ComponentContainerImageStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ComponentContainerImageStatusDie: %s", diff.List())
+	}
+}
+
+func TestComponentContainerImageDie_MissingMethods(t *testingx.T) {
+	die := ComponentContainerImageBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ComponentContainerImageDie: %s", diff.List())
+	}
+}
+
 func TestCronTriggerSpecDie_MissingMethods(t *testingx.T) {
 	die := CronTriggerSpecBlank
 	ignore := []string{}
@@ -186,33 +213,6 @@ func TestHttpTriggerDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for HttpTriggerDie: %s", diff.List())
-	}
-}
-
-func TestComponentContainerImageSpecDie_MissingMethods(t *testingx.T) {
-	die := ComponentContainerImageSpecBlank
-	ignore := []string{}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for ComponentContainerImageSpecDie: %s", diff.List())
-	}
-}
-
-func TestComponentContainerImageStatusDie_MissingMethods(t *testingx.T) {
-	die := ComponentContainerImageStatusBlank
-	ignore := []string{}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for ComponentContainerImageStatusDie: %s", diff.List())
-	}
-}
-
-func TestComponentContainerImageDie_MissingMethods(t *testingx.T) {
-	die := ComponentContainerImageBlank
-	ignore := []string{"TypeMeta", "ObjectMeta"}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for ComponentContainerImageDie: %s", diff.List())
 	}
 }
 
