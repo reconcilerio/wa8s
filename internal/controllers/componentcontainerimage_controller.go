@@ -51,6 +51,7 @@ func ComponentContainerImageReconciler(c reconcilers.Config) *reconcilers.Resour
 					controllers.ResolveRepository[*containersv1alpha1.ComponentContainerImage](containersv1alpha1.ComponentContainerImageConditionRepositoryReady),
 				},
 				AppendComponent(),
+				controllers.ReflectComponentableStatus[*containersv1alpha1.ComponentContainerImage](),
 			},
 		},
 
@@ -132,9 +133,10 @@ func ResolveComponent() reconcilers.SubReconciler[*containersv1alpha1.ComponentC
 				return err
 			}
 
+			resource.GetConditionManager(ctx).MarkTrue(containersv1alpha1.ComponentContainerImageConditionComponentPulled, "Resolved", "")
+
 			controllers.ComponentStasher.Store(ctx, componentBytes)
 			controllers.ComponentConfigStasher.Store(ctx, config)
-			resource.GetConditionManager(ctx).MarkTrue(containersv1alpha1.ComponentContainerImageConditionComponentPulled, "Resolved", "")
 
 			return nil
 		},
@@ -154,9 +156,9 @@ func AppendComponent() reconcilers.SubReconciler[*containersv1alpha1.ComponentCo
 				return err
 			}
 
-			controllers.RepositoryDigestStasher.Store(ctx, digestRef)
 			resource.GetConditionManager(ctx).MarkTrue(containersv1alpha1.ComponentContainerImageConditionPushed, "Pushed", "")
-			resource.Status.Image = digestRef.Name()
+
+			controllers.RepositoryDigestStasher.Store(ctx, digestRef)
 
 			return nil
 		},

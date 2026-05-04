@@ -29,6 +29,7 @@ import (
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	duckclient "reconciler.io/ducks/client"
+	"reconciler.io/runtime/duck"
 	"reconciler.io/runtime/reconcilers"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -103,6 +104,16 @@ func ResolveImage[IR registriesv1alpha1.ImageReferencer](conditionType string) r
 					return ErrDurable
 				}
 				return err
+			}
+
+			trace := append(ComponentTraceStasher.RetrieveOrEmpty(ctx), SynthesizeSpan(ctx, image))
+			ComponentTraceStasher.Store(ctx, trace)
+			if hasCycle, sanitizedTrace := DetectTraceCycle(trace, resource); hasCycle {
+				conditionManager.MarkFalse(conditionType, "CycleDetected", "components may not reference themselves directly or transitively")
+				if err := ReflectTrace(resource, sanitizedTrace); err != nil {
+					panic(err)
+				}
+				return ErrDurable
 			}
 
 			// avoid premature reconciliation, check generation and ready condition
@@ -433,15 +444,19 @@ func ReflectComponentableStatus[GC componentsv1alpha1.ComponentLike]() reconcile
 		Reconciler: &reconcilers.SyncReconciler[componentsv1alpha1.ComponentLike]{
 			Sync: func(ctx context.Context, resource componentsv1alpha1.ComponentLike) error {
 				digestRef := RepositoryDigestStasher.RetrieveOrDie(ctx)
-				config := ComponentConfigStasher.RetrieveOrDie(ctx)
-				trace := ComponentTraceStasher.RetrieveOrEmpty(ctx)
-
 				resource.GetGenericComponentStatus().Image = digestRef.Name()
-				resource.GetGenericComponentStatus().WIT = &componentsv1alpha1.WIT{
-					Imports: config.Component.Imports,
-					Exports: config.Component.Exports,
-				}
+
+				trace := ComponentTraceStasher.RetrieveOrEmpty(ctx)
 				resource.GetGenericComponentStatus().Trace = trace
+
+				if config, err := ComponentConfigStasher.RetrieveOrError(ctx); err != nil {
+					resource.GetGenericComponentStatus().WIT = nil
+				} else {
+					resource.GetGenericComponentStatus().WIT = &componentsv1alpha1.WIT{
+						Imports: config.Component.Imports,
+						Exports: config.Component.Exports,
+					}
+				}
 
 				return nil
 			},
@@ -449,24 +464,66 @@ func ReflectComponentableStatus[GC componentsv1alpha1.ComponentLike]() reconcile
 	}
 }
 
-func SynthesizeSpan(ctx context.Context, component componentsv1alpha1.ComponentLike) componentsv1alpha1.ComponentSpan {
+func SynthesizeSpan(ctx context.Context, resource client.Object) componentsv1alpha1.ComponentSpan {
 	c := reconcilers.RetrieveConfigOrDie(ctx)
 
-	gvk, err := c.GroupVersionKindFor(component)
+	var image string
+	var trace []componentsv1alpha1.ComponentSpan
+
+	if component, ok := resource.(componentsv1alpha1.ComponentLike); ok {
+		image = component.GetGenericComponentStatus().Image
+		trace = component.GetGenericComponentStatus().Trace
+	} else {
+		// convert non-ComponentLike resources to a Component as a good faith attempt
+		component := &componentsv1alpha1.ComponentDuck{}
+		if err := duck.Convert(resource, component); err == nil {
+			image = component.Status.Image
+			trace = component.Status.Trace
+		}
+	}
+
+	gvk, err := c.GroupVersionKindFor(resource)
 	if err != nil {
 		panic(err)
 	}
-	digestRef, _ := name.NewDigest(component.GetGenericComponentStatus().Image)
+	digestRef, _ := name.NewDigest(image)
 
 	return componentsv1alpha1.ComponentSpan{
 		Digest:    digestRef.DigestStr(),
-		UID:       component.GetUID(),
+		UID:       resource.GetUID(),
 		Group:     gvk.Group,
 		Kind:      gvk.Kind,
-		Namespace: component.GetNamespace(),
-		Name:      component.GetName(),
-		Trace:     component.GetGenericComponentStatus().Trace,
+		Namespace: resource.GetNamespace(),
+		Name:      resource.GetName(),
+		Trace:     trace,
 	}
+}
+
+func ReflectTrace(resource client.Object, trace []componentsv1alpha1.ComponentSpan) error {
+	if component, ok := resource.(componentsv1alpha1.ComponentLike); ok {
+		component.GetGenericComponentStatus().Trace = trace
+		return nil
+	}
+
+	// patch the resource
+	base := &componentsv1alpha1.ComponentDuck{
+		ObjectMeta: metav1.ObjectMeta{
+			// patch will fail if the generation doesn't match
+			Generation: resource.GetGeneration(),
+		},
+	}
+	withTrace := base.DeepCopy()
+	withTrace.Status.Trace = trace
+
+	patch, err := reconcilers.NewPatch(base, withTrace)
+	if err != nil {
+		return err
+	}
+	if err := patch.Apply(resource); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func DetectTraceCycle(trace []componentsv1alpha1.ComponentSpan, component client.Object) (bool, []componentsv1alpha1.ComponentSpan) {
