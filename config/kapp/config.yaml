@@ -30,6 +30,7 @@ waitRules:
       - apiGroupKindMatcher: {apiGroup: containers.wa8s.reconciler.io, kind: CronTrigger}
       - apiGroupKindMatcher: {apiGroup: containers.wa8s.reconciler.io, kind: HttpTrigger}
       - apiGroupKindMatcher: {apiGroup: containers.wa8s.reconciler.io, kind: WrpcTrigger}
+      - apiGroupKindMatcher: {apiGroup: knative.wa8s.reconciler.io, kind: ServiceTrigger}
       - apiGroupKindMatcher: {apiGroup: registries.wa8s.reconciler.io, kind: ClusterImage}
       - apiGroupKindMatcher: {apiGroup: registries.wa8s.reconciler.io, kind: ClusterRepository}
       - apiGroupKindMatcher: {apiGroup: registries.wa8s.reconciler.io, kind: Image}

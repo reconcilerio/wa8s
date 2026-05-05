@@ -188,12 +188,3 @@ func TestServiceStatusDie_MissingMethods(t *testingx.T) {
 		t.Errorf("found missing fields for ServiceStatusDie: %s", diff.List())
 	}
 }
-
-func TestURLDie_MissingMethods(t *testingx.T) {
-	die := URLBlank
-	ignore := []string{}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for URLDie: %s", diff.List())
-	}
-}

@@ -17,7 +17,6 @@ limitations under the License.
 package v1
 
 // +die
-// +die:field:name=URL,die=URLDie,pointer=true
 
 // Addressable provides a generic mechanism for a custom resource
 // definition to indicate a destination for message delivery.
@@ -30,7 +29,7 @@ type Addressable struct {
 	// +optional
 	Name *string `json:"name,omitempty"`
 
-	URL *URL `json:"url,omitempty"`
+	URL *string `json:"url,omitempty"`
 
 	// CACerts is the Certification Authority (CA) certificates in PEM format
 	// according to https://www.rfc-editor.org/rfc/rfc7468.

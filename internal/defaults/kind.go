@@ -20,6 +20,7 @@ const (
 	// duplicate values to avoid cyclic dependencies
 	componentsv1alpha1 = "wa8s.reconciler.io/v1alpha1"
 	containersv1alpha1 = "containers.wa8s.reconciler.io/v1alpha1"
+	knativev1alpha1    = "knative.wa8s.reconciler.io/v1alpha1"
 	registriesv1alpha1 = "registries.wa8s.reconciler.io/v1alpha1"
 	servicesv1alpha1   = "services.wa8s.reconciler.io/v1alpha1"
 )
@@ -42,6 +43,8 @@ func APIVersionForKind(kind string) string {
 		return containersv1alpha1
 	case "WrpcTrigger":
 		return containersv1alpha1
+	case "ServiceTrigger":
+		return knativev1alpha1
 	case "Image":
 		return registriesv1alpha1
 	case "ClusterImage":

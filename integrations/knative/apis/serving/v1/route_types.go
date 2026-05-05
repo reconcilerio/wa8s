@@ -45,7 +45,6 @@ type Route struct {
 }
 
 // +die
-// +die:field:name=URL,die=URLDie,pointer=true
 
 // TrafficTarget holds a single entry of the routing table for a Route.
 type TrafficTarget struct {
@@ -90,7 +89,7 @@ type TrafficTarget struct {
 	// status, and is disallowed on spec. URL must contain a scheme (e.g. http://) and
 	// a hostname, but may not contain anything else (e.g. basic auth, url path, etc.)
 	// +optional
-	URL *URL `json:"url,omitempty"`
+	URL *string `json:"url,omitempty"`
 }
 
 // +die
@@ -124,7 +123,6 @@ const (
 )
 
 // +die
-// +die:field:name=URL,die=URLDie,pointer=true
 // +die:field:name=Address,die=AddressableDie,pointer=true
 // +die:field:name=Traffic,die=TrafficTargetDie,listType=atomic
 
@@ -135,7 +133,7 @@ type RouteStatusFields struct {
 	// URL holds the url that will distribute traffic over the provided traffic targets.
 	// It generally has the form http[s]://{route-name}.{route-namespace}.{cluster-level-suffix}
 	// +optional
-	URL *URL `json:"url,omitempty"`
+	URL *string `json:"url,omitempty"`
 
 	// Address holds the information needed for a Route to be the target of an event.
 	// +optional

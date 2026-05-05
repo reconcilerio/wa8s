@@ -288,15 +288,6 @@ func (d *AddressableDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// URLDie mutates URL as a die.
-func (d *AddressableDie) URLDie(fn func(d *URLDie)) *AddressableDie {
-	return d.DieStamp(func(r *Addressable) {
-		d := URLBlank.DieImmutable(false).DieFeedPtr(r.URL)
-		fn(d)
-		r.URL = d.DieReleasePtr()
-	})
-}
-
 // Name is the name of the address.
 func (d *AddressableDie) Name(v *string) *AddressableDie {
 	return d.DieStamp(func(r *Addressable) {
@@ -304,7 +295,7 @@ func (d *AddressableDie) Name(v *string) *AddressableDie {
 	})
 }
 
-func (d *AddressableDie) URL(v *URL) *AddressableDie {
+func (d *AddressableDie) URL(v *string) *AddressableDie {
 	return d.DieStamp(func(r *Addressable) {
 		r.URL = v
 	})
@@ -3694,21 +3685,6 @@ func (d *TrafficTargetDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// URLDie mutates URL as a die.
-//
-// URL displays the URL for accessing named traffic targets. URL is displayed in
-//
-// status, and is disallowed on spec. URL must contain a scheme (e.g. http://) and
-//
-// a hostname, but may not contain anything else (e.g. basic auth, url path, etc.)
-func (d *TrafficTargetDie) URLDie(fn func(d *URLDie)) *TrafficTargetDie {
-	return d.DieStamp(func(r *TrafficTarget) {
-		d := URLBlank.DieImmutable(false).DieFeedPtr(r.URL)
-		fn(d)
-		r.URL = d.DieReleasePtr()
-	})
-}
-
 // Tag is optionally used to expose a dedicated url for referencing
 //
 // this target exclusively.
@@ -3783,7 +3759,7 @@ func (d *TrafficTargetDie) Percent(v *int64) *TrafficTargetDie {
 // status, and is disallowed on spec. URL must contain a scheme (e.g. http://) and
 //
 // a hostname, but may not contain anything else (e.g. basic auth, url path, etc.)
-func (d *TrafficTargetDie) URL(v *URL) *TrafficTargetDie {
+func (d *TrafficTargetDie) URL(v *string) *TrafficTargetDie {
 	return d.DieStamp(func(r *TrafficTarget) {
 		r.URL = v
 	})
@@ -4304,19 +4280,6 @@ func (d *RouteStatusFieldsDie) DiePatch(patchType types.PatchType) ([]byte, erro
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// URLDie mutates URL as a die.
-//
-// URL holds the url that will distribute traffic over the provided traffic targets.
-//
-// It generally has the form http[s]://{route-name}.{route-namespace}.{cluster-level-suffix}
-func (d *RouteStatusFieldsDie) URLDie(fn func(d *URLDie)) *RouteStatusFieldsDie {
-	return d.DieStamp(func(r *RouteStatusFields) {
-		d := URLBlank.DieImmutable(false).DieFeedPtr(r.URL)
-		fn(d)
-		r.URL = d.DieReleasePtr()
-	})
-}
-
 // AddressDie mutates Address as a die.
 //
 // Address holds the information needed for a Route to be the target of an event.
@@ -4349,7 +4312,7 @@ func (d *RouteStatusFieldsDie) TrafficDie(v ...*TrafficTargetDie) *RouteStatusFi
 // URL holds the url that will distribute traffic over the provided traffic targets.
 //
 // It generally has the form http[s]://{route-name}.{route-namespace}.{cluster-level-suffix}
-func (d *RouteStatusFieldsDie) URL(v *URL) *RouteStatusFieldsDie {
+func (d *RouteStatusFieldsDie) URL(v *string) *RouteStatusFieldsDie {
 	return d.DieStamp(func(r *RouteStatusFields) {
 		r.URL = v
 	})
@@ -5619,250 +5582,4 @@ func (d *ServiceStatusDie) RouteStatusFields(v RouteStatusFields) *ServiceStatus
 	return d.DieStamp(func(r *ServiceStatus) {
 		r.RouteStatusFields = v
 	})
-}
-
-var URLBlank = (&URLDie{}).DieFeed(URL{})
-
-type URLDie struct {
-	mutable bool
-	r       URL
-	seal    URL
-}
-
-// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-func (d *URLDie) DieImmutable(immutable bool) *URLDie {
-	if d.mutable == !immutable {
-		return d
-	}
-	d = d.DeepCopy()
-	d.mutable = !immutable
-	return d
-}
-
-// DieFeed returns a new die with the provided resource.
-func (d *URLDie) DieFeed(r URL) *URLDie {
-	if d.mutable {
-		d.r = r
-		return d
-	}
-	return &URLDie{
-		mutable: d.mutable,
-		r:       r,
-		seal:    d.seal,
-	}
-}
-
-// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-func (d *URLDie) DieFeedPtr(r *URL) *URLDie {
-	if r == nil {
-		r = &URL{}
-	}
-	return d.DieFeed(*r)
-}
-
-// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
-func (d *URLDie) DieFeedDuck(v any) *URLDie {
-	data, err := json.Marshal(v)
-	if err != nil {
-		panic(err)
-	}
-	return d.DieFeedJSON(data)
-}
-
-// DieFeedJSON returns a new die with the provided JSON. Panics on error.
-func (d *URLDie) DieFeedJSON(j []byte) *URLDie {
-	r := URL{}
-	if err := json.Unmarshal(j, &r); err != nil {
-		panic(err)
-	}
-	return d.DieFeed(r)
-}
-
-// DieFeedYAML returns a new die with the provided YAML. Panics on error.
-func (d *URLDie) DieFeedYAML(y []byte) *URLDie {
-	r := URL{}
-	if err := yaml.Unmarshal(y, &r); err != nil {
-		panic(err)
-	}
-	return d.DieFeed(r)
-}
-
-// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
-func (d *URLDie) DieFeedYAMLFile(name string) *URLDie {
-	y, err := osx.ReadFile(name)
-	if err != nil {
-		panic(err)
-	}
-	return d.DieFeedYAML(y)
-}
-
-// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *URLDie) DieFeedRawExtension(raw runtime.RawExtension) *URLDie {
-	j, err := json.Marshal(raw)
-	if err != nil {
-		panic(err)
-	}
-	return d.DieFeedJSON(j)
-}
-
-// DieRelease returns the resource managed by the die.
-func (d *URLDie) DieRelease() URL {
-	if d.mutable {
-		return d.r
-	}
-	return *d.r.DeepCopy()
-}
-
-// DieReleasePtr returns a pointer to the resource managed by the die.
-func (d *URLDie) DieReleasePtr() *URL {
-	r := d.DieRelease()
-	return &r
-}
-
-// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
-func (d *URLDie) DieReleaseDuck(v any) any {
-	data := d.DieReleaseJSON()
-	if err := json.Unmarshal(data, v); err != nil {
-		panic(err)
-	}
-	return v
-}
-
-// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
-func (d *URLDie) DieReleaseJSON() []byte {
-	r := d.DieReleasePtr()
-	j, err := json.Marshal(r)
-	if err != nil {
-		panic(err)
-	}
-	return j
-}
-
-// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
-func (d *URLDie) DieReleaseYAML() []byte {
-	r := d.DieReleasePtr()
-	y, err := yaml.Marshal(r)
-	if err != nil {
-		panic(err)
-	}
-	return y
-}
-
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *URLDie) DieReleaseRawExtension() runtime.RawExtension {
-	j := d.DieReleaseJSON()
-	raw := runtime.RawExtension{}
-	if err := json.Unmarshal(j, &raw); err != nil {
-		panic(err)
-	}
-	return raw
-}
-
-// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-func (d *URLDie) DieStamp(fn func(r *URL)) *URLDie {
-	r := d.DieRelease()
-	fn(&r)
-	return d.DieFeed(r)
-}
-
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
-//
-// Future iterations will improve type coercion from the resource to the callback argument.
-func (d *URLDie) DieStampAt(jp string, fn interface{}) *URLDie {
-	return d.DieStamp(func(r *URL) {
-		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
-			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
-		}
-		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
-			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
-		}
-
-		cp := jsonpath.New("")
-		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
-			panic(err)
-		}
-		cr, err := cp.FindResults(r)
-		if err != nil {
-			// errors are expected if a path is not found
-			return
-		}
-		for _, cv := range cr[0] {
-			arg0t := reflectx.ValueOf(fn).Type().In(0)
-
-			var args []reflectx.Value
-			if cv.Type().AssignableTo(arg0t) {
-				args = []reflectx.Value{cv}
-			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
-				args = []reflectx.Value{cv.Addr()}
-			} else {
-				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
-			}
-
-			reflectx.ValueOf(fn).Call(args)
-		}
-	})
-}
-
-// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *URLDie) DieWith(fns ...func(d *URLDie)) *URLDie {
-	nd := URLBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	for _, fn := range fns {
-		if fn != nil {
-			fn(nd)
-		}
-	}
-	return d.DieFeed(nd.DieRelease())
-}
-
-// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-func (d *URLDie) DeepCopy() *URLDie {
-	r := *d.r.DeepCopy()
-	return &URLDie{
-		mutable: d.mutable,
-		r:       r,
-		seal:    d.seal,
-	}
-}
-
-// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
-func (d *URLDie) DieSeal() *URLDie {
-	return d.DieSealFeed(d.r)
-}
-
-// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
-func (d *URLDie) DieSealFeed(r URL) *URLDie {
-	if !d.mutable {
-		d = d.DeepCopy()
-	}
-	d.seal = *r.DeepCopy()
-	return d
-}
-
-// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
-func (d *URLDie) DieSealFeedPtr(r *URL) *URLDie {
-	if r == nil {
-		r = &URL{}
-	}
-	return d.DieSealFeed(*r)
-}
-
-// DieSealRelease returns the sealed resource managed by the die.
-func (d *URLDie) DieSealRelease() URL {
-	return *d.seal.DeepCopy()
-}
-
-// DieSealReleasePtr returns the sealed resource pointer managed by the die.
-func (d *URLDie) DieSealReleasePtr() *URL {
-	r := d.DieSealRelease()
-	return &r
-}
-
-// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
-func (d *URLDie) DieDiff(opts ...cmp.Option) string {
-	return cmp.Diff(d.seal, d.r, opts...)
-}
-
-// DiePatch generates a patch between the current value of the die and the sealed value.
-func (d *URLDie) DiePatch(patchType types.PatchType) ([]byte, error) {
-	return patch.Create(d.seal, d.r, patchType)
 }
