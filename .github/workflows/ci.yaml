@@ -15,7 +15,7 @@ env:
   KAPP: go run -modfile hack/kapp/go.mod carvel.dev/kapp/cmd/kapp
   KBLD: go run -modfile hack/kbld/go.mod carvel.dev/kbld/cmd/kbld
   KO: go run -modfile hack/ko/go.mod github.com/google/ko
-  STERN: go run -modfile hack/stern/go.mod go run -modfile hack/stern/go.mod github.com/stern/stern
+  STERN: go run -modfile hack/stern/go.mod github.com/stern/stern
   YTT: go run -modfile hack/ytt/go.mod carvel.dev/ytt/cmd/ytt
 
 jobs:

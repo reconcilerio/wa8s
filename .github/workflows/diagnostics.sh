@@ -35,8 +35,8 @@ echo "##[endgroup]"
 echo "##[group]kubectl get all -n knative-serving -oyaml"
     kubectl get all -n knative-serving -oyaml || true
 echo "##[endgroup]"
-echo "##[group]stern -n knative-serving -l app.kubernetes.io/name=knative-serving --tail 10000"
-    ${STERN} -n knative-serving -l app.kubernetes.io/name=knative-serving --tail 10000 || true
+echo "##[group]stern -n knative-serving -l app.kubernetes.io/name=knative-serving --tail 10000 --no-follow"
+    ${STERN} -n knative-serving -l app.kubernetes.io/name=knative-serving --tail 10000 --no-follow || true
 echo "##[endgroup]"
 echo "##[group]kubectl logs -n knative-serving -l app.kubernetes.io/name=knative-serving,app.kubernetes.io/component=controller --tail 10000 --previous"
     kubectl logs -n knative-serving -l app.kubernetes.io/name=knative-serving,app.kubernetes.io/component=controller --tail 10000 --previous || true
