@@ -1723,7 +1723,7 @@ kind: ClusterRoleBinding
 metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/name: wa8s
+    app.kubernetes.io/name: wa8s-services
   name: wa8s-services-manager-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
