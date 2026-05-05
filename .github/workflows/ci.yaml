@@ -474,11 +474,14 @@ jobs:
         set -o pipefail
 
         echo "##[group]Delete Valkey service"
-          kubectl delete -f examples/valkey-service/04-*.yaml --timeout 1m
-          kubectl delete -f examples/valkey-service/03-*.yaml --timeout 1m
-          kubectl delete -f examples/valkey-service/02-*.yaml --timeout 1m
-          kubectl delete -f examples/valkey-service/prereq/01-*.yaml --timeout 1m
-          kubectl delete -f examples/valkey-service/prereq/00-*.yaml --timeout 1m
+          kubectl delete -f examples/valkey-service/ --timeout 1m
+          kubectl wait servicetrigger.knative.wa8s.reconciler.io/incrementor --for delete --timeout 5m
+          kubectl wait valkeyclients.x.services.wa8s.reconciler.io/my-valkey --for delete --timeout 5m
+          kubectl wait valkeys.x.services.wa8s.reconciler.io/my-valkey --for delete --timeout 5m
+          
+          kubectl delete -f examples/valkey-service/prereq/ --timeout 1m
+          kubectl wait serviceresourcedefinitions.services.wa8s.reconciler.io/valkey --for delete --timeout 5m
+          kubectl wait deployments.apps/valkey -n wa8s-service-valkey --for delete --timeout 1m
         echo "##[endgroup]"
         echo "##[group]Delete reconcilerio-wa8s-services"
           ${KAPP} delete -a reconcilerio-wa8s-services -n apps --wait-timeout 5m -y
