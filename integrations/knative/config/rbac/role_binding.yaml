@@ -2,13 +2,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    app.kubernetes.io/name: wa8s-services
+    app.kubernetes.io/name: wa8s-knative
     app.kubernetes.io/managed-by: kustomize
-  name: wa8s-services-manager-rolebinding
+  name: wa8s-knative-manager-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: wa8s-services-manager-role
+  name: wa8s-knative-manager-role
 subjects:
 - kind: ServiceAccount
-  name: wa8s-services-manager
+  name: wa8s-knative-manager

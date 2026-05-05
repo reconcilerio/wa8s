@@ -1,0 +1,28 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: wa8s-knative-manager-webhook
+      namespace: system
+      path: /validate-knative-wa8s-reconciler-io-v1alpha1-servicetrigger
+  failurePolicy: Fail
+  name: v1alpha1.servicetriggers.knative.wa8s.reconciler.io
+  rules:
+  - apiGroups:
+    - knative.wa8s.reconciler.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - servicetriggers
+    - servicetriggers/status
+  sideEffects: None

@@ -1,6 +1,6 @@
 ---
-apiVersion: containers.wa8s.reconciler.io/v1alpha1
-kind: HttpTrigger
+apiVersion: knative.wa8s.reconciler.io/v1alpha1
+kind: ServiceTrigger
 metadata:
   name: incrementor
 spec:

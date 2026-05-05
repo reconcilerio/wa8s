@@ -1,0 +1,108 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wa8s-knative-manager-role
+rules:
+- apiGroups:
+  - ""
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - containers.wa8s.reconciler.io
+  resources:
+  - componentcontainerimages
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - duck.reconciler.io
+  resources:
+  - ducktypes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - knative.wa8s.reconciler.io
+  resources:
+  - servicetriggers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - knative.wa8s.reconciler.io
+  resources:
+  - servicetriggers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - knative.wa8s.reconciler.io
+  resources:
+  - servicetriggers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - registries.wa8s.reconciler.io
+  resources:
+  - clusterimages
+  - clusterrepositories
+  - images
+  - repositories
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - serving.knative.dev
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - componentducks
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - wa8s.reconciler.io
+  resources:
+  - components
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch

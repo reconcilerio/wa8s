@@ -3,9 +3,6 @@
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
-# Use go toolchain defined in go.mod
-export GOTOOLCHAIN ?= go$(shell go mod edit -json | jq -r .Go)
-
 .PHONY: all
 all: test
 
@@ -31,10 +28,14 @@ help: ## Display this help.
 .PHONY: manifests
 manifests: internal-manifests ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(foreach file,$(wildcard config/crd/bases/*.yaml),$(shell $(YQ) -i 'del(.metadata.annotations["controller-gen.kubebuilder.io/version"]) | del(.metadata.annotations | select(length==0))' ${file}))
-	$(foreach file,$(wildcard integrations/services/config/crd/bases/*.yaml),$(shell $(YQ) -i 'del(.metadata.annotations["controller-gen.kubebuilder.io/version"]) | del(.metadata.annotations | select(length==0))' ${file}))
-
 	cat hack/boilerplate.yaml.txt > config/wa8s.yaml
 	$(KUSTOMIZE) build config/default >> config/wa8s.yaml
+
+	$(foreach file,$(wildcard integrations/knative/config/crd/bases/*.yaml),$(shell $(YQ) -i 'del(.metadata.annotations["controller-gen.kubebuilder.io/version"]) | del(.metadata.annotations | select(length==0))' ${file}))
+	cat hack/boilerplate.yaml.txt > config/wa8s-knative.yaml
+	$(KUSTOMIZE) build integrations/knative/config/default >> config/wa8s-knative.yaml
+
+	$(foreach file,$(wildcard integrations/services/config/crd/bases/*.yaml),$(shell $(YQ) -i 'del(.metadata.annotations["controller-gen.kubebuilder.io/version"]) | del(.metadata.annotations | select(length==0))' ${file}))
 	cat hack/boilerplate.yaml.txt > config/wa8s-services.yaml
 	$(KUSTOMIZE) build integrations/services/config/default >> config/wa8s-services.yaml
 
@@ -44,6 +45,7 @@ manifests: internal-manifests ## Generate WebhookConfiguration, ClusterRole and 
 .PHONY: internal-manifests
 internal-manifests:
 	$(CONTROLLER_GEN) paths="./apis/...;./controllers/...;./internal/controllers/..." rbac:roleName=wa8s-manager-role crd webhook output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) paths="./integrations/knative/...;./controllers/..." rbac:roleName=wa8s-knative-manager-role crd webhook output:crd:artifacts:config=integrations/knative/config/crd/bases output:rbac:artifacts:config=integrations/knative/config/rbac output:webhook:artifacts:config=integrations/knative/config/webhook
 	$(CONTROLLER_GEN) paths="./integrations/services/...;./controllers/..." rbac:roleName=wa8s-services-manager-role crd webhook output:crd:artifacts:config=integrations/services/config/crd/bases output:rbac:artifacts:config=integrations/services/config/rbac output:webhook:artifacts:config=integrations/services/config/webhook
 
 .PHONY: generate
@@ -113,6 +115,12 @@ deploy: generate manifests ## Deploy controller to the K8s cluster specified in 
 		-f config/kapp \
 		-f <($(KO) resolve --platform $(KO_PLATFORMS) -f config/wa8s.yaml)
 
+.PHONY: deploy-knative
+deploy-knative: generate manifests ## Deploy controller to the K8s cluster specified in ~/.kube/config.
+	$(KAPP) deploy -a $(KAPP_APP)-knative -n $(KAPP_APP_NAMESPACE) -c \
+		-f config/kapp \
+		-f <($(KO) resolve --platform $(KO_PLATFORMS) -f config/wa8s-knative.yaml)
+
 .PHONY: deploy-services
 deploy-services: generate manifests ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	$(KAPP) deploy -a $(KAPP_APP)-services -n $(KAPP_APP_NAMESPACE) -c \
@@ -135,18 +143,40 @@ deploy-ducks: ## Deploy ducks to the K8s cluster specified in ~/.kube/config.
 undeploy-ducks: ## Undeploy cert-manager from the K8s cluster specified in ~/.kube/config.
 	$(KAPP) delete -a ducks -n $(KAPP_APP_NAMESPACE)
 
+.PHONY: deploy-knative-serving
+deploy-knative-serving: ## Deploy knative serving to the K8s cluster specified in ~/.kube/config.
+	$(KAPP) deploy -a knative-serving -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c \
+		-f <($(YTT) \
+			--data-value service-type=ClusterIP \
+			--data-value ingress-class=kourier.ingress.networking.knative.dev \
+			-f config/overlays/knative-ingress-class.yaml \
+			-f config/overlays/knative-no-loadbalancer.yaml \
+			-f https://github.com/knative/serving/releases/download/knative-v1.21.2/serving-crds.yaml \
+			-f https://github.com/knative/serving/releases/download/knative-v1.21.2/serving-core.yaml \
+			-f https://github.com/knative-extensions/net-kourier/releases/download/knative-v1.21.0/kourier.yaml \
+		)
+
+.PHONY: undeploy-knative-serving
+undeploy-knative-serving: ## Undeploy cert-manager from the K8s cluster specified in ~/.kube/config.
+	$(KAPP) delete -a knative-serving -n $(KAPP_APP_NAMESPACE)
+
 .PHONY: undeploy
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
+	$(KAPP) delete -a $(KAPP_APP)-knative -n $(KAPP_APP_NAMESPACE)
 	$(KAPP) delete -a $(KAPP_APP)-services -n $(KAPP_APP_NAMESPACE)
 	$(KAPP) delete -a $(KAPP_APP) -n $(KAPP_APP_NAMESPACE)
 
 .PHONY: kind-deploy
 kind-deploy: ## Deploy to a running local kind cluster
-	KO_DOCKER_REPO=kind.local $(MAKE) deploy deploy-services
+	KO_DOCKER_REPO=kind.local $(MAKE) deploy deploy-knative deploy-services
 
 .PHONY: kind-deploy-core
 kind-deploy-core: ## Deploy to a running local kind cluster
 	KO_DOCKER_REPO=kind.local $(MAKE) deploy
+
+.PHONY: kind-deploy-knative
+kind-deploy-knative: ## Deploy to a running local kind cluster
+	KO_DOCKER_REPO=kind.local $(MAKE) deploy-knative
 
 .PHONY: kind-deploy-services
 kind-deploy-services: ## Deploy to a running local kind cluster
@@ -164,3 +194,4 @@ KO ?= go run -modfile hack/ko/go.mod github.com/google/ko
 KUSTOMIZE ?= go run -modfile hack/kustomize/go.mod sigs.k8s.io/kustomize/kustomize/v4
 STERN ?= go run -modfile hack/stern/go.mod github.com/stern/stern
 YQ ?= go run -modfile hack/yq/go.mod github.com/mikefarah/yq/v4
+YTT ?= go run -modfile hack/ytt/go.mod carvel.dev/ytt/cmd/ytt

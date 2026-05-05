@@ -1,0 +1,8 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"apiVersion":"v1","kind":"ConfigMap","metadata":{"namespace":"knative-serving","name":"config-network"}})
+---
+data:
+  #@overlay/match missing_ok=True
+  ingress-class: #@ data.values['ingress-class']

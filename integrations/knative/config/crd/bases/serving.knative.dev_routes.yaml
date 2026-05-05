@@ -1,0 +1,254 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: routes.serving.knative.dev
+spec:
+  group: serving.knative.dev
+  names:
+    kind: Route
+    listKind: RouteList
+    plural: routes
+    singular: route
+  scope: Namespaced
+  versions:
+    - name: v1
+      schema:
+        openAPIV3Schema:
+          description: |-
+            Route is responsible for configuring ingress over a collection of Revisions.
+            Some of the Revisions a Route distributes traffic over may be specified by
+            referencing the Configuration responsible for creating them; in these cases
+            the Route is additionally responsible for monitoring the Configuration for
+            "latest ready revision" changes, and smoothly rolling out latest revisions.
+            See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#route
+          properties:
+            apiVersion:
+              description: |-
+                APIVersion defines the versioned schema of this representation of an object.
+                Servers should convert recognized schemas to the latest internal value, and
+                may reject unrecognized values.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+              type: string
+            kind:
+              description: |-
+                Kind is a string value representing the REST resource this object represents.
+                Servers may infer this from the endpoint the client submits requests to.
+                Cannot be updated.
+                In CamelCase.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: Spec holds the desired state of the Route (from the client).
+              properties:
+                traffic:
+                  description: |-
+                    Traffic specifies how to distribute traffic over a collection of
+                    revisions and configurations.
+                  items:
+                    description: TrafficTarget holds a single entry of the routing table for a Route.
+                    properties:
+                      configurationName:
+                        description: |-
+                          ConfigurationName of a configuration to whose latest revision we will send
+                          this portion of traffic. When the "status.latestReadyRevisionName" of the
+                          referenced configuration changes, we will automatically migrate traffic
+                          from the prior "latest ready" revision to the new one.  This field is never
+                          set in Route's status, only its spec.  This is mutually exclusive with
+                          RevisionName.
+                        type: string
+                      latestRevision:
+                        description: |-
+                          LatestRevision may be optionally provided to indicate that the latest
+                          ready Revision of the Configuration should be used for this traffic
+                          target.  When provided LatestRevision must be true if RevisionName is
+                          empty; it must be false when RevisionName is non-empty.
+                        type: boolean
+                      percent:
+                        description: |-
+                          Percent indicates that percentage based routing should be used and
+                          the value indicates the percent of traffic that is be routed to this
+                          Revision or Configuration. `0` (zero) mean no traffic, `100` means all
+                          traffic.
+                          When percentage based routing is being used the follow rules apply:
+                          - the sum of all percent values must equal 100
+                          - when not specified, the implied value for `percent` is zero for
+                            that particular Revision or Configuration
+                        format: int64
+                        type: integer
+                      revisionName:
+                        description: |-
+                          RevisionName of a specific revision to which to send this portion of
+                          traffic.  This is mutually exclusive with ConfigurationName.
+                        type: string
+                      tag:
+                        description: |-
+                          Tag is optionally used to expose a dedicated url for referencing
+                          this target exclusively.
+                        type: string
+                      url:
+                        description: |-
+                          URL displays the URL for accessing named traffic targets. URL is displayed in
+                          status, and is disallowed on spec. URL must contain a scheme (e.g. http://) and
+                          a hostname, but may not contain anything else (e.g. basic auth, url path, etc.)
+                        type: string
+                    type: object
+                  type: array
+              type: object
+            status:
+              description: Status communicates the observed state of the Route (from the controller).
+              properties:
+                address:
+                  description: Address holds the information needed for a Route to be the target of an event.
+                  properties:
+                    CACerts:
+                      description: |-
+                        CACerts is the Certification Authority (CA) certificates in PEM format
+                        according to https://www.rfc-editor.org/rfc/rfc7468.
+                      type: string
+                    audience:
+                      description: Audience is the OIDC audience for this address.
+                      type: string
+                    name:
+                      description: Name is the name of the address.
+                      type: string
+                    url:
+                      type: string
+                  type: object
+                annotations:
+                  additionalProperties:
+                    type: string
+                  description: |-
+                    Annotations is additional Status fields for the Resource to save some
+                    additional State as well as convey more information to the user. This is
+                    roughly akin to Annotations on any k8s resource, just the reconciler conveying
+                    richer information outwards.
+                  type: object
+                conditions:
+                  description: Conditions the latest available observations of a resource's current state.
+                  items:
+                    description: Condition contains details for one aspect of the current state of this API Resource.
+                    properties:
+                      lastTransitionTime:
+                        description: |-
+                          lastTransitionTime is the last time the condition transitioned from one status to another.
+                          This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                        format: date-time
+                        type: string
+                      message:
+                        description: |-
+                          message is a human readable message indicating details about the transition.
+                          This may be an empty string.
+                        maxLength: 32768
+                        type: string
+                      observedGeneration:
+                        description: |-
+                          observedGeneration represents the .metadata.generation that the condition was set based upon.
+                          For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                          with respect to the current state of the instance.
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      reason:
+                        description: |-
+                          reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                          Producers of specific condition types may define expected values and meanings for this field,
+                          and whether the values are considered a guaranteed API.
+                          The value should be a CamelCase string.
+                          This field may not be empty.
+                        maxLength: 1024
+                        minLength: 1
+                        pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                        type: string
+                      status:
+                        description: status of the condition, one of True, False, Unknown.
+                        enum:
+                          - "True"
+                          - "False"
+                          - Unknown
+                        type: string
+                      type:
+                        description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                        maxLength: 316
+                        pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                        type: string
+                    required:
+                      - lastTransitionTime
+                      - message
+                      - reason
+                      - status
+                      - type
+                    type: object
+                  type: array
+                observedGeneration:
+                  description: |-
+                    ObservedGeneration is the 'Generation' of the resource that
+                    was last processed by the controller.
+                  format: int64
+                  type: integer
+                traffic:
+                  description: |-
+                    Traffic holds the configured traffic distribution.
+                    These entries will always contain RevisionName references.
+                    When ConfigurationName appears in the spec, this will hold the
+                    LatestReadyRevisionName that we last observed.
+                  items:
+                    description: TrafficTarget holds a single entry of the routing table for a Route.
+                    properties:
+                      configurationName:
+                        description: |-
+                          ConfigurationName of a configuration to whose latest revision we will send
+                          this portion of traffic. When the "status.latestReadyRevisionName" of the
+                          referenced configuration changes, we will automatically migrate traffic
+                          from the prior "latest ready" revision to the new one.  This field is never
+                          set in Route's status, only its spec.  This is mutually exclusive with
+                          RevisionName.
+                        type: string
+                      latestRevision:
+                        description: |-
+                          LatestRevision may be optionally provided to indicate that the latest
+                          ready Revision of the Configuration should be used for this traffic
+                          target.  When provided LatestRevision must be true if RevisionName is
+                          empty; it must be false when RevisionName is non-empty.
+                        type: boolean
+                      percent:
+                        description: |-
+                          Percent indicates that percentage based routing should be used and
+                          the value indicates the percent of traffic that is be routed to this
+                          Revision or Configuration. `0` (zero) mean no traffic, `100` means all
+                          traffic.
+                          When percentage based routing is being used the follow rules apply:
+                          - the sum of all percent values must equal 100
+                          - when not specified, the implied value for `percent` is zero for
+                            that particular Revision or Configuration
+                        format: int64
+                        type: integer
+                      revisionName:
+                        description: |-
+                          RevisionName of a specific revision to which to send this portion of
+                          traffic.  This is mutually exclusive with ConfigurationName.
+                        type: string
+                      tag:
+                        description: |-
+                          Tag is optionally used to expose a dedicated url for referencing
+                          this target exclusively.
+                        type: string
+                      url:
+                        description: |-
+                          URL displays the URL for accessing named traffic targets. URL is displayed in
+                          status, and is disallowed on spec. URL must contain a scheme (e.g. http://) and
+                          a hostname, but may not contain anything else (e.g. basic auth, url path, etc.)
+                        type: string
+                    type: object
+                  type: array
+                url:
+                  description: |-
+                    URL holds the url that will distribute traffic over the provided traffic targets.
+                    It generally has the form http[s]://{route-name}.{route-namespace}.{cluster-level-suffix}
+                  type: string
+              type: object
+          type: object
+      served: true
+      storage: true

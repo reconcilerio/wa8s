@@ -397,7 +397,7 @@ func ComponentChildReconciler[GC componentsv1alpha1.ComponentLike](conditionType
 			ReflectChildStatusOnParentWithError: func(ctx context.Context, parent componentsv1alpha1.ComponentLike, child *componentsv1alpha1.Component, err error) error {
 				if err != nil {
 					if apierrs.IsInvalid(err) {
-						parent.GetConditionManager(ctx).MarkFalse(conditionType, "Invalid", "%s", apierrs.ReasonForError(err))
+						parent.GetConditionManager(ctx).MarkFalse(conditionType, "Invalid", "%s", err)
 					} else if apierrs.IsAlreadyExists(err) {
 						parent.GetConditionManager(ctx).MarkFalse(conditionType, "AlreadyExists", "another Component already exists with name %s", parent.GetName())
 						return ErrDurable
@@ -582,7 +582,7 @@ func ComponentContainerImageChildReconciler[GC containersv1alpha1.GenericContain
 			ReflectChildStatusOnParentWithError: func(ctx context.Context, parent containersv1alpha1.GenericContainer, child *containersv1alpha1.ComponentContainerImage, err error) error {
 				if err != nil {
 					if apierrs.IsInvalid(err) {
-						parent.GetConditionManager(ctx).MarkFalse(conditionType, "Invalid", "%s", apierrs.ReasonForError(err))
+						parent.GetConditionManager(ctx).MarkFalse(conditionType, "Invalid", "%s", err)
 					} else {
 						parent.GetConditionManager(ctx).MarkUnknown(conditionType, "Unknown", "")
 					}

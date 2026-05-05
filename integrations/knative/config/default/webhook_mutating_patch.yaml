@@ -1,0 +1,3 @@
+- op: replace
+  path: /metadata/name
+  value: wa8s-knative-mutating-webhook-configuration

@@ -1,0 +1,10 @@
+
+---
+apiVersion: wa8s.reconciler.io/v1
+kind: ComponentDuck
+metadata:
+  name: servicetriggers.knative.wa8s.reconciler.io
+spec:
+  group: knative.wa8s.reconciler.io
+  version: v1alpha1
+  kind: ServiceTrigger
