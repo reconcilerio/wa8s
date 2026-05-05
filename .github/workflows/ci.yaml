@@ -15,6 +15,7 @@ env:
   KAPP: go run -modfile hack/kapp/go.mod carvel.dev/kapp/cmd/kapp
   KBLD: go run -modfile hack/kbld/go.mod carvel.dev/kbld/cmd/kbld
   KO: go run -modfile hack/ko/go.mod github.com/google/ko
+  STERN: go run -modfile hack/stern/go.mod go run -modfile hack/stern/go.mod github.com/stern/stern
   YTT: go run -modfile hack/ytt/go.mod carvel.dev/ytt/cmd/ytt
 
 jobs:
@@ -455,10 +456,6 @@ jobs:
 
     - name: Collect diagnostics
       run: |
-        set +o errexit
-        set -o nounset
-        set +o pipefail
- 
         echo "##[group]kubectl get all -n wa8s-system"
           kubectl get all -n wa8s-system
         echo "##[endgroup]"
@@ -471,17 +468,27 @@ jobs:
         echo "##[group]kubectl get wa8s --all-namespaces -oyaml"
           kubectl get wa8s --all-namespaces -oyaml
         echo "##[endgroup]"
-        echo "##[group]kubectl logs -n wa8s-system -l control-plane=wa8s-manager --tail 10000"
-          kubectl logs -n wa8s-system -l control-plane=wa8s-manager --tail 10000
+        echo "##[group]stern -n wa8s-system -l control-plane=wa8s-manager --tail 10000 --no-follow"
+          ${STERN} -n wa8s-system -l control-plane=wa8s-manager --tail 10000 --no-follow
         echo "##[endgroup]"
-        echo "##[group]kubectl logs -n wa8s-system -l control-plane=wa8s-knative-manager --tail 10000"
-          kubectl logs -n wa8s-system -l control-plane=wa8s-knative-manager --tail 10000
+        echo "##[group]stern -n wa8s-system -l control-plane=wa8s-knative-manager --tail 10000 --no-follow"
+          ${STERN} -n wa8s-system -l control-plane=wa8s-knative-manager --tail 10000 --no-follow
         echo "##[endgroup]"
-        echo "##[group]kubectl logs -n wa8s-system -l control-plane=wa8s-services-manager --tail 10000"
-          kubectl logs -n wa8s-system -l control-plane=wa8s-services-manager --tail 10000
+        echo "##[group]stern -n wa8s-system -l control-plane=wa8s-services-manager --tail 10000 --no-follow"
+          ${STERN} -n wa8s-system -l control-plane=wa8s-services-manager --tail 10000 --no-follow
         echo "##[endgroup]"
-        echo "##[group]kubectl logs -n reconcilerio-system -l control-plane=controller-manager --tail 10000"
-          kubectl logs -n reconcilerio-system -l control-plane=controller-manager --tail 10000
+        echo "##[group]stern -n reconcilerio-system -l control-plane=controller-manager --tail 10000 --no-follow"
+          ${STERN} -n reconcilerio-system -l control-plane=controller-manager --tail 10000 --no-follow
+        echo "##[endgroup]"
+
+        echo "##[group]kubectl get all -n knative-serving"
+          kubectl get all -n knative-serving
+        echo "##[endgroup]"
+        echo "##[group]kubectl get all -n knative-serving -oyaml"
+          kubectl get all -n knative-serving -oyaml
+        echo "##[endgroup]"
+        echo "##[group]stern -n knative-serving -l app.kubernetes.io/name=knative-serving --tail 10000"
+          ${STERN} -n knative-serving -l app.kubernetes.io/name=knative-serving --tail 10000
         echo "##[endgroup]"
       if: always()
       continue-on-error: true
