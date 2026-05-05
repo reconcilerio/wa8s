@@ -279,18 +279,13 @@ jobs:
         apiVersion: kind.x-k8s.io/v1alpha4
         containerdConfigPatches:
         - |-
-          [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${REGISTRY_NAME}"]
-            endpoint = ["https://local-registry"]
-        - |-
-          [plugins."io.containerd.grpc.v1.cri".registry]
-            config_path = "/etc/containerd/certs.d" 
+          [plugins."io.containerd.grpc.v1.cri".registry.configs."${REGISTRY_NAME}".tls]
+            ca_file = "/etc/containerd/certs.d/${REGISTRY_NAME}/ca.pem"
         nodes:
         - role: control-plane
           image: ${{ matrix.node }}
           extraMounts:
-          - containerPath: /etc/containerd/certs.d/local-registry
-            hostPath: ${CERT_DIR}
-          - containerPath: /etc/containerd/certs.d/registry.local
+          - containerPath: /etc/containerd/certs.d/${REGISTRY_NAME}
             hostPath: ${CERT_DIR}
         EOF
 
@@ -307,7 +302,9 @@ jobs:
           namespace: kube-public
         data:
           localRegistryHosting.v1: |
-            host: "localhost"
+            host: "${REGISTRY_NAME}"
+            hostFromClusterNetwork: "${REGISTRY_NAME}"
+            hostFromContainerRuntime: "${REGISTRY_NAME}"
             help: "https://kind.sigs.k8s.io/docs/user/local-registry/"
         EOF
     - name: Download staged bundle
