@@ -189,8 +189,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - node: kindest/node:v1.31.0@sha256:53df588e04085fd41ae12de0c3fe4c72f7013bba32a20e7325357a1ac94ba865
-          version: v1.31.0
+        - node: kindest/node:v1.35.1@sha256:05d7bcdefbda08b4e038f644c4df690cdac3fba8b06f8289f30e10026720a1ab
+          version: v1.35.1
           os: ubuntu-latest
     env:
       REGISTRY_NAME: registry.local
