@@ -273,14 +273,23 @@ jobs:
         set -o nounset
         set -o pipefail
 
+        # define containerd host config for registry
+        cat <<EOF > ${CERT_DIR}/hosts.toml
+        server = "https://${REGISTRY_NAME}"
+
+        [host."https://${REGISTRY_NAME}"]
+          capabilities = ["pull"]
+          ca = "/etc/containerd/certs.d/${REGISTRY_NAME}/ca.pem"
+        EOF
+
         # create a cluster with the local registry enabled in containerd
         cat <<EOF | kind create cluster --config=-
         kind: Cluster
         apiVersion: kind.x-k8s.io/v1alpha4
         containerdConfigPatches:
         - |-
-          [plugins."io.containerd.grpc.v1.cri".registry.configs."${REGISTRY_NAME}".tls]
-            ca_file = "/etc/containerd/certs.d/${REGISTRY_NAME}/ca.pem"
+          [plugins."io.containerd.grpc.v1.cri".registry]
+            config_path = "/etc/containerd/certs.d"
         nodes:
         - role: control-plane
           image: ${{ matrix.node }}
