@@ -185,9 +185,6 @@ jobs:
             hostPath: ${cert_dir}
         EOF
 
-        # connect the registry to the cluster network
-        docker network connect kind local-registry
-
         # Document the local registry
         # https://github.com/kubernetes/enhancements/tree/master/keps/sig-cluster-lifecycle/generic/1755-communicating-a-local-registry
         cat <<EOF | kubectl apply -f -
