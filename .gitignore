@@ -29,5 +29,3 @@ go.work
 
 *.wasm
 target/
-
-config/creds.yaml
