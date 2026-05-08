@@ -93,6 +93,8 @@ components/wac.wasm: $(shell find components/wac -type f) Cargo.toml
 
 KAPP_APP ?= wa8s
 KAPP_APP_NAMESPACE ?= default
+KAPP_OPTS ?=
+KO_DOCKER_REPO ?=
 
 ifeq (${KO_DOCKER_REPO},kind.local)
 # kind isn't multi-arch aware, default to the current arch
@@ -111,41 +113,42 @@ logs-manager: ## Watch logs from the wa8s manager
 
 .PHONY: deploy
 deploy: generate manifests ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	$(KAPP) deploy -a $(KAPP_APP) -n $(KAPP_APP_NAMESPACE) -c \
+	$(KAPP) deploy -a $(KAPP_APP) -n $(KAPP_APP_NAMESPACE) -c $(KAPP_OPTS) \
 		-f config/kapp \
+		-f config/local \
 		-f <($(KO) resolve --platform $(KO_PLATFORMS) -f config/wa8s.yaml)
 
 .PHONY: deploy-knative
 deploy-knative: generate manifests ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	$(KAPP) deploy -a $(KAPP_APP)-knative -n $(KAPP_APP_NAMESPACE) -c \
+	$(KAPP) deploy -a $(KAPP_APP)-knative -n $(KAPP_APP_NAMESPACE) -c $(KAPP_OPTS) \
 		-f config/kapp \
 		-f <($(KO) resolve --platform $(KO_PLATFORMS) -f config/wa8s-knative.yaml)
 
 .PHONY: deploy-services
 deploy-services: generate manifests ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	$(KAPP) deploy -a $(KAPP_APP)-services -n $(KAPP_APP_NAMESPACE) -c \
+	$(KAPP) deploy -a $(KAPP_APP)-services -n $(KAPP_APP_NAMESPACE) -c $(KAPP_OPTS) \
 		-f config/kapp \
 		-f <($(KO) resolve --platform $(KO_PLATFORMS) -f config/wa8s-services.yaml)
 
 .PHONY: deploy-cert-manager
 deploy-cert-manager: ## Deploy cert-manager to the K8s cluster specified in ~/.kube/config.
-	$(KAPP) deploy -a cert-manager -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.2/cert-manager.yaml
+	$(KAPP) deploy -a cert-manager -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c $(KAPP_OPTS) -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.2/cert-manager.yaml
 
 .PHONY: undeploy-cert-manager
 undeploy-cert-manager: ## Undeploy cert-manager from the K8s cluster specified in ~/.kube/config.
-	$(KAPP) delete -a cert-manager -n $(KAPP_APP_NAMESPACE)
+	$(KAPP) delete -a cert-manager -n $(KAPP_APP_NAMESPACE) $(KAPP_OPTS)
 
 .PHONY: deploy-ducks
 deploy-ducks: ## Deploy ducks to the K8s cluster specified in ~/.kube/config.
-	$(KAPP) deploy -a ducks -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c -f https://github.com/reconcilerio/ducks/releases/download/v0.4.0/reconcilerio-ducks-v0.4.0.yaml
+	$(KAPP) deploy -a ducks -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c $(KAPP_OPTS) -f https://github.com/reconcilerio/ducks/releases/download/v0.4.0/reconcilerio-ducks-v0.4.0.yaml
 
 .PHONY: undeploy-ducks
 undeploy-ducks: ## Undeploy cert-manager from the K8s cluster specified in ~/.kube/config.
-	$(KAPP) delete -a ducks -n $(KAPP_APP_NAMESPACE)
+	$(KAPP) delete -a ducks -n $(KAPP_APP_NAMESPACE) $(KAPP_OPTS)
 
 .PHONY: deploy-knative-serving
 deploy-knative-serving: ## Deploy knative serving to the K8s cluster specified in ~/.kube/config.
-	$(KAPP) deploy -a knative-serving -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c \
+	$(KAPP) deploy -a knative-serving -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c $(KAPP_OPTS) \
 		-f <($(YTT) \
 			--data-value service-type=ClusterIP \
 			--data-value ingress-class=kourier.ingress.networking.knative.dev \
@@ -158,29 +161,34 @@ deploy-knative-serving: ## Deploy knative serving to the K8s cluster specified i
 
 .PHONY: undeploy-knative-serving
 undeploy-knative-serving: ## Undeploy cert-manager from the K8s cluster specified in ~/.kube/config.
-	$(KAPP) delete -a knative-serving -n $(KAPP_APP_NAMESPACE)
+	$(KAPP) delete -a knative-serving -n $(KAPP_APP_NAMESPACE) $(KAPP_OPTS)
 
 .PHONY: undeploy
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
-	$(KAPP) delete -a $(KAPP_APP)-knative -n $(KAPP_APP_NAMESPACE)
-	$(KAPP) delete -a $(KAPP_APP)-services -n $(KAPP_APP_NAMESPACE)
-	$(KAPP) delete -a $(KAPP_APP) -n $(KAPP_APP_NAMESPACE)
+	$(KAPP) delete -a $(KAPP_APP)-knative -n $(KAPP_APP_NAMESPACE) $(KAPP_OPTS)
+	$(KAPP) delete -a $(KAPP_APP)-services -n $(KAPP_APP_NAMESPACE) $(KAPP_OPTS)
+	$(KAPP) delete -a $(KAPP_APP) -n $(KAPP_APP_NAMESPACE) $(KAPP_OPTS)
+
+.PHONY: kind-yolo
+kind-yolo: export KO_DOCKER_REPO = kind.local
+kind-yolo: KO_PLATFORMS = linux/$(shell go env GOARCH)
+kind-yolo: KAPP_OPTS=--yes
+kind-yolo: deploy deploy-knative deploy-services ## Deploy everything to a running local kind cluster
 
 .PHONY: kind-deploy
-kind-deploy: ## Deploy to a running local kind cluster
-	KO_DOCKER_REPO=kind.local $(MAKE) deploy deploy-knative deploy-services
-
-.PHONY: kind-deploy-core
-kind-deploy-core: ## Deploy to a running local kind cluster
-	KO_DOCKER_REPO=kind.local $(MAKE) deploy
+kind-deploy: export KO_DOCKER_REPO = kind.local
+kind-deploy: KO_PLATFORMS = linux/$(shell go env GOARCH)
+kind-deploy: deploy ## Deploy to a running local kind cluster
 
 .PHONY: kind-deploy-knative
-kind-deploy-knative: ## Deploy to a running local kind cluster
-	KO_DOCKER_REPO=kind.local $(MAKE) deploy-knative
+kind-deploy-knative: export KO_DOCKER_REPO = kind.local
+kind-deploy-knative: KO_PLATFORMS = linux/$(shell go env GOARCH)
+kind-deploy-knative: deploy-knative ## Deploy to a running local kind cluster
 
 .PHONY: kind-deploy-services
-kind-deploy-services: ## Deploy to a running local kind cluster
-	KO_DOCKER_REPO=kind.local $(MAKE) deploy-services
+kind-deploy-services: export KO_DOCKER_REPO = kind.local
+kind-deploy-services: KO_PLATFORMS = linux/$(shell go env GOARCH)
+kind-deploy-services: deploy-services ## Deploy to a running local kind cluster
 
 ##@ Dependencies
 

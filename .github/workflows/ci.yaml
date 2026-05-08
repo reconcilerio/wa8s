@@ -146,7 +146,7 @@ jobs:
         curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.31.0/kind-$(go env GOHOSTOS)-$(go env GOHOSTARCH)
         chmod +x ./kind
         sudo mv ./kind /usr/local/bin
-        cd -    
+        cd -
     - name: Start registry
       id: registry
       uses: reconcilerio/registry@v1
