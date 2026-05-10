@@ -159,6 +159,9 @@ jobs:
         registry="${{ steps.registry.outputs.registry }}"
         cert_dir=$(mktemp -d -t certs.XXXX)
         cp "${{ steps.registry.outputs.tls-ca }}" "${cert_dir}/ca.pem"
+        echo "##[group]Using CA"
+          cat "${cert_dir}/ca.pem"
+        echo "##[endgroup]"
 
         # define containerd host config for registry
         cat <<EOF > ${cert_dir}/hosts.toml
@@ -168,9 +171,12 @@ jobs:
           capabilities = ["pull"]
           ca = "/etc/containerd/certs.d/${registry}/ca.pem"
         EOF
+        echo "##[group]Using hosts"
+          cat "${cert_dir}/hosts.toml"
+        echo "##[endgroup]"
 
         # create a cluster with the local registry enabled in containerd
-        cat <<EOF | kind create cluster --config=-
+        cat <<EOF > kind.yaml
         kind: Cluster
         apiVersion: kind.x-k8s.io/v1alpha4
         containerdConfigPatches:
@@ -184,6 +190,13 @@ jobs:
           - containerPath: /etc/containerd/certs.d/${registry}
             hostPath: ${cert_dir}
         EOF
+        echo "##[group]Using kind config"
+          cat "kind.yaml"
+        echo "##[endgroup]"
+
+        echo "##[group]Starting cluster"
+          kind create cluster --config kind.yaml --wait 5m
+        echo "##[endgroup]"
 
         # Document the local registry
         # https://github.com/kubernetes/enhancements/tree/master/keps/sig-cluster-lifecycle/generic/1755-communicating-a-local-registry
