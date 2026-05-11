@@ -131,9 +131,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - node: kindest/node:v1.35.1@sha256:05d7bcdefbda08b4e038f644c4df690cdac3fba8b06f8289f30e10026720a1ab
-          version: v1.35.1
-          os: ubuntu-latest
+        - kubernetes: v1.36
+          os: ubuntu-24.04
+        - kubernetes: v1.36
+          os: ubuntu-24.04-arm
     steps:
     - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
@@ -147,57 +148,15 @@ jobs:
         chmod +x ./kind
         sudo mv ./kind /usr/local/bin
         cd -
-    - name: Start registry
+    - name: OCI registry
       id: registry
       uses: reconcilerio/registry@v1
-    - name: Create Cluster
-      run: |
-        set -o errexit
-        set -o nounset
-        set -o pipefail
-
-        registry="${{ steps.registry.outputs.registry }}"
-        cert_dir=$(mktemp -d -t certs.XXXX)
-        cp "${{ steps.registry.outputs.tls-ca }}" "${cert_dir}/ca.pem"
-
-        # define containerd host config for registry
-        cat <<EOF > ${cert_dir}/hosts.toml
-        server = "https://${registry}"
-
-        [host."https://${registry}"]
-          capabilities = ["pull"]
-          ca = "/etc/containerd/certs.d/${registry}/ca.pem"
-        EOF
-
-        # create a cluster with the local registry enabled in containerd
-        cat <<EOF | kind create cluster --config=-
-        kind: Cluster
-        apiVersion: kind.x-k8s.io/v1alpha4
-        containerdConfigPatches:
-        - |-
-          [plugins."io.containerd.grpc.v1.cri".registry]
-            config_path = "/etc/containerd/certs.d"
-        nodes:
-        - role: control-plane
-          image: ${{ matrix.node }}
-          extraMounts:
-          - containerPath: /etc/containerd/certs.d/${registry}
-            hostPath: ${cert_dir}
-        EOF
-
-        # Document the local registry
-        # https://github.com/kubernetes/enhancements/tree/master/keps/sig-cluster-lifecycle/generic/1755-communicating-a-local-registry
-        cat <<EOF | kubectl apply -f -
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: local-registry-hosting
-          namespace: kube-public
-        data:
-          localRegistryHosting.v1: |
-            host: "${registry}"
-            help: "https://kind.sigs.k8s.io/docs/user/local-registry/"
-        EOF
+    - name: Kind cluster
+      uses: reconcilerio/kind@main
+      with:
+        kubernetes-version: ${{ matrix.kubernetes }}
+        registry: ${{ steps.registry.outputs.registry }}
+        registry-ca: ${{ steps.registry.outputs.tls-ca }}
     - name: Download staged bundle
       uses: actions/download-artifact@v8
       with:
