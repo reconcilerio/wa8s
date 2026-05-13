@@ -25,63 +25,63 @@ jobs:
         cache-dependency-path: '**/*.sum'
     - &install-controller-gen
       name: Install controller-gen
-      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      uses: reconcilerio/go-install-action@v1
       with:
         package: sigs.k8s.io/controller-tools/cmd/controller-gen
         working-directory: hack/controller-gen
         output-path-env: CONTROLLER_GEN
     - &install-diegen
       name: Install diegen
-      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      uses: reconcilerio/go-install-action@v1
       with:
         package: reconciler.io/dies/diegen
         working-directory: hack/diegen
         output-path-env: DIEGEN
     - &install-goimports
       name: Install goimports
-      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      uses: reconcilerio/go-install-action@v1
       with:
         package: golang.org/x/tools/cmd/goimports
         working-directory: hack/goimports
         output-path-env: GOIMPORTS
     - &install-golangci-lint
       name: Install golangci-lint
-      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      uses: reconcilerio/go-install-action@v1
       with:
         package: github.com/golangci/golangci-lint/v2/cmd/golangci-lint
         working-directory: hack/golangci-lint
         output-path-env: GOLANGCI_LINT
     - &install-imgpkg
       name: Install imgpkg
-      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      uses: reconcilerio/go-install-action@v1
       with:
         package: carvel.dev/imgpkg/cmd/imgpkg
         working-directory: hack/imgpkg
         output-path-env: IMGPKG
     - &install-kapp
       name: Install kapp
-      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      uses: reconcilerio/go-install-action@v1
       with:
         package: carvel.dev/kapp/cmd/kapp
         working-directory: hack/kapp
         output-path-env: KAPP
     - &install-kbld
       name: Install kbld
-      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      uses: reconcilerio/go-install-action@v1
       with:
         package: carvel.dev/kbld/cmd/kbld
         working-directory: hack/kbld
         output-path-env: KBLD
     - &install-ko
       name: Install ko
-      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      uses: reconcilerio/go-install-action@v1
       with:
         package: github.com/google/ko
         working-directory: hack/ko
         output-path-env: KO
     - &install-ytt
       name: Install ytt
-      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      uses: reconcilerio/go-install-action@v1
       with:
         package: carvel.dev/ytt/cmd/ytt
         working-directory: hack/ytt
