@@ -11,10 +11,83 @@ on:
   pull_request: {}
 
 jobs:
+  tools:
+    name: Build and cache tools
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: actions/setup-go@v6
+      with:
+        go-version-file: go.mod
+        cache-dependency-path: '**/*.sum'
+    - &install-controller-gen
+      name: Install controller-gen
+      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      with:
+        package: sigs.k8s.io/controller-tools/cmd/controller-gen
+        working-directory: hack/controller-gen
+        output-path-env: CONTROLLER_GEN
+    - &install-diegen
+      name: Install diegen
+      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      with:
+        package: reconciler.io/dies/diegen
+        working-directory: hack/diegen
+        output-path-env: DIEGEN
+    - &install-goimports
+      name: Install goimports
+      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      with:
+        package: golang.org/x/tools/cmd/goimports
+        working-directory: hack/goimports
+        output-path-env: GOIMPORTS
+    - &install-golangci-lint
+      name: Install golangci-lint
+      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      with:
+        package: github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+        working-directory: hack/golangci-lint
+        output-path-env: GOLANGCI_LINT
+    - &install-imgpkg
+      name: Install imgpkg
+      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      with:
+        package: carvel.dev/imgpkg/cmd/imgpkg
+        working-directory: hack/imgpkg
+        output-path-env: IMGPKG
+    - &install-kapp
+      name: Install kapp
+      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      with:
+        package: carvel.dev/kapp/cmd/kapp
+        working-directory: hack/kapp
+        output-path-env: KAPP
+    - &install-kbld
+      name: Install kbld
+      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      with:
+        package: carvel.dev/kbld/cmd/kbld
+        working-directory: hack/kbld
+        output-path-env: KBLD
+    - &install-ko
+      name: Install ko
+      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      with:
+        package: github.com/google/ko
+        working-directory: hack/ko
+        output-path-env: KO
+    - &install-ytt
+      name: Install ytt
+      uses: reconcilerio/go-install-action@c5e8de5d947d30908fabb767d36d56fbac225996
+      with:
+        package: carvel.dev/ytt/cmd/ytt
+        working-directory: hack/ytt
+        output-path-env: YTT
 
   unit:
     name: Unit Test
     runs-on: ubuntu-latest
+    needs: tools
     steps:
     - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
@@ -28,30 +101,10 @@ jobs:
       run: cargo binstall --force cargo-component
     - name: Install wasm-tools
       run: cargo binstall --force wasm-tools
-    - name: Install controller-gen
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: sigs.k8s.io/controller-tools/cmd/controller-gen
-        modfile: hack/controller-gen/go.mod
-        output-path-env: CONTROLLER_GEN
-    - name: Install diegen
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: reconciler.io/dies/diegen
-        modfile: hack/diegen/go.mod
-        output-path-env: DIEGEN
-    - name: Install goimports
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: golang.org/x/tools/cmd/goimports
-        modfile: hack/goimports/go.mod
-        output-path-env: GOIMPORTS
-    - name: Install golangci-lint
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: github.com/golangci/golangci-lint/v2/cmd/golangci-lint
-        modfile: hack/golangci-lint/go.mod
-        output-path-env: GOLANGCI_LINT
+    - *install-controller-gen
+    - *install-diegen
+    - *install-goimports
+    - *install-golangci-lint
     - name: Test
       run: make test
     - name: Lint
@@ -71,6 +124,7 @@ jobs:
   stage:
     name: Stage
     runs-on: ubuntu-latest
+    needs: tools
     steps:
     - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
@@ -84,24 +138,9 @@ jobs:
       run: cargo binstall --force cargo-component
     - name: Install wasm-tools
       run: cargo binstall --force wasm-tools
-    - name: Install imgpkg
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: carvel.dev/imgpkg/cmd/imgpkg
-        modfile: hack/imgpkg/go.mod
-        output-path-env: IMGPKG
-    - name: Install ko
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: github.com/google/ko
-        modfile: hack/ko/go.mod
-        output-path-env: KO
-    - name: Install kbld
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: carvel.dev/kbld/cmd/kbld
-        modfile: hack/kbld/go.mod
-        output-path-env: KBLD
+    - *install-imgpkg
+    - *install-kbld
+    - *install-ko
     - name: Start registry
       id: registry
       uses: reconcilerio/registry@v1
@@ -175,30 +214,10 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
-    - name: Install imgpkg
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: carvel.dev/imgpkg/cmd/imgpkg
-        modfile: hack/imgpkg/go.mod
-        output-path-env: IMGPKG
-    - name: Install ytt
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: carvel.dev/ytt/cmd/ytt
-        modfile: hack/ytt/go.mod
-        output-path-env: YTT
-    - name: Install kbld
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: carvel.dev/kbld/cmd/kbld
-        modfile: hack/kbld/go.mod
-        output-path-env: KBLD
-    - name: Install kapp
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: carvel.dev/kapp/cmd/kapp
-        modfile: hack/kapp/go.mod
-        output-path-env: KAPP
+    - *install-imgpkg
+    - *install-kapp
+    - *install-kbld
+    - *install-ytt
     - name: OCI registry
       id: registry
       uses: reconcilerio/registry@v1
@@ -440,18 +459,8 @@ jobs:
         name: reconcilerio-wa8s-bundle.tar
     - name: Install crane
       uses: reconcilerio/install-crane-action@v1
-    - name: Install imgpkg
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: carvel.dev/imgpkg/cmd/imgpkg
-        modfile: hack/imgpkg/go.mod
-        output-path-env: IMGPKG
-    - name: Install kbld
-      uses: reconcilerio/go-install-action@b04520ad5b02f11cf9e72de396ecc7613cb81242
-      with:
-        package: carvel.dev/kbld/cmd/kbld
-        modfile: hack/kbld/go.mod
-        output-path-env: KBLD
+    - *install-kbld
+    - *install-imgpkg
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v4
       with:
