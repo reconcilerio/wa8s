@@ -12,6 +12,8 @@ on:
 
 jobs:
   tools:
+    # Synthetic job to host config anchors referenced by other jobs.
+    # Running this job does no meaningful work, but would pass.
     name: Build and cache tools
     runs-on: ubuntu-latest
     if: false
