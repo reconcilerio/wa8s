@@ -14,6 +14,7 @@ jobs:
   tools:
     name: Build and cache tools
     runs-on: ubuntu-latest
+    if: false
     steps:
     - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
@@ -88,6 +89,7 @@ jobs:
     name: Unit Test
     runs-on: ubuntu-latest
     needs: tools
+    if: !cancelled()
     steps:
     - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
@@ -125,6 +127,7 @@ jobs:
     name: Stage
     runs-on: ubuntu-latest
     needs: tools
+    if: !cancelled()
     steps:
     - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
