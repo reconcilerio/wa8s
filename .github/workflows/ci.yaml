@@ -83,6 +83,13 @@ jobs:
         package: github.com/google/ko
         working-directory: hack/ko
         output-path-env: KO
+    - &install-stern
+      name: Install stern
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: github.com/stern/stern
+        working-directory: hack/stern
+        output-path-env: STERN
     - &install-ytt
       name: Install ytt
       uses: reconcilerio/go-install-action@v1
@@ -224,6 +231,7 @@ jobs:
     - *install-imgpkg
     - *install-kapp
     - *install-kbld
+    - *install-stern
     - *install-ytt
     - name: OCI registry
       id: registry
