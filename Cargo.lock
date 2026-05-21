@@ -1321,7 +1321,7 @@ version = "0.1.0"
 dependencies = [
  "extism-pdk",
  "static-config",
- "walrus 0.26.1",
+ "walrus 0.26.2",
 ]
 
 [[package]]
@@ -1607,9 +1607,9 @@ dependencies = [
 
 [[package]]
 name = "walrus"
-version = "0.26.1"
+version = "0.26.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e151599d689dac80e85c66a7cfa6ffd1b2ab79220517f9161040a87a5041aee3"
+checksum = "1fdd11e7cc2c5c875228bb82c1b41ff1444ab2c3aed74e9e4c845652b0349302"
 dependencies = [
  "anyhow",
  "gimli 0.32.3",
