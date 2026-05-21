@@ -272,17 +272,24 @@ jobs:
             -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.2/cert-manager.yaml
         echo "##[endgroup]"
 
+        echo "##[group]Deploy kourier"
+          ${KAPP} deploy -a kourier -n apps --wait-timeout 5m -y \
+            -f <( \
+              ${YTT} \
+                --data-value service-type=ClusterIP \
+                -f config/overlays/knative-no-loadbalancer.yaml \
+                -f https://github.com/knative-extensions/net-kourier/releases/download/knative-v1.21.0/kourier.yaml \
+            )
+        echo "##[endgroup]"
+
         echo "##[group]Deploy knative-serving"
           ${KAPP} deploy -a knative-serving -n apps --wait-timeout 5m -y \
             -f <( \
               ${YTT} \
-                --data-value service-type=ClusterIP \
                 --data-value ingress-class=kourier.ingress.networking.knative.dev \
                 -f config/overlays/knative-ingress-class.yaml \
-                -f config/overlays/knative-no-loadbalancer.yaml \
                 -f https://github.com/knative/serving/releases/download/knative-v1.21.2/serving-crds.yaml \
                 -f https://github.com/knative/serving/releases/download/knative-v1.21.2/serving-core.yaml \
-                -f https://github.com/knative-extensions/net-kourier/releases/download/knative-v1.21.0/kourier.yaml \
             )
         echo "##[endgroup]"
         
@@ -425,6 +432,9 @@ jobs:
         echo "##[endgroup]"
         echo "##[group]Delete knative-serving"
           ${KAPP} delete -a knative-serving -n apps --wait-timeout 5m -y
+        echo "##[endgroup]"
+        echo "##[group]Delete kourier"
+          ${KAPP} delete -a kourier -n apps --wait-timeout 5m -y
         echo "##[endgroup]"
         echo "##[group]Delete cert-manager"
           ${KAPP} delete -a cert-manager -n apps --wait-timeout 5m -y
