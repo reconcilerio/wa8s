@@ -394,7 +394,11 @@ jobs:
       run: ./.github/workflows/diagnostics.sh
       if: always()
       continue-on-error: true
-
+    - name: kind logs
+      uses: reconcilerio/kind/logs@v1
+      with:
+        artifact-name: kind-logs-${{ matrix.kubernetes }}-${{ matrix.os }}
+      
     - name: Delete Gracefully
       run: |
         set -o errexit
