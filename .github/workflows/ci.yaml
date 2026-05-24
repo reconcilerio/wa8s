@@ -436,6 +436,10 @@ jobs:
       if: failure()
       continue-on-error: true
 
+    - name: kind logs
+      uses: reconcilerio/kind/logs@main
+      with:
+        artifact-name: kind-logs-${{ matrix.kubernetes }}-${{ matrix.os }}
     - name: Cleanup cluster
       run: kind delete cluster
       if: always()

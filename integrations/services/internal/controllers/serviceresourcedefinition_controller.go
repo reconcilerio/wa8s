@@ -113,9 +113,9 @@ func ServiceResourceDefinitionLifecyceReconciler() reconcilers.SubReconciler[*se
 			ready := child.GetConditionManager(ctx).GetCondition(duckv1.DuckConditionReady)
 			if !apis.ConditionIsTrue(ready) {
 				if apis.ConditionIsFalse(ready) {
-					parent.GetConditionManager(ctx).MarkFalse(servicesv1alpha1.ServiceResourceDefinitionConditionLifecycleReady, "NotReady", "child ServiceLifecycle %s is not ready", child.Name)
+					parent.GetConditionManager(ctx).MarkFalse(servicesv1alpha1.ServiceResourceDefinitionConditionLifecycleReady, "NotReady", "child ClusterServiceLifecycle %s is not ready", child.Name)
 				} else {
-					parent.GetConditionManager(ctx).MarkUnknown(servicesv1alpha1.ServiceResourceDefinitionConditionLifecycleReady, "NotReady", "child ServiceLifecycle %s is not ready", child.Name)
+					parent.GetConditionManager(ctx).MarkUnknown(servicesv1alpha1.ServiceResourceDefinitionConditionLifecycleReady, "NotReady", "child ClusterServiceLifecycle %s is not ready", child.Name)
 				}
 				return nil
 			}
