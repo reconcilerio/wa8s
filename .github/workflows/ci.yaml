@@ -99,6 +99,14 @@ jobs:
         working-directory: hack/stern
         output-path-env: STERN
         toolchain: auto
+    - &install-yq
+      name: Install yq
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: github.com/mikefarah/yq/v4
+        working-directory: hack/yq
+        output-path-env: YQ
+        toolchain: auto
     - &install-ytt
       name: Install ytt
       uses: reconcilerio/go-install-action@v1
@@ -129,6 +137,7 @@ jobs:
     - *install-diegen
     - *install-goimports
     - *install-golangci-lint
+    - *install-yq
     - name: Test
       run: make test
     - name: Lint
