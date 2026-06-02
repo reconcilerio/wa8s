@@ -50,8 +50,8 @@ internal-manifests:
 
 .PHONY: generate
 generate: components ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
-	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
-	$(DIEGEN) die:headerFile="hack/boilerplate.go.txt" paths="./..."
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./api/...,/controllers/...,./integrations/...,./internal/..."
+	$(DIEGEN) die:headerFile="hack/boilerplate.go.txt" paths="./apis/...,./integrations/..."
 	$(MAKE) fmt
 
 .PHONY: fmt
