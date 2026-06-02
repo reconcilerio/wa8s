@@ -91,6 +91,14 @@ jobs:
         working-directory: hack/ko
         output-path-env: KO
         toolchain: auto
+    - &install-kustomize
+      name: Install kustomize
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: sigs.k8s.io/kustomize/kustomize/v4
+        working-directory: hack/kustomize
+        output-path-env: KUSTOMIZE
+        toolchain: auto
     - &install-stern
       name: Install stern
       uses: reconcilerio/go-install-action@v1
@@ -137,6 +145,7 @@ jobs:
     - *install-diegen
     - *install-goimports
     - *install-golangci-lint
+    - *install-kustomize
     - *install-yq
     - name: Test
       run: make test
