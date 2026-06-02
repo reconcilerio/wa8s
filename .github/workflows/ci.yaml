@@ -10,9 +10,6 @@ on:
     - 'v[0-9]+\.[0-9]+\.[0-9]+-?**'
   pull_request: {}
 
-env:
-  GOTOOLCHAIN: "local+auto"
-
 jobs:
 
   tools:
@@ -30,6 +27,8 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
+    - name: Restore GOTOOLCHAIN
+      run: echo "GOTOOLCHAIN=local+auto" >> "${GITHUB_ENV}"
     - &install-controller-gen
       name: Install controller-gen
       uses: reconcilerio/go-install-action@v1
@@ -111,6 +110,8 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
+    - name: Restore GOTOOLCHAIN
+      run: echo "GOTOOLCHAIN=local+auto" >> "${GITHUB_ENV}"
     - uses: actions-rust-lang/setup-rust-toolchain@v1
     - name: Install cargo binstall
       uses: cargo-bins/cargo-binstall@main
@@ -148,6 +149,8 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
+    - name: Restore GOTOOLCHAIN
+      run: echo "GOTOOLCHAIN=local+auto" >> "${GITHUB_ENV}"
     - uses: actions-rust-lang/setup-rust-toolchain@v1
     - name: Install cargo binstall
       uses: cargo-bins/cargo-binstall@main
@@ -231,6 +234,8 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
+    - name: Restore GOTOOLCHAIN
+      run: echo "GOTOOLCHAIN=local+auto" >> "${GITHUB_ENV}"
     - *install-imgpkg
     - *install-kapp
     - *install-kbld
@@ -473,6 +478,8 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
+    - name: Restore GOTOOLCHAIN
+      run: echo "GOTOOLCHAIN=local+auto" >> "${GITHUB_ENV}"
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
