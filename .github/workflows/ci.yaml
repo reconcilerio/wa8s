@@ -34,6 +34,7 @@ jobs:
         package: sigs.k8s.io/controller-tools/cmd/controller-gen
         working-directory: hack/controller-gen
         output-path-env: CONTROLLER_GEN
+        toolchain: auto
     - &install-diegen
       name: Install diegen
       uses: reconcilerio/go-install-action@v1
@@ -41,6 +42,7 @@ jobs:
         package: reconciler.io/dies/diegen
         working-directory: hack/diegen
         output-path-env: DIEGEN
+        toolchain: auto
     - &install-goimports
       name: Install goimports
       uses: reconcilerio/go-install-action@v1
@@ -48,6 +50,7 @@ jobs:
         package: golang.org/x/tools/cmd/goimports
         working-directory: hack/goimports
         output-path-env: GOIMPORTS
+        toolchain: auto
     - &install-golangci-lint
       name: Install golangci-lint
       uses: reconcilerio/go-install-action@v1
@@ -55,6 +58,7 @@ jobs:
         package: github.com/golangci/golangci-lint/v2/cmd/golangci-lint
         working-directory: hack/golangci-lint
         output-path-env: GOLANGCI_LINT
+        toolchain: auto
     - &install-imgpkg
       name: Install imgpkg
       uses: reconcilerio/go-install-action@v1
@@ -62,6 +66,7 @@ jobs:
         package: carvel.dev/imgpkg/cmd/imgpkg
         working-directory: hack/imgpkg
         output-path-env: IMGPKG
+        toolchain: auto
     - &install-kapp
       name: Install kapp
       uses: reconcilerio/go-install-action@v1
@@ -69,6 +74,7 @@ jobs:
         package: carvel.dev/kapp/cmd/kapp
         working-directory: hack/kapp
         output-path-env: KAPP
+        toolchain: auto
     - &install-kbld
       name: Install kbld
       uses: reconcilerio/go-install-action@v1
@@ -76,6 +82,7 @@ jobs:
         package: carvel.dev/kbld/cmd/kbld
         working-directory: hack/kbld
         output-path-env: KBLD
+        toolchain: auto
     - &install-ko
       name: Install ko
       uses: reconcilerio/go-install-action@v1
@@ -83,6 +90,15 @@ jobs:
         package: github.com/google/ko
         working-directory: hack/ko
         output-path-env: KO
+        toolchain: auto
+    - &install-kustomize
+      name: Install kustomize
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: sigs.k8s.io/kustomize/kustomize/v4
+        working-directory: hack/kustomize
+        output-path-env: KUSTOMIZE
+        toolchain: auto
     - &install-stern
       name: Install stern
       uses: reconcilerio/go-install-action@v1
@@ -90,6 +106,15 @@ jobs:
         package: github.com/stern/stern
         working-directory: hack/stern
         output-path-env: STERN
+        toolchain: auto
+    - &install-yq
+      name: Install yq
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: github.com/mikefarah/yq/v4
+        working-directory: hack/yq
+        output-path-env: YQ
+        toolchain: auto
     - &install-ytt
       name: Install ytt
       uses: reconcilerio/go-install-action@v1
@@ -97,6 +122,7 @@ jobs:
         package: carvel.dev/ytt/cmd/ytt
         working-directory: hack/ytt
         output-path-env: YTT
+        toolchain: auto
 
   unit:
     name: Unit Test
@@ -119,6 +145,8 @@ jobs:
     - *install-diegen
     - *install-goimports
     - *install-golangci-lint
+    - *install-kustomize
+    - *install-yq
     - name: Test
       run: make test
     - name: Lint
@@ -467,9 +495,8 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
-      with:
-        go-version-file: go.mod
-        cache-dependency-path: '**/*.sum'
+    - name: Restore GOTOOLCHAIN
+      run: echo "GOTOOLCHAIN=local+auto" >> "${GITHUB_ENV}"
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
