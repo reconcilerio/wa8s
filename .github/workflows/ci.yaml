@@ -129,6 +129,7 @@ jobs:
     - *install-diegen
     - *install-goimports
     - *install-golangci-lint
+    - *install-kbld
     - name: Test
       run: make test
     - name: Lint
