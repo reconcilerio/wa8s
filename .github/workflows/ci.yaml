@@ -414,8 +414,6 @@ jobs:
             echo "Unexpected /greeting count: got ${count}, wanted 2"
             exit 1
           fi
-
-          kill ${kpf_pid}
         echo "##[endgroup]"
 
     - name: Collect diagnostics
