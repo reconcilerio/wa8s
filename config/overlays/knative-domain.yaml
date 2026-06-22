@@ -1,0 +1,9 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"apiVersion":"v1","kind":"ConfigMap","metadata":{"namespace":"knative-serving","name":"config-domain"}})
+---
+#@yaml/text-templated-strings
+data:
+  #@overlay/match missing_ok=True
+  (@= data.values['external-domain'] @): |

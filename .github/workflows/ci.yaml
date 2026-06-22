@@ -270,6 +270,8 @@ jobs:
         kubernetes-version: ${{ matrix.kubernetes }}
         registry: ${{ steps.registry.outputs.registry }}
         registry-ca: ${{ steps.registry.outputs.tls-ca }}
+    - name: cloud-provider-kind
+      uses: reconcilerio/kind/cloud-provider-kind@v1
     - name: Download staged bundle
       uses: actions/download-artifact@v8
       with:
@@ -304,10 +306,10 @@ jobs:
           ${KAPP} deploy -a knative-serving -n apps --wait-timeout 5m -y \
             -f <( \
               ${YTT} \
-                --data-value service-type=ClusterIP \
+			          --data-value external-domain=knative.local \
                 --data-value ingress-class=kourier.ingress.networking.knative.dev \
+			          -f config/overlays/knative-domain.yaml \
                 -f config/overlays/knative-ingress-class.yaml \
-                -f config/overlays/knative-no-loadbalancer.yaml \
                 -f https://github.com/knative/serving/releases/download/knative-v1.21.2/serving-crds.yaml \
                 -f https://github.com/knative/serving/releases/download/knative-v1.21.2/serving-core.yaml \
                 -f https://github.com/knative-extensions/net-kourier/releases/download/knative-v1.21.0/kourier.yaml \
@@ -377,13 +379,10 @@ jobs:
         echo "##[endgroup]"
 
         echo "##[group]invoke incrementor"
-          kubectl port-forward -n kourier-system svc/kourier-internal 8080:80 &
-          kpf_pid=$!
-          while ! nc -z localhost 8080 </dev/null; do sleep 1; done
+          ingress_ip=$(kubectl get svc -n kourier-system kourier -o=jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          incrementor_host=$(kubectl get servicetriggers.knative.wa8s.reconciler.io incrementor -o=jsonpath='{.status.url}'| cut -d'/' -f3)
 
-          host="incrementor.default.svc.cluster.local"
-
-          count=$(curl -s -H "Host: ${host}" http://localhost:8080/hello)
+          count=$(curl -s -H "Host: ${incrementor_host}" http://${ingress_ip}/hello)
           if [ "${count}" == "1" ]; then
             echo "/hello count: ${count}"
           else
@@ -391,7 +390,7 @@ jobs:
             exit 1
           fi
 
-          count=$(curl -s -H "Host: ${host}" http://localhost:8080/greeting)
+          count=$(curl -s -H "Host: ${incrementor_host}" http://${ingress_ip}/greeting)
           if [ "${count}" == "1" ]; then
             echo "/greeting count: ${count}"
           else
@@ -399,7 +398,7 @@ jobs:
             exit 1
           fi
 
-          count=$(curl -s -H "Host: ${host}" http://localhost:8080/hello)
+          count=$(curl -s -H "Host: ${incrementor_host}" http://${ingress_ip}/hello)
           if [ "${count}" == "2" ]; then
             echo "/hello count: ${count}"
           else
@@ -407,7 +406,7 @@ jobs:
             exit 1
           fi
 
-          count=$(curl -s -H "Host: ${host}" http://localhost:8080/greeting)
+          count=$(curl -s -H "Host: ${incrementor_host}" http://${ingress_ip}/greeting)
           if [ "${count}" == "2" ]; then
             echo "/greeting count: ${count}"
           else

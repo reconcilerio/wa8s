@@ -1,7 +1,0 @@
-#@ load("@ytt:data", "data")
-#@ load("@ytt:overlay", "overlay")
-
-#@overlay/match expects='1+', by=overlay.subset({"apiVersion":"v1","kind":"Service","spec":{"type":"LoadBalancer"}})
----
-spec:
-  type: #@ data.values['service-type']

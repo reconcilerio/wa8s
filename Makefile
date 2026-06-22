@@ -150,10 +150,10 @@ undeploy-ducks: ## Undeploy cert-manager from the K8s cluster specified in ~/.ku
 deploy-knative-serving: ## Deploy knative serving to the K8s cluster specified in ~/.kube/config.
 	$(KAPP) deploy -a knative-serving -n $(KAPP_APP_NAMESPACE) --wait-timeout 5m -c $(KAPP_OPTS) \
 		-f <($(YTT) \
-			--data-value service-type=ClusterIP \
+			--data-value external-domain=knative.local \
 			--data-value ingress-class=kourier.ingress.networking.knative.dev \
+			-f config/overlays/knative-domain.yaml \
 			-f config/overlays/knative-ingress-class.yaml \
-			-f config/overlays/knative-no-loadbalancer.yaml \
 			-f https://github.com/knative/serving/releases/download/knative-v1.21.2/serving-crds.yaml \
 			-f https://github.com/knative/serving/releases/download/knative-v1.21.2/serving-core.yaml \
 			-f https://github.com/knative-extensions/net-kourier/releases/download/knative-v1.21.0/kourier.yaml \
