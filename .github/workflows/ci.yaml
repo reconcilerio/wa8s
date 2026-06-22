@@ -265,14 +265,13 @@ jobs:
       id: registry
       uses: reconcilerio/registry@v1
     - name: kind cluster
-      uses: reconcilerio/kind@v1
+      # uses: reconcilerio/kind@v1
+      uses: scothis/kind@cloud-provider-kind
       with:
         kubernetes-version: ${{ matrix.kubernetes }}
+        cloud-provider-kind-version: auto
         registry: ${{ steps.registry.outputs.registry }}
         registry-ca: ${{ steps.registry.outputs.tls-ca }}
-    - name: cloud-provider-kind
-      # uses: reconcilerio/kind/cloud-provider-kind@v1
-      uses: scothis/kind/cloud-provider-kind@cloud-provider-kind
     - name: Download staged bundle
       uses: actions/download-artifact@v8
       with:
