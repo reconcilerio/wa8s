@@ -265,8 +265,7 @@ jobs:
       id: registry
       uses: reconcilerio/registry@v1
     - name: kind cluster
-      # uses: reconcilerio/kind@v1
-      uses: scothis/kind@cloud-provider-kind
+      uses: reconcilerio/kind@v1
       with:
         kubernetes-version: ${{ matrix.kubernetes }}
         cloud-provider-kind-version: auto
