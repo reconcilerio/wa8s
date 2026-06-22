@@ -271,7 +271,8 @@ jobs:
         registry: ${{ steps.registry.outputs.registry }}
         registry-ca: ${{ steps.registry.outputs.tls-ca }}
     - name: cloud-provider-kind
-      uses: reconcilerio/kind/cloud-provider-kind@v1
+      # uses: reconcilerio/kind/cloud-provider-kind@v1
+      uses: scothis/kind/cloud-provider-kind@cloud-provider-kind
     - name: Download staged bundle
       uses: actions/download-artifact@v8
       with:
