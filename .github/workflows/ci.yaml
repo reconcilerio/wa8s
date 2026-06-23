@@ -60,7 +60,7 @@ jobs:
         package: github.com/golangci/golangci-lint/v2/cmd/golangci-lint
         working-directory: hack/golangci-lint
         download-url-template: https://github.com/golangci/golangci-lint/releases/download/${version}/golangci-lint-${version:1}-${os}-${arch}.tar.gz
-        download-path-within-archive: golangci-lint-*/golangci-lint
+        download-path-within-archive: golangci-lint-${version:1}-${os}-${arch}/golangci-lint
         output-path-env: GOLANGCI_LINT
         toolchain: auto
     - &install-imgpkg
