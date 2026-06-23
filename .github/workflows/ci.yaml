@@ -42,6 +42,7 @@ jobs:
       with:
         package: reconciler.io/dies/diegen
         working-directory: hack/diegen
+        download-url-template: https://github.com/reconcilerio/dies/releases/download/${version}/diegen-${os}-${arch}
         output-path-env: DIEGEN
         toolchain: auto
     - &install-goimports
