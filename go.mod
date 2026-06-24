@@ -17,7 +17,7 @@ require (
 	k8s.io/apimachinery v0.36.2
 	k8s.io/client-go v0.36.2
 	k8s.io/kube-aggregator v0.36.2
-	reconciler.io/dies v0.19.0
+	reconciler.io/dies v0.19.1
 	reconciler.io/ducks v0.4.0
 	reconciler.io/runtime v0.26.1
 	sigs.k8s.io/controller-runtime v0.24.1
