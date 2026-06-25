@@ -36,6 +36,7 @@ jobs:
         download-url-template: https://github.com/kubernetes-sigs/controller-tools/releases/download/${version}/controller-gen-${os}-${arch}
         output-path-env: CONTROLLER_GEN
         toolchain: auto
+      background: true
     - &install-diegen
       name: Install diegen
       uses: reconcilerio/go-install-action@v1
@@ -45,6 +46,7 @@ jobs:
         download-url-template: https://github.com/reconcilerio/dies/releases/download/${version}/diegen-${os}-${arch}
         output-path-env: DIEGEN
         toolchain: auto
+      background: true
     - &install-goimports
       name: Install goimports
       uses: reconcilerio/go-install-action@v1
@@ -53,6 +55,7 @@ jobs:
         working-directory: hack/goimports
         output-path-env: GOIMPORTS
         toolchain: auto
+      background: true
     - &install-golangci-lint
       name: Install golangci-lint
       uses: reconcilerio/go-install-action@v1
@@ -63,6 +66,7 @@ jobs:
         download-path-within-archive: golangci-lint-${version:1}-${os}-${arch}/golangci-lint
         output-path-env: GOLANGCI_LINT
         toolchain: auto
+      background: true
     - &install-imgpkg
       name: Install imgpkg
       uses: reconcilerio/go-install-action@v1
@@ -72,6 +76,7 @@ jobs:
         download-url-template: https://github.com/carvel-dev/imgpkg/releases/download/${version}/imgpkg-${os}-${arch}
         output-path-env: IMGPKG
         toolchain: auto
+      background: true
     - &install-kapp
       name: Install kapp
       uses: reconcilerio/go-install-action@v1
@@ -81,6 +86,7 @@ jobs:
         download-url-template: https://github.com/carvel-dev/kapp/releases/download/${version}/kapp-${os}-${arch}
         output-path-env: KAPP
         toolchain: auto
+      background: true
     - &install-kbld
       name: Install kbld
       uses: reconcilerio/go-install-action@v1
@@ -90,6 +96,7 @@ jobs:
         download-url-template: https://github.com/carvel-dev/kbld/releases/download/${version}/kbld-${os}-${arch}
         output-path-env: KBLD
         toolchain: auto
+      background: true
     - &install-ko
       name: Install ko
       uses: reconcilerio/go-install-action@v1
@@ -100,6 +107,7 @@ jobs:
         download-path-within-archive: ko
         output-path-env: KO
         toolchain: auto
+      background: true
     - &install-kustomize
       name: Install kustomize
       uses: reconcilerio/go-install-action@v1
@@ -110,6 +118,7 @@ jobs:
         download-path-within-archive: kustomize
         output-path-env: KUSTOMIZE
         toolchain: auto
+      background: true
     - &install-stern
       name: Install stern
       uses: reconcilerio/go-install-action@v1
@@ -120,6 +129,7 @@ jobs:
         download-path-within-archive: stern
         output-path-env: STERN
         toolchain: auto
+      background: true
     - &install-yq
       name: Install yq
       uses: reconcilerio/go-install-action@v1
@@ -129,6 +139,7 @@ jobs:
         download-url-template: https://github.com/mikefarah/yq/releases/download/${version}/yq_${os}_${arch}
         output-path-env: YQ
         toolchain: auto
+      background: true
     - &install-ytt
       name: Install ytt
       uses: reconcilerio/go-install-action@v1
@@ -138,6 +149,11 @@ jobs:
         download-url-template: https://github.com/carvel-dev/ytt/releases/download/${version}/ytt-${os}-${arch}
         output-path-env: YTT
         toolchain: auto
+      background: true
+    - &wait-all
+      name: Wait for background jobs
+      run: echo "Waiting for background jobs"
+      wait-all:
 
   unit:
     name: Unit Test
@@ -154,14 +170,17 @@ jobs:
       uses: cargo-bins/cargo-binstall@main
     - name: Install cargo component
       run: cargo binstall --force cargo-component
+      background: true
     - name: Install wasm-tools
       run: cargo binstall --force wasm-tools
+      background: true
     - *install-controller-gen
     - *install-diegen
     - *install-goimports
     - *install-golangci-lint
     - *install-kustomize
     - *install-yq
+    - *wait-all
     - name: Test
       run: make test
     - name: Lint
@@ -193,11 +212,14 @@ jobs:
       uses: cargo-bins/cargo-binstall@main
     - name: Install cargo component
       run: cargo binstall --force cargo-component
+      background: true
     - name: Install wasm-tools
       run: cargo binstall --force wasm-tools
+      background: true
     - *install-imgpkg
     - *install-kbld
     - *install-ko
+    - *wait-all
     - name: Start registry
       id: registry
       uses: reconcilerio/registry@v1
@@ -276,6 +298,7 @@ jobs:
     - *install-kbld
     - *install-stern
     - *install-ytt
+    - *wait-all
     - name: OCI registry
       id: registry
       uses: reconcilerio/registry@v1
@@ -517,8 +540,10 @@ jobs:
         name: reconcilerio-wa8s-bundle.tar
     - name: Install crane
       uses: reconcilerio/install-crane-action@v1
+      background: true
     - *install-kbld
     - *install-imgpkg
+    - *wait-all
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v4
       with:
