@@ -27,117 +27,118 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
-    - &install-controller-gen
-      name: Install controller-gen
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: sigs.k8s.io/controller-tools/cmd/controller-gen
-        working-directory: hack/controller-gen
-        download-url-template: https://github.com/kubernetes-sigs/controller-tools/releases/download/${version}/controller-gen-${os}-${arch}
-        output-path-env: CONTROLLER_GEN
-        toolchain: auto
-    - &install-diegen
-      name: Install diegen
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: reconciler.io/dies/diegen
-        working-directory: hack/diegen
-        download-url-template: https://github.com/reconcilerio/dies/releases/download/${version}/diegen-${os}-${arch}
-        output-path-env: DIEGEN
-        toolchain: auto
-    - &install-goimports
-      name: Install goimports
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: golang.org/x/tools/cmd/goimports
-        working-directory: hack/goimports
-        output-path-env: GOIMPORTS
-        toolchain: auto
-    - &install-golangci-lint
-      name: Install golangci-lint
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: github.com/golangci/golangci-lint/v2/cmd/golangci-lint
-        working-directory: hack/golangci-lint
-        download-url-template: https://github.com/golangci/golangci-lint/releases/download/${version}/golangci-lint-${version:1}-${os}-${arch}.tar.gz
-        download-path-within-archive: golangci-lint-${version:1}-${os}-${arch}/golangci-lint
-        output-path-env: GOLANGCI_LINT
-        toolchain: auto
-    - &install-imgpkg
-      name: Install imgpkg
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: carvel.dev/imgpkg/cmd/imgpkg
-        working-directory: hack/imgpkg
-        download-url-template: https://github.com/carvel-dev/imgpkg/releases/download/${version}/imgpkg-${os}-${arch}
-        output-path-env: IMGPKG
-        toolchain: auto
-    - &install-kapp
-      name: Install kapp
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: carvel.dev/kapp/cmd/kapp
-        working-directory: hack/kapp
-        download-url-template: https://github.com/carvel-dev/kapp/releases/download/${version}/kapp-${os}-${arch}
-        output-path-env: KAPP
-        toolchain: auto
-    - &install-kbld
-      name: Install kbld
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: carvel.dev/kbld/cmd/kbld
-        working-directory: hack/kbld
-        download-url-template: https://github.com/carvel-dev/kbld/releases/download/${version}/kbld-${os}-${arch}
-        output-path-env: KBLD
-        toolchain: auto
-    - &install-ko
-      name: Install ko
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: github.com/google/ko
-        working-directory: hack/ko
-        download-url-template: https://github.com/ko-build/ko/releases/download/${version}/ko_${version:1}_${os^}_${arch/amd64/x86_64}.tar.gz
-        download-path-within-archive: ko
-        output-path-env: KO
-        toolchain: auto
-    - &install-kustomize
-      name: Install kustomize
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: sigs.k8s.io/kustomize/kustomize/v4
-        working-directory: hack/kustomize
-        download-url-template: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${version}/kustomize_${version}_${os}_${arch}.tar.gz
-        download-path-within-archive: kustomize
-        output-path-env: KUSTOMIZE
-        toolchain: auto
-    - &install-stern
-      name: Install stern
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: github.com/stern/stern
-        working-directory: hack/stern
-        download-url-template: https://github.com/stern/stern/releases/download/${version}/stern_${version:1}_${os}_${arch}.tar.gz
-        download-path-within-archive: stern
-        output-path-env: STERN
-        toolchain: auto
-    - &install-yq
-      name: Install yq
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: github.com/mikefarah/yq/v4
-        working-directory: hack/yq
-        download-url-template: https://github.com/mikefarah/yq/releases/download/${version}/yq_${os}_${arch}
-        output-path-env: YQ
-        toolchain: auto
-    - &install-ytt
-      name: Install ytt
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: carvel.dev/ytt/cmd/ytt
-        working-directory: hack/ytt
-        download-url-template: https://github.com/carvel-dev/ytt/releases/download/${version}/ytt-${os}-${arch}
-        output-path-env: YTT
-        toolchain: auto
+    - parallel:
+      - &install-controller-gen
+        name: Install controller-gen
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: sigs.k8s.io/controller-tools/cmd/controller-gen
+          working-directory: hack/controller-gen
+          download-url-template: https://github.com/kubernetes-sigs/controller-tools/releases/download/${version}/controller-gen-${os}-${arch}
+          output-path-env: CONTROLLER_GEN
+          toolchain: auto
+      - &install-diegen
+        name: Install diegen
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: reconciler.io/dies/diegen
+          working-directory: hack/diegen
+          download-url-template: https://github.com/reconcilerio/dies/releases/download/${version}/diegen-${os}-${arch}
+          output-path-env: DIEGEN
+          toolchain: auto
+      - &install-goimports
+        name: Install goimports
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: golang.org/x/tools/cmd/goimports
+          working-directory: hack/goimports
+          output-path-env: GOIMPORTS
+          toolchain: auto
+      - &install-golangci-lint
+        name: Install golangci-lint
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+          working-directory: hack/golangci-lint
+          download-url-template: https://github.com/golangci/golangci-lint/releases/download/${version}/golangci-lint-${version:1}-${os}-${arch}.tar.gz
+          download-path-within-archive: golangci-lint-${version:1}-${os}-${arch}/golangci-lint
+          output-path-env: GOLANGCI_LINT
+          toolchain: auto
+      - &install-imgpkg
+        name: Install imgpkg
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: carvel.dev/imgpkg/cmd/imgpkg
+          working-directory: hack/imgpkg
+          download-url-template: https://github.com/carvel-dev/imgpkg/releases/download/${version}/imgpkg-${os}-${arch}
+          output-path-env: IMGPKG
+          toolchain: auto
+      - &install-kapp
+        name: Install kapp
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: carvel.dev/kapp/cmd/kapp
+          working-directory: hack/kapp
+          download-url-template: https://github.com/carvel-dev/kapp/releases/download/${version}/kapp-${os}-${arch}
+          output-path-env: KAPP
+          toolchain: auto
+      - &install-kbld
+        name: Install kbld
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: carvel.dev/kbld/cmd/kbld
+          working-directory: hack/kbld
+          download-url-template: https://github.com/carvel-dev/kbld/releases/download/${version}/kbld-${os}-${arch}
+          output-path-env: KBLD
+          toolchain: auto
+      - &install-ko
+        name: Install ko
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: github.com/google/ko
+          working-directory: hack/ko
+          download-url-template: https://github.com/ko-build/ko/releases/download/${version}/ko_${version:1}_${os^}_${arch/amd64/x86_64}.tar.gz
+          download-path-within-archive: ko
+          output-path-env: KO
+          toolchain: auto
+      - &install-kustomize
+        name: Install kustomize
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: sigs.k8s.io/kustomize/kustomize/v4
+          working-directory: hack/kustomize
+          download-url-template: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${version}/kustomize_${version}_${os}_${arch}.tar.gz
+          download-path-within-archive: kustomize
+          output-path-env: KUSTOMIZE
+          toolchain: auto
+      - &install-stern
+        name: Install stern
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: github.com/stern/stern
+          working-directory: hack/stern
+          download-url-template: https://github.com/stern/stern/releases/download/${version}/stern_${version:1}_${os}_${arch}.tar.gz
+          download-path-within-archive: stern
+          output-path-env: STERN
+          toolchain: auto
+      - &install-yq
+        name: Install yq
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: github.com/mikefarah/yq/v4
+          working-directory: hack/yq
+          download-url-template: https://github.com/mikefarah/yq/releases/download/${version}/yq_${os}_${arch}
+          output-path-env: YQ
+          toolchain: auto
+      - &install-ytt
+        name: Install ytt
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: carvel.dev/ytt/cmd/ytt
+          working-directory: hack/ytt
+          download-url-template: https://github.com/carvel-dev/ytt/releases/download/${version}/ytt-${os}-${arch}
+          output-path-env: YTT
+          toolchain: auto
 
   unit:
     name: Unit Test
@@ -152,16 +153,17 @@ jobs:
     - uses: actions-rust-lang/setup-rust-toolchain@v1
     - name: Install cargo binstall
       uses: cargo-bins/cargo-binstall@main
-    - name: Install cargo component
-      run: cargo binstall --force cargo-component
-    - name: Install wasm-tools
-      run: cargo binstall --force wasm-tools
-    - *install-controller-gen
-    - *install-diegen
-    - *install-goimports
-    - *install-golangci-lint
-    - *install-kustomize
-    - *install-yq
+    - parallel:
+      - name: Install cargo component
+        run: cargo binstall --force cargo-component
+      - name: Install wasm-tools
+        run: cargo binstall --force wasm-tools
+      - *install-controller-gen
+      - *install-diegen
+      - *install-goimports
+      - *install-golangci-lint
+      - *install-kustomize
+      - *install-yq
     - name: Test
       run: make test
     - name: Lint
@@ -191,13 +193,14 @@ jobs:
     - uses: actions-rust-lang/setup-rust-toolchain@v1
     - name: Install cargo binstall
       uses: cargo-bins/cargo-binstall@main
-    - name: Install cargo component
-      run: cargo binstall --force cargo-component
-    - name: Install wasm-tools
-      run: cargo binstall --force wasm-tools
-    - *install-imgpkg
-    - *install-kbld
-    - *install-ko
+    - parallel:
+      - name: Install cargo component
+        run: cargo binstall --force cargo-component
+      - name: Install wasm-tools
+        run: cargo binstall --force wasm-tools
+      - *install-imgpkg
+      - *install-kbld
+      - *install-ko
     - name: Start registry
       id: registry
       uses: reconcilerio/registry@v1
@@ -271,11 +274,12 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
-    - *install-imgpkg
-    - *install-kapp
-    - *install-kbld
-    - *install-stern
-    - *install-ytt
+    - parallel:
+      - *install-imgpkg
+      - *install-kapp
+      - *install-kbld
+      - *install-stern
+      - *install-ytt
     - name: OCI registry
       id: registry
       uses: reconcilerio/registry@v1
@@ -515,10 +519,11 @@ jobs:
       uses: actions/download-artifact@v8
       with:
         name: reconcilerio-wa8s-bundle.tar
-    - name: Install crane
-      uses: reconcilerio/install-crane-action@v1
-    - *install-kbld
-    - *install-imgpkg
+    - parallel:
+      - name: Install crane
+        uses: reconcilerio/install-crane-action@v1
+      - *install-kbld
+      - *install-imgpkg
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v4
       with:
