@@ -3081,7 +3081,7 @@ metadata:
   name: wasmtime
   namespace: wa8s-system
 spec:
-  image: ghcr.io/componentized/wasmtime:v45.0.0@sha256:632154b00b9e7b657e296a1d787e4399a1256de3a6b71c32f0fd06d696e30dcf
+  image: ghcr.io/componentized/wasmtime:v46
 ---
 apiVersion: registries.wa8s.reconciler.io/v1alpha1
 kind: ClusterImage
