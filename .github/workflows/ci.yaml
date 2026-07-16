@@ -26,7 +26,7 @@ jobs:
         - os: ubuntu-24.04-arm
     steps:
     - uses: actions/checkout@v7
-    - uses: actions/setup-go@v6
+    - uses: actions/setup-go@v7
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
@@ -148,7 +148,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
-    - uses: actions/setup-go@v6
+    - uses: actions/setup-go@v7
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
@@ -187,7 +187,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
-    - uses: actions/setup-go@v6
+    - uses: actions/setup-go@v7
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
@@ -271,7 +271,7 @@ jobs:
           os: ubuntu-24.04-arm
     steps:
     - uses: actions/checkout@v7
-    - uses: actions/setup-go@v6
+    - uses: actions/setup-go@v7
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
@@ -510,7 +510,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
-    - uses: actions/setup-go@v6
+    - uses: actions/setup-go@v7
     - name: Restore GOTOOLCHAIN
       run: echo "GOTOOLCHAIN=local+auto" >> "${GITHUB_ENV}"
     - name: Get the version
