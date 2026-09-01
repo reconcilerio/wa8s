@@ -524,7 +524,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e629b9b98ef3dd8afe6ca2bd0f89306cec16d43d907889945bc5d6687f2f13c7"
 dependencies = [
  "fallible-iterator 0.3.0",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "stable_deref_trait",
 ]
 
@@ -785,9 +785,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.14.0"
+version = "2.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d466e9454f08e4a911e14806c24e16fba1b4c121d1ea474396f396069cf949d9"
+checksum = "07aa2048142242915a31d35844fb311e0e53fcca590c3a0a40dcf1b841fa09eb"
 dependencies = [
  "equivalent",
  "hashbrown 0.17.0",
@@ -1060,7 +1060,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4c5cc86750666a3ed20bdaf5ca2a0344f9c67674cae0515bec2da16fbaa47db"
 dependencies = [
  "fixedbitset",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
 ]
 
 [[package]]
@@ -1324,7 +1324,7 @@ dependencies = [
  "chrono",
  "hex",
  "indexmap 1.9.3",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "jiff",
  "schemars 0.9.0",
  "schemars 1.0.3",
@@ -1352,7 +1352,7 @@ version = "0.9.34+deprecated"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a8b1a1a2ebf674015cc02edccce75287f1a0130d394307b36743c2f5d504b47"
 dependencies = [
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "itoa",
  "ryu",
  "serde",
@@ -1577,7 +1577,7 @@ version = "0.22.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "583c44c02ad26b0c3f3066fe629275e50627026c51ac2e595cca4c230ce1ce1d"
 dependencies = [
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "toml_datetime",
  "winnow",
 ]
@@ -1664,7 +1664,7 @@ name = "wac"
 version = "0.1.0"
 dependencies = [
  "extism-pdk",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "serde",
  "serde_json",
  "serde_with",
@@ -1680,7 +1680,7 @@ checksum = "bdc8c5ffe944e002a24ba9d0fa67f51d4a761c1fc97718a17d1d7379753a6f8e"
 dependencies = [
  "anyhow",
  "id-arena",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "log",
  "petgraph",
  "semver",
@@ -1699,7 +1699,7 @@ checksum = "40204c00fd7cb143285f15f70952e8db3c3f68b197a13763bc6ca5cba22a17b3"
 dependencies = [
  "anyhow",
  "id-arena",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "log",
  "logos",
  "miette",
@@ -1720,7 +1720,7 @@ checksum = "4b90654c08294d879e85f0b8b2c5a7efc3a7a10df3009dd1578d98902d1ec8a2"
 dependencies = [
  "anyhow",
  "id-arena",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "semver",
  "wasm-encoder 0.247.0",
  "wasmparser 0.247.0",
@@ -1846,7 +1846,7 @@ dependencies = [
  "anyhow",
  "heck 0.4.1",
  "im-rc",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "log",
  "petgraph",
  "serde",
@@ -1907,7 +1907,7 @@ dependencies = [
  "anyhow",
  "auditable-serde 0.8.0",
  "flate2",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "serde",
  "serde_derive",
  "serde_json",
@@ -1926,7 +1926,7 @@ dependencies = [
  "anyhow",
  "auditable-serde 0.9.0",
  "flate2",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "serde",
  "serde_derive",
  "serde_json",
@@ -1943,7 +1943,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18a11585adb92fe9b55ad1d760e8d8fb5d87e0d2e303cb8eed57f078d54293a2"
 dependencies = [
  "anyhow",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "wasm-encoder 0.258.0",
  "wasmparser 0.258.0",
 ]
@@ -1956,7 +1956,7 @@ checksum = "b722dcf61e0ea47440b53ff83ccb5df8efec57a69d150e4f24882e4eba7e24a4"
 dependencies = [
  "bitflags 2.6.0",
  "hashbrown 0.15.2",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "semver",
  "serde",
 ]
@@ -1969,7 +1969,7 @@ checksum = "4f08c9adee0428b7bddf3890fc27e015ac4b761cc608c822667102b8bfd6995e"
 dependencies = [
  "bitflags 2.6.0",
  "hashbrown 0.16.1",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "semver",
  "serde",
 ]
@@ -1982,7 +1982,7 @@ checksum = "8e6fb4c2bee46c5ea4d40f8cdb5c131725cd976718ec56f1c8e82fbde5fa2a80"
 dependencies = [
  "bitflags 2.6.0",
  "hashbrown 0.17.0",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "semver",
  "serde",
 ]
@@ -1995,7 +1995,7 @@ checksum = "d9a61719f93a87b16d325921e251800c4833f8fab50fa21c7de73aed50086313"
 dependencies = [
  "bitflags 2.6.0",
  "hashbrown 0.17.0",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "semver",
  "serde",
 ]
@@ -2127,7 +2127,7 @@ checksum = "7dc5474b078addc5fe8a72736de8da3acfb3ff324c2491133f8b59594afa1a20"
 dependencies = [
  "anyhow",
  "bitflags 2.6.0",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "log",
  "serde",
  "serde_derive",
@@ -2146,7 +2146,7 @@ checksum = "481b5c47b2ecce0389b5e08a05557d6a190c9cd761773b8880a8017ee04dc7ef"
 dependencies = [
  "anyhow",
  "bitflags 2.6.0",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "log",
  "serde",
  "serde_derive",
@@ -2165,7 +2165,7 @@ checksum = "9875ea3fa272f57cc1fc50f225a7b94021a7878c484b33792bccad0d93223439"
 dependencies = [
  "anyhow",
  "id-arena",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "log",
  "semver",
  "serde",
@@ -2184,7 +2184,7 @@ dependencies = [
  "anyhow",
  "hashbrown 0.17.0",
  "id-arena",
- "indexmap 2.14.0",
+ "indexmap 2.14.1",
  "log",
  "semver",
  "serde",
