@@ -152,7 +152,7 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
-    - uses: actions-rust-lang/setup-rust-toolchain@v1
+    - uses: actions-rust-lang/setup-rust-toolchain@v2
     - name: Install cargo binstall
       uses: cargo-bins/cargo-binstall@main
     - parallel:
@@ -191,7 +191,7 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
-    - uses: actions-rust-lang/setup-rust-toolchain@v1
+    - uses: actions-rust-lang/setup-rust-toolchain@v2
     - name: Install cargo binstall
       uses: cargo-bins/cargo-binstall@main
     - parallel:
