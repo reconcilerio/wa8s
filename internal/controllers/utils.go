@@ -25,7 +25,7 @@ import (
 
 var (
 	ConfigStoreStasher             = reconcilers.NewStasher[map[string]string](reconcilers.StashKey("wa8s.reconciler.io/config-store"))
-	CompositionDependenciesStasher = reconcilers.NewStasher[[]components.ResolvedComponent](reconcilers.StashKey("wa8s.reconciler.io/composition-dependencies"))
+	CompositionDependenciesStasher = reconcilers.NewStasher[[]components.CompositionDependency](reconcilers.StashKey("wa8s.reconciler.io/composition-dependencies"))
 )
 
 var (

@@ -4,4 +4,4 @@ kind: ClusterImage
 metadata:
   name: wasmtime
 spec:
-  image: ghcr.io/componentized/wasmtime:v46
+  image: ghcr.io/componentized/wasmtime:v48

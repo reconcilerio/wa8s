@@ -4,7 +4,7 @@ kind: ClusterRepository
 metadata:
   name: default
 spec:
-  template: registry.wa8s-system.svc.cluster.local/{{ .Kind }}/{{ .UID }}:{{ .ResourceVersion }}
+  template: registry.wa8s-system.svc.cluster.local/{{ .Kind }}/{{ .Namespace }}/{{ .Name }}:{{ .UID }}
 
 ---
 apiVersion: cert-manager.io/v1
@@ -14,8 +14,8 @@ metadata:
 spec:
   # $(SERVICE_NAME) and $(NAMESPACE) will be substituted by kustomize
   dnsNames:
-  - $(SERVICE_NAME).$(NAMESPACE).svc
-  - $(SERVICE_NAME).$(NAMESPACE).svc.cluster.local
+    - $(SERVICE_NAME).$(NAMESPACE).svc
+    - $(SERVICE_NAME).$(NAMESPACE).svc.cluster.local
   issuerRef:
     kind: Issuer
     name: wa8s-selfsigned-issuer
@@ -30,9 +30,9 @@ spec:
   selector:
     app: registry
   ports:
-  - protocol: TCP
-    port: 443
-    targetPort: 8443
+    - protocol: TCP
+      port: 443
+      targetPort: 8443
 
 ---
 apiVersion: apps/v1
@@ -50,27 +50,27 @@ spec:
         app: registry
     spec:
       containers:
-      - name: registry
-        image: registry:2
-        env:
-        - name: REGISTRY_HTTP_ADDR
-          value: 0.0.0.0:8443
-        - name: REGISTRY_HTTP_TLS_CERTIFICATE
-          value: /certs/tls.crt
-        - name: REGISTRY_HTTP_TLS_KEY
-          value: /certs/tls.key
-        ports:
-        - containerPort: 8443
-        volumeMounts:
-        - name: registry-cert
-          readOnly: true
-          mountPath: "/certs"
-        - name: registry-data
-          mountPath: /var/lib/registry
+        - name: registry
+          image: registry:2
+          env:
+            - name: REGISTRY_HTTP_ADDR
+              value: 0.0.0.0:8443
+            - name: REGISTRY_HTTP_TLS_CERTIFICATE
+              value: /certs/tls.crt
+            - name: REGISTRY_HTTP_TLS_KEY
+              value: /certs/tls.key
+          ports:
+            - containerPort: 8443
+          volumeMounts:
+            - name: registry-cert
+              readOnly: true
+              mountPath: "/certs"
+            - name: registry-data
+              mountPath: /var/lib/registry
       volumes:
-      - name: registry-cert
-        secret:
-          secretName: registry-cert
-      - name: registry-data
-        # TODO use something more durable
-        emptyDir: {}
+        - name: registry-cert
+          secret:
+            secretName: registry-cert
+        - name: registry-data
+          # TODO use something more durable
+          emptyDir: {}

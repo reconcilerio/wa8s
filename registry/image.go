@@ -33,7 +33,7 @@ import (
 	"reconciler.io/runtime/reconcilers"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"reconciler.io/wa8s/wit"
+	"reconciler.io/wa8s/components"
 )
 
 const (
@@ -47,11 +47,10 @@ const (
 )
 
 func newWasmImage(ctx context.Context, component []byte) (v1.Image, WasmConfigFile, error) {
-	w, err := wit.Extract(ctx, component)
+	imports, exports, err := components.ExtractWIT(ctx, component)
 	if err != nil {
 		return nil, WasmConfigFile{}, err
 	}
-	imports, exports := wit.ImportsExports(w)
 	h, _, err := v1.SHA256(bytes.NewReader(component))
 	if err != nil {
 		return nil, WasmConfigFile{}, err

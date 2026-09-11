@@ -77,17 +77,14 @@ lint-fix: ## Run golangci-lint linter and perform fixes
 .PHONY: components
 components: components/static-config.wasm components/wac.wasm components/wit-tools.wasm
 
-components/static-config.wasm: $(shell find components/static-config -type f) Cargo.toml
-	cargo build -p static-config-extism --release --target wasm32-unknown-unknown
-	@cp target/wasm32-unknown-unknown/release/static_config_extism.wasm components/static-config.wasm
+components/static-config.wasm: Makefile
+	wkg oci pull ghcr.io/componentized/static-config/factory:0.2.0 -o components/static-config.wasm
 
-components/wit-tools.wasm: $(shell find components/wit-tools -type f) Cargo.toml
-	cargo build -p wit-tools --release --target wasm32-unknown-unknown
-	@cp target/wasm32-unknown-unknown/release/wit_tools.wasm components/wit-tools.wasm
+components/wac.wasm: Makefile
+	wkg oci pull ghcr.io/componentized/component/wac-loader:dev@sha256:1cb2867e5e333f33ae70fd97b06458ae915e269f5a48bf6159b7fdde7389a39d -o components/wac.wasm
 
-components/wac.wasm: $(shell find components/wac -type f) Cargo.toml
-	cargo build -p wac --release --target wasm32-unknown-unknown
-	@cp target/wasm32-unknown-unknown/release/wac.wasm components/wac.wasm
+components/wit-tools.wasm: Makefile
+	wkg oci pull ghcr.io/componentized/component/extract-wit:dev@sha256:39df10cf0989b3cf651ed2494cd2bf8dd72f4f4d5f8c1e5e78b1efc963597465 -o components/wit-tools.wasm
 
 ##@ Deployment
 

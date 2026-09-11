@@ -378,9 +378,9 @@ func ResolveDependency() reconcilers.SubReconciler[*componentsv1alpha1.Compositi
 
 			dependencies := CompositionDependenciesStasher.RetrieveOrEmpty(ctx)
 			if dependencies == nil {
-				dependencies = []components.ResolvedComponent{}
+				dependencies = []components.CompositionDependency{}
 			}
-			dependencies = append(dependencies, components.ResolvedComponent{
+			dependencies = append(dependencies, components.CompositionDependency{
 				Name:      iteration.Item.Component,
 				Image:     ref,
 				Component: componentBytes,
