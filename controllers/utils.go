@@ -32,6 +32,7 @@ var (
 	ComponentConfigStasher    = reconcilers.NewStasher[registry.WasmConfigFile](reconcilers.StashKey("wa8s.reconciler.io/component-config"))
 	ComponentTraceStasher     = reconcilers.NewStasher[[]componentsv1alpha1.ComponentSpan](reconcilers.StashKey("wa8s.reconciler.io/component-trace"))
 	RepositoryDigestStasher   = reconcilers.NewStasher[name.Digest](reconcilers.StashKey("wa8s.reconciler.io/repository-digest"))
+	RepositorySizeStasher     = reconcilers.NewStasher[*int64](reconcilers.StashKey("wa8s.reconciler.io/repository-size"))
 	RepositoryTagStasher      = reconcilers.NewStasher[name.Tag](reconcilers.StashKey("wa8s.reconciler.io/repository-tag"))
 	RepositoryKeychainStasher = reconcilers.NewStasher[authn.Keychain](reconcilers.StashKey("wa8s.reconciler.io/repository-keychain"))
 	RemoteImageStasher        = reconcilers.NewStasher[name.Digest](reconcilers.StashKey("wa8s.reconciler.io/remote-image"))

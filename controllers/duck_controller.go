@@ -336,6 +336,7 @@ func PushComponent[GC componentsv1alpha1.ComponentLike](conditionType string) re
 				}
 
 				RepositoryDigestStasher.Store(ctx, digestRef)
+				RepositorySizeStasher.Store(ctx, new(int64(len(component))))
 				ComponentConfigStasher.Store(ctx, config)
 
 				return nil
@@ -446,6 +447,9 @@ func ReflectComponentableStatus[GC componentsv1alpha1.ComponentLike]() reconcile
 				digestRef := RepositoryDigestStasher.RetrieveOrDie(ctx)
 				resource.GetGenericComponentStatus().Image = digestRef.Name()
 
+				sizeBytes := RepositorySizeStasher.RetrieveOrDie(ctx)
+				resource.GetGenericComponentStatus().SizeBytes = sizeBytes
+
 				trace := ComponentTraceStasher.RetrieveOrEmpty(ctx)
 				resource.GetGenericComponentStatus().Trace = trace
 
@@ -468,16 +472,19 @@ func SynthesizeSpan(ctx context.Context, resource client.Object) componentsv1alp
 	c := reconcilers.RetrieveConfigOrDie(ctx)
 
 	var image string
+	var sizeBytes *int64
 	var trace []componentsv1alpha1.ComponentSpan
 
 	if component, ok := resource.(componentsv1alpha1.ComponentLike); ok {
 		image = component.GetGenericComponentStatus().Image
+		sizeBytes = component.GetGenericComponentStatus().SizeBytes
 		trace = component.GetGenericComponentStatus().Trace
 	} else {
 		// convert non-ComponentLike resources to a Component as a good faith attempt
 		component := &componentsv1alpha1.ComponentDuck{}
 		if err := duck.Convert(resource, component); err == nil {
 			image = component.Status.Image
+			sizeBytes = component.Status.SizeBytes
 			trace = component.Status.Trace
 		}
 	}
@@ -496,6 +503,7 @@ func SynthesizeSpan(ctx context.Context, resource client.Object) componentsv1alp
 		Namespace: resource.GetNamespace(),
 		Name:      resource.GetName(),
 		Trace:     trace,
+		SizeBytes: sizeBytes,
 	}
 }
 

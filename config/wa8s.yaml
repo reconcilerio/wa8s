@@ -185,6 +185,9 @@ spec:
                   was last processed by the controller.
                 format: int64
                 type: integer
+              sizeBytes:
+                format: int64
+                type: integer
               trace:
                 items:
                   properties:
@@ -200,6 +203,9 @@ spec:
                       type: string
                     namespace:
                       type: string
+                    sizeBytes:
+                      format: int64
+                      type: integer
                     trace:
                       x-kubernetes-preserve-unknown-fields: true
                     uid:
@@ -692,6 +698,9 @@ spec:
                   was last processed by the controller.
                 format: int64
                 type: integer
+              sizeBytes:
+                format: int64
+                type: integer
               trace:
                 items:
                   properties:
@@ -707,6 +716,9 @@ spec:
                       type: string
                     namespace:
                       type: string
+                    sizeBytes:
+                      format: int64
+                      type: integer
                     trace:
                       x-kubernetes-preserve-unknown-fields: true
                     uid:
@@ -906,6 +918,9 @@ spec:
                   was last processed by the controller.
                 format: int64
                 type: integer
+              sizeBytes:
+                format: int64
+                type: integer
               trace:
                 items:
                   properties:
@@ -921,6 +936,9 @@ spec:
                       type: string
                     namespace:
                       type: string
+                    sizeBytes:
+                      format: int64
+                      type: integer
                     trace:
                       x-kubernetes-preserve-unknown-fields: true
                     uid:
@@ -1194,6 +1212,9 @@ spec:
                   was last processed by the controller.
                 format: int64
                 type: integer
+              sizeBytes:
+                format: int64
+                type: integer
               trace:
                 items:
                   properties:
@@ -1209,6 +1230,9 @@ spec:
                       type: string
                     namespace:
                       type: string
+                    sizeBytes:
+                      format: int64
+                      type: integer
                     trace:
                       x-kubernetes-preserve-unknown-fields: true
                     uid:
@@ -1406,6 +1430,9 @@ spec:
                   was last processed by the controller.
                 format: int64
                 type: integer
+              sizeBytes:
+                format: int64
+                type: integer
               trace:
                 items:
                   properties:
@@ -1421,6 +1448,9 @@ spec:
                       type: string
                     namespace:
                       type: string
+                    sizeBytes:
+                      format: int64
+                      type: integer
                     trace:
                       x-kubernetes-preserve-unknown-fields: true
                     uid:
@@ -1678,6 +1708,9 @@ spec:
                   was last processed by the controller.
                 format: int64
                 type: integer
+              sizeBytes:
+                format: int64
+                type: integer
               trace:
                 items:
                   properties:
@@ -1693,6 +1726,9 @@ spec:
                       type: string
                     namespace:
                       type: string
+                    sizeBytes:
+                      format: int64
+                      type: integer
                     trace:
                       x-kubernetes-preserve-unknown-fields: true
                     uid:
@@ -1926,6 +1962,9 @@ spec:
                   was last processed by the controller.
                 format: int64
                 type: integer
+              sizeBytes:
+                format: int64
+                type: integer
               trace:
                 items:
                   properties:
@@ -1941,6 +1980,9 @@ spec:
                       type: string
                     namespace:
                       type: string
+                    sizeBytes:
+                      format: int64
+                      type: integer
                     trace:
                       x-kubernetes-preserve-unknown-fields: true
                     uid:
@@ -2475,6 +2517,9 @@ spec:
                   was last processed by the controller.
                 format: int64
                 type: integer
+              sizeBytes:
+                format: int64
+                type: integer
               trace:
                 items:
                   properties:
@@ -2490,6 +2535,9 @@ spec:
                       type: string
                     namespace:
                       type: string
+                    sizeBytes:
+                      format: int64
+                      type: integer
                     trace:
                       x-kubernetes-preserve-unknown-fields: true
                     uid:

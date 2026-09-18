@@ -94,7 +94,7 @@ func CopyImage() *reconcilers.SyncReconciler[registriesv1alpha1.GenericImage] {
 				return err
 			}
 
-			digestRef, err := registry.Copy(ctx, source, tagRef, remote.WithAuthFromKeychain(keychain))
+			digestRef, _, err := registry.Copy(ctx, source, tagRef, remote.WithAuthFromKeychain(keychain))
 			if err != nil {
 				log.Error(err, "failed to copy image", "repository", tagRef.Name())
 				c.Recorder.Eventf(resource, corev1.EventTypeWarning, "CopyFailed", "%s", err)

@@ -159,6 +159,7 @@ func AppendComponent() reconcilers.SubReconciler[*containersv1alpha1.ComponentCo
 			resource.GetConditionManager(ctx).MarkTrue(containersv1alpha1.ComponentContainerImageConditionPushed, "Pushed", "")
 
 			controllers.RepositoryDigestStasher.Store(ctx, digestRef)
+			controllers.RepositorySizeStasher.Store(ctx, nil)
 
 			return nil
 		},

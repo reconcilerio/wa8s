@@ -174,33 +174,46 @@ func PullConfig(ctx context.Context, ref name.Digest, opts ...remote.Option) (Wa
 	return config, nil
 }
 
-func Copy(ctx context.Context, from name.Reference, to name.Tag, opts ...remote.Option) (name.Digest, error) {
+func Copy(ctx context.Context, from name.Reference, to name.Tag, opts ...remote.Option) (name.Digest, int64, error) {
 	transport, err := CustomTransport(ctx)
 	if err != nil {
-		return name.Digest{}, err
+		return name.Digest{}, 0, err
 	}
 	opts = append(opts, remote.WithContext(ctx), remote.WithTransport(transport))
 
 	pusher, err := remote.NewPusher(opts...)
 	if err != nil {
-		return name.Digest{}, err
+		return name.Digest{}, 0, err
 	}
 	puller, err := remote.NewPuller(opts...)
 	if err != nil {
-		return name.Digest{}, err
+		return name.Digest{}, 0, err
 	}
 	digest, err := ResolveDigest(ctx, from.Name(), opts...)
 	if err != nil {
-		return name.Digest{}, err
+		return name.Digest{}, 0, err
 	}
 	desc, err := puller.Get(ctx, digest)
 	if err != nil {
-		return name.Digest{}, err
+		return name.Digest{}, 0, err
 	}
 	if err := pusher.Push(ctx, to, desc); err != nil {
-		return name.Digest{}, err
+		return name.Digest{}, 0, err
 	}
-	return name.NewDigest(fmt.Sprintf("%s@%s", to.Repository, digest.DigestStr()))
+	image, err := desc.Image()
+	if err != nil {
+		return name.Digest{}, 0, err
+	}
+	manifest, err := image.Manifest()
+	if err != nil {
+		return name.Digest{}, 0, err
+	}
+	var totalSize int64 = 0
+	for _, layer := range manifest.Layers {
+		totalSize += layer.Size
+	}
+	digest, err = name.NewDigest(fmt.Sprintf("%s@%s", to.Repository, digest.DigestStr()))
+	return digest, totalSize, err
 }
 
 func componentAsLayer(component []byte) (layer v1.Layer, err error) {
