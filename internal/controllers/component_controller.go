@@ -148,7 +148,7 @@ func CopyComponent() *reconcilers.SyncReconciler[componentsv1alpha1.GenericCompo
 				panic(fmt.Errorf("image or ref must be defined"))
 			}
 
-			digestRef, err := registry.Copy(ctx, source, tagRef, remote.WithAuthFromKeychain(keychain))
+			digestRef, sizeBytes, err := registry.Copy(ctx, source, tagRef, remote.WithAuthFromKeychain(keychain))
 			if err != nil {
 				log.Error(err, "failed to copy component", "repository", tagRef.Name())
 				c.Recorder.Eventf(resource, corev1.EventTypeWarning, "CopyFailed", "%s", err)
@@ -167,6 +167,7 @@ func CopyComponent() *reconcilers.SyncReconciler[componentsv1alpha1.GenericCompo
 			conditionManager.MarkTrue(componentsv1alpha1.ComponentConditionCopied, "Copied", "")
 
 			controllers.RepositoryDigestStasher.Store(ctx, digestRef)
+			controllers.RepositorySizeStasher.Store(ctx, &sizeBytes)
 			controllers.ComponentConfigStasher.Store(ctx, config)
 
 			return nil

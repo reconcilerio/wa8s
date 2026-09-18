@@ -42,9 +42,10 @@ type GenericComponentSpec struct {
 // GenericComponentStatus defines the observed state of GenericComponent
 type GenericComponentStatus struct {
 	// Image resolved from an oci repository holding the wasm component
-	Image string          `json:"image,omitempty"`
-	WIT   *WIT            `json:"wit,omitempty"`
-	Trace []ComponentSpan `json:"trace,omitempty"`
+	Image     string          `json:"image,omitempty"`
+	WIT       *WIT            `json:"wit,omitempty"`
+	Trace     []ComponentSpan `json:"trace,omitempty"`
+	SizeBytes *int64          `json:"sizeBytes,omitempty"`
 }
 
 // +die
@@ -65,6 +66,7 @@ type ComponentSpan struct {
 	//+kubebuilder:pruning:PreserveUnknownFields
 	//+kubebuilder:validation:Schemaless
 	Trace        []ComponentSpan `json:"trace,omitempty"`
+	SizeBytes    *int64          `json:"sizeBytes,omitempty"`
 	CycleOmitted bool            `json:"cycleOmitted,omitempty"`
 }
 

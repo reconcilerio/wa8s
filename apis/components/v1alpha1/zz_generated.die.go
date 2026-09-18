@@ -6444,6 +6444,12 @@ func (d *GenericComponentStatusDie) Trace(v ...ComponentSpan) *GenericComponentS
 	})
 }
 
+func (d *GenericComponentStatusDie) SizeBytes(v *int64) *GenericComponentStatusDie {
+	return d.DieStamp(func(r *GenericComponentStatus) {
+		r.SizeBytes = v
+	})
+}
+
 var WITBlank = (&WITDie{}).DieFeed(WIT{})
 
 type WITDie struct {
@@ -6997,6 +7003,12 @@ func (d *ComponentSpanDie) Name(v string) *ComponentSpanDie {
 func (d *ComponentSpanDie) Trace(v ...ComponentSpan) *ComponentSpanDie {
 	return d.DieStamp(func(r *ComponentSpan) {
 		r.Trace = v
+	})
+}
+
+func (d *ComponentSpanDie) SizeBytes(v *int64) *ComponentSpanDie {
+	return d.DieStamp(func(r *ComponentSpan) {
+		r.SizeBytes = v
 	})
 }
 
