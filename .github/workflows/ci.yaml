@@ -151,14 +151,9 @@ jobs:
         with:
           go-version-file: go.mod
           cache-dependency-path: "**/*.sum"
-      - uses: actions-rust-lang/setup-rust-toolchain@v2
       - name: Install cargo binstall
         uses: cargo-bins/cargo-binstall@main
       - parallel:
-          - name: Install cargo component
-            run: cargo binstall --force cargo-component
-          - name: Install wasm-tools
-            run: cargo binstall --force wasm-tools
           - name: Install wkg
             run: cargo binstall --force wkg
           - *install-controller-gen
@@ -192,14 +187,9 @@ jobs:
         with:
           go-version-file: go.mod
           cache-dependency-path: "**/*.sum"
-      - uses: actions-rust-lang/setup-rust-toolchain@v2
       - name: Install cargo binstall
         uses: cargo-bins/cargo-binstall@main
       - parallel:
-          - name: Install cargo component
-            run: cargo binstall --force cargo-component
-          - name: Install wasm-tools
-            run: cargo binstall --force wasm-tools
           - name: Install wkg
             run: cargo binstall --force wkg
           - *install-imgpkg
