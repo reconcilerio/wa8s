@@ -190,12 +190,7 @@ func RenewRequeue() reconcilers.SubReconciler[*servicesv1alpha1.ServiceClient] {
 			now := rtime.RetrieveNow(ctx)
 			renewsAt := resource.Status.RenewsAfter
 
-			if after := renewsAt.Sub(now); after > 0 {
-				return reconcile.Result{RequeueAfter: after}, nil
-			}
-
-			// should have already renewed
-			return reconcile.Result{Requeue: true}, nil
+			return reconcile.Result{RequeueAfter: max(renewsAt.Sub(now), 1)}, nil
 		},
 	}
 }
