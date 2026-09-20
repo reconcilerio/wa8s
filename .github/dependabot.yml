@@ -1,98 +1,77 @@
 version: 2
 updates:
-- package-ecosystem: github-actions
-  directory: "/"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: rust-toolchain
-  directory: "/"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/"
-  groups:
-    kubernetes:
-      patterns:
-      - "k8s.io/*"
-      - "reconciler.io/dies"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: cargo
-  directory: "/"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-  groups:
-    wasm-tools:
-      patterns:
-      - wasmparser
-      - wat
-      - wit-component
-    wac:
-      patterns:
-      - wac-graph
-      - wac-parser
-- package-ecosystem: gomod
-  directory: "/hack/controller-gen"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/hack/diegen"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/hack/goimports"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/hack/golangci-lint"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/hack/imgpkg"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/hack/kapp"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/hack/kbld"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/hack/ko"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/hack/kustomize"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/hack/stern"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/hack/yq"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/hack/ytt"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/"
+    groups:
+      kubernetes:
+        patterns:
+          - "k8s.io/*"
+          - "reconciler.io/dies"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/controller-gen"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/diegen"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/goimports"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/golangci-lint"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/imgpkg"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/kapp"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/kbld"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/ko"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/kustomize"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/stern"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/yq"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/hack/ytt"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10

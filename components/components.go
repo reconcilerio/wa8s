@@ -19,198 +19,169 @@ package components
 import (
 	"context"
 	_ "embed"
-	"encoding/json"
 	"fmt"
-	"sort"
-	"sync"
 
-	extism "github.com/extism/go-sdk"
 	"github.com/google/go-containerregistry/pkg/name"
-	"github.com/tetratelabs/wazero"
+	"github.com/samyfodil/wazy"
+	"github.com/samyfodil/wazy/component"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
 )
 
+var runtime wazy.Runtime
+var compileCache *component.CompileCache
+
+func init() {
+	runtime = wazy.NewRuntime(context.Background())
+	compileCache = component.NewCompileCache()
+}
+
 //go:embed wit-tools.wasm
 var witToolsWasm []byte
-var witToolsPool = bootstrapPool(witToolsWasm, "wit-tools.wasm")
 
-func ExtractWIT(ctx context.Context, component []byte) (_ string, err error) {
+func ExtractWIT(ctx context.Context, bytes []byte) (imports []string, exports []string, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic calling ExtractWIT: %s", r)
 		}
 	}()
 
-	plugin := witToolsPool.Get().(*extism.Plugin)
-	defer witToolsPool.Put(plugin)
-
-	_, out, err := plugin.CallWithContext(ctx, "extract", component)
+	var inst *component.Instance
+	// inst, err = component.Instantiate(ctx, runtime, witToolsWasm, component.WithCompileCache(compileCache))
+	inst, err = component.Instantiate(ctx, runtime, witToolsWasm)
 	if err != nil {
-		return "", err
+		return nil, nil, fmt.Errorf("instantiate wit-tools: %s", err)
 	}
-	return string(out), nil
+	defer func() {
+		err = inst.Close(ctx)
+	}()
+
+	var got []component.Value
+	got, err = inst.CallExport(ctx, "componentized:component/wit@0.0.0-0", "summarize-world", bytes)
+	if err != nil {
+		return nil, nil, fmt.Errorf("call wit-tools summarize-world: %w", err)
+	}
+	result := got[0].(component.ResultValue)
+	if result.IsErr {
+		return nil, nil, fmt.Errorf("call wit-tools summarize-world: %s", result.Payload)
+	}
+
+	summary := result.Payload.([]component.Value)
+	for _, i := range summary[0].([]component.Value) {
+		imports = append(imports, i.(string))
+	}
+	for _, e := range summary[1].([]component.Value) {
+		exports = append(exports, e.(string))
+	}
+
+	return
 }
 
 //go:embed static-config.wasm
 var staticConfigWasm []byte
-var staticConfigPool = bootstrapPool(staticConfigWasm, "static-config.wasm")
 
 func ComponentizeConfigStore(ctx context.Context, config map[string]string) (_ []byte, err error) {
+	var inst *component.Instance
+	inst, err = component.Instantiate(ctx, runtime, staticConfigWasm, component.WithCompileCache(compileCache))
+	if err != nil {
+		panic(fmt.Errorf("instantiate static-config: %s", err))
+	}
 	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("panic calling ComponentizeConfigStore: %s", r)
-		}
+		err = inst.Close(ctx)
 	}()
 
-	plugin := staticConfigPool.Get().(*extism.Plugin)
-	defer staticConfigPool.Put(plugin)
-
-	c := [][]string{}
-
-	for k, v := range config {
-		c = append(c, []string{k, v})
+	values := []component.Value{}
+	for key, value := range config {
+		values = append(values, []component.Value{key, value})
 	}
-	sort.Slice(c, func(i, j int) bool {
-		return c[i][0] < c[j][0]
-	})
 
-	bytes, err := json.Marshal(c)
+	var got []component.Value
+	got, err = inst.CallExport(ctx, "componentized:config/factory", "build-component", values)
 	if err != nil {
-		return nil, err
+		panic(fmt.Errorf("call static-config: %w", err))
 	}
-	_, component, err := plugin.CallWithContext(ctx, "build_component", bytes)
-	if err != nil {
-		return nil, err
+	result := got[0].(component.ResultValue)
+	if result.IsErr {
+		return nil, fmt.Errorf("call static-config: %s", result.Payload)
 	}
-
-	return component, nil
+	return result.Payload.([]byte), nil
 }
 
 //go:embed wac.wasm
 var wacWasm []byte
-var wacPool = bootstrapPool(wacWasm, "wac.wasm")
 
-type ResolvedComponent struct {
+type CompositionDependency struct {
 	Name      string
 	Image     name.Digest
 	Component []byte
 	WIT       componentsv1alpha1.WIT
 }
 
-func WACCompose(ctx context.Context, wac string, dependencies []ResolvedComponent) (_ []byte, err error) {
+func WACCompose(ctx context.Context, wac string, dependencies []CompositionDependency) (_ []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic calling WACCompose: %s", r)
 		}
 	}()
 
-	plugin := wacPool.Get().(*extism.Plugin)
-	defer wacPool.Put(plugin)
-
-	type WACDependency struct {
-		Name      string `json:"name"`
-		Component []byte `json:"component"`
-	}
-	type WAC struct {
-		Script       string          `json:"script"`
-		Dependencies []WACDependency `json:"dependencies"`
-	}
-
-	input := WAC{
-		Script:       wac,
-		Dependencies: []WACDependency{},
-	}
-	for _, dependency := range dependencies {
-		input.Dependencies = append(input.Dependencies, WACDependency{
-			Name:      dependency.Name,
-			Component: dependency.Component,
-		})
-	}
-
-	inputJson, err := json.Marshal(input)
+	var inst *component.Instance
+	inst, err = component.Instantiate(ctx, runtime, wacWasm, component.WithCompileCache(compileCache))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("instantiate wac-loader: %s", err)
 	}
-	_, component, err := plugin.CallWithContext(ctx, "compose", inputJson)
-	if err != nil {
-		return nil, err
+	defer func() {
+		err = inst.Close(ctx)
+	}()
+
+	plan := component.VariantValue{Disc: 0, Payload: wac}
+	deps := []component.Value{}
+	for _, dep := range dependencies {
+		deps = append(deps, []component.Value{dep.Name, dep.Component})
 	}
 
-	return component, nil
+	var got []component.Value
+	got, err = inst.CallExport(ctx, "componentized:component/wac-loader@0.0.0-0", "compose", plan, deps)
+	if err != nil {
+		return nil, fmt.Errorf("call wac-loader compose: %w", err)
+	}
+	result := got[0].(component.ResultValue)
+	if result.IsErr {
+		return nil, fmt.Errorf("call wac-loader compose: %s", result.Payload)
+	}
+	return component.ListOf[byte](result.Payload)
 }
 
-func WACPlug(ctx context.Context, dependencies []ResolvedComponent) (_ []byte, err error) {
+func WACPlug(ctx context.Context, dependencies []CompositionDependency) (_ []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic calling WACPlug: %s", r)
 		}
 	}()
 
-	plugin := wacPool.Get().(*extism.Plugin)
-	defer wacPool.Put(plugin)
-
-	type WACDependency struct {
-		Name      string `json:"name"`
-		Component []byte `json:"component"`
-	}
-	type WAC struct {
-		Script       string          `json:"script"`
-		Dependencies []WACDependency `json:"dependencies"`
-	}
-
-	input := WAC{
-		Script:       "",
-		Dependencies: []WACDependency{},
-	}
-	for _, dependency := range dependencies {
-		input.Dependencies = append(input.Dependencies, WACDependency{
-			Name:      dependency.Name,
-			Component: dependency.Component,
-		})
-	}
-
-	inputJson, err := json.Marshal(input)
+	var inst *component.Instance
+	inst, err = component.Instantiate(ctx, runtime, wacWasm, component.WithCompileCache(compileCache))
 	if err != nil {
+		return nil, fmt.Errorf("instantiate wac-loader: %s", err)
+	}
+	defer func() {
+		err = inst.Close(ctx)
+	}()
+
+	socket := dependencies[0].Component
+	plugs := []component.Value{}
+	for _, plug := range dependencies[1:] {
+		plugs = append(plugs, plug.Component)
+	}
+
+	var got []component.Value
+	got, err = inst.CallExport(ctx, "componentized:component/wac-loader@0.0.0-0", "plug", socket, plugs)
+	if err != nil {
+		return nil, fmt.Errorf("call wac-loader plug: %w", err)
+	}
+	result := got[0].(component.ResultValue)
+	if result.IsErr {
+		err = fmt.Errorf("call wac-loader plug: %s", result.Payload)
 		return nil, err
 	}
-	_, component, err := plugin.CallWithContext(ctx, "plug", inputJson)
-	if err != nil {
-		return nil, err
-	}
-
-	return component, nil
-}
-
-func bootstrapPool(wasm []byte, name string) sync.Pool {
-	return sync.Pool{
-		New: func() any {
-			plugin, err := bootstrapPlugin(wasm, name)
-			if err != nil {
-				panic(err)
-			}
-			return plugin
-		},
-	}
-}
-
-func bootstrapPlugin(wasm []byte, name string) (*extism.Plugin, error) {
-	manifest := extism.Manifest{
-		Wasm: []extism.Wasm{
-			extism.WasmData{
-				Data: wasm,
-				Name: name,
-			},
-		},
-	}
-
-	config := extism.PluginConfig{
-		// EnableWasi:    true,
-		RuntimeConfig: wazero.NewRuntimeConfig().WithCloseOnContextDone(true),
-	}
-	plugin, err := extism.NewPlugin(context.Background(), manifest, config, []extism.HostFunction{})
-	if err != nil {
-		return nil, err
-	}
-	return plugin, nil
+	return component.ListOf[byte](result.Payload)
 }

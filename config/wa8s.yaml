@@ -3129,7 +3129,7 @@ metadata:
   name: wasmtime
   namespace: wa8s-system
 spec:
-  image: ghcr.io/componentized/wasmtime:v46
+  image: ghcr.io/componentized/wasmtime:v48
 ---
 apiVersion: registries.wa8s.reconciler.io/v1alpha1
 kind: ClusterImage
@@ -3145,8 +3145,8 @@ metadata:
   name: default
   namespace: wa8s-system
 spec:
-  template: registry.wa8s-system.svc.cluster.local/{{ .Kind }}/{{ .UID }}:{{ .ResourceVersion
-    }}
+  template: registry.wa8s-system.svc.cluster.local/{{ .Kind }}/{{ .Namespace }}/{{
+    .Name }}:{{ .UID }}
 ---
 apiVersion: wa8s.reconciler.io/v1
 kind: ComponentDuck
