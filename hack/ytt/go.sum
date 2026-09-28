@@ -1,5 +1,5 @@
-carvel.dev/ytt v0.55.2 h1:stQ3bevnqf8o8dVWpgT+lmTCoe9DNHz3LV/Jmskk7T0=
-carvel.dev/ytt v0.55.2/go.mod h1:C7g1xDPF0SwLTFZisaHFJYbYfKHi+AU7JFTBX9mLSbM=
+carvel.dev/ytt v0.55.3 h1:zt3cerJ9+3+7WPjLUhg5ifNUryXOI2yEpOS2RG1zpfY=
+carvel.dev/ytt v0.55.3/go.mod h1:C7g1xDPF0SwLTFZisaHFJYbYfKHi+AU7JFTBX9mLSbM=
 github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
