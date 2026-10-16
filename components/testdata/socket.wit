@@ -1,0 +1,24 @@
+package test:socket;
+
+interface greeter {
+  greet: func() -> string;
+}
+
+world socket {
+  import wasi:config/store@0.2.0-rc.1;
+
+  export greeter;
+}
+
+package wasi:config@0.2.0-rc.1 {
+  interface store {
+    variant error {
+      upstream(string),
+      io(string),
+    }
+
+    get: func(key: string) -> result<option<string>, error>;
+
+    get-all: func() -> result<list<tuple<string, string>>, error>;
+  }
+}

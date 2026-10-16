@@ -53,41 +53,54 @@ func ExtractWIT(ctx context.Context, bytes []byte) (imports []string, exports []
 		return nil, nil, fmt.Errorf("instantiate wit-tools: %s", err)
 	}
 	defer func() {
-		err = inst.Close(ctx)
+		if closeErr := inst.Close(ctx); err == nil {
+			err = closeErr
+		}
 	}()
 
 	var got []component.Value
-	got, err = inst.CallExport(ctx, "componentized:component/wit@0.0.0-0", "summarize-world", bytes)
+	// wit-source variant, case 0 is wasm(wasm)
+	source := component.VariantValue{Disc: 0, Payload: bytes}
+	got, err = inst.CallExport(ctx, "componentized:component/wit@0.1.0", "summarize", source)
 	if err != nil {
-		return nil, nil, fmt.Errorf("call wit-tools summarize-world: %w", err)
+		return nil, nil, fmt.Errorf("call wit-tools summarize: %w", err)
 	}
 	result := got[0].(component.ResultValue)
 	if result.IsErr {
-		return nil, nil, fmt.Errorf("call wit-tools summarize-world: %s", result.Payload)
+		return nil, nil, fmt.Errorf("call wit-tools summarize: %s", formatErrorCode(result.Payload))
 	}
 
+	// summary record {imports: list<string>, exports: list<string>}
 	summary := result.Payload.([]component.Value)
-	for _, i := range summary[0].([]component.Value) {
-		imports = append(imports, i.(string))
+	if imports, err = component.ListOf[string](summary[0]); err != nil {
+		return nil, nil, fmt.Errorf("call wit-tools summarize: %w", err)
 	}
-	for _, e := range summary[1].([]component.Value) {
-		exports = append(exports, e.(string))
+	if exports, err = component.ListOf[string](summary[1]); err != nil {
+		return nil, nil, fmt.Errorf("call wit-tools summarize: %w", err)
 	}
 
-	return
+	return imports, exports, nil
 }
 
 //go:embed static-config.wasm
 var staticConfigWasm []byte
 
 func ComponentizeConfigStore(ctx context.Context, config map[string]string) (_ []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic calling ComponentizeConfigStore: %s", r)
+		}
+	}()
+
 	var inst *component.Instance
 	inst, err = component.Instantiate(ctx, runtime, staticConfigWasm, component.WithCompileCache(compileCache))
 	if err != nil {
-		panic(fmt.Errorf("instantiate static-config: %s", err))
+		return nil, fmt.Errorf("instantiate static-config: %s", err)
 	}
 	defer func() {
-		err = inst.Close(ctx)
+		if closeErr := inst.Close(ctx); err == nil {
+			err = closeErr
+		}
 	}()
 
 	values := []component.Value{}
@@ -96,15 +109,15 @@ func ComponentizeConfigStore(ctx context.Context, config map[string]string) (_ [
 	}
 
 	var got []component.Value
-	got, err = inst.CallExport(ctx, "componentized:config/factory", "build-component", values)
+	got, err = inst.CallExport(ctx, "componentized:static-config/factory@0.3.0", "create", values)
 	if err != nil {
-		panic(fmt.Errorf("call static-config: %w", err))
+		return nil, fmt.Errorf("call static-config create: %w", err)
 	}
 	result := got[0].(component.ResultValue)
 	if result.IsErr {
-		return nil, fmt.Errorf("call static-config: %s", result.Payload)
+		return nil, fmt.Errorf("call static-config create: %s", formatErrorCode(result.Payload))
 	}
-	return result.Payload.([]byte), nil
+	return component.ListOf[byte](result.Payload)
 }
 
 //go:embed wac.wasm
@@ -130,7 +143,9 @@ func WACCompose(ctx context.Context, wac string, dependencies []CompositionDepen
 		return nil, fmt.Errorf("instantiate wac-loader: %s", err)
 	}
 	defer func() {
-		err = inst.Close(ctx)
+		if closeErr := inst.Close(ctx); err == nil {
+			err = closeErr
+		}
 	}()
 
 	plan := component.VariantValue{Disc: 0, Payload: wac}
@@ -140,13 +155,13 @@ func WACCompose(ctx context.Context, wac string, dependencies []CompositionDepen
 	}
 
 	var got []component.Value
-	got, err = inst.CallExport(ctx, "componentized:component/wac-loader@0.0.0-0", "compose", plan, deps)
+	got, err = inst.CallExport(ctx, "componentized:component/wac-loader@0.1.0", "compose", plan, deps)
 	if err != nil {
 		return nil, fmt.Errorf("call wac-loader compose: %w", err)
 	}
 	result := got[0].(component.ResultValue)
 	if result.IsErr {
-		return nil, fmt.Errorf("call wac-loader compose: %s", result.Payload)
+		return nil, fmt.Errorf("call wac-loader compose: %s", formatErrorCode(result.Payload))
 	}
 	return component.ListOf[byte](result.Payload)
 }
@@ -164,7 +179,9 @@ func WACPlug(ctx context.Context, dependencies []CompositionDependency) (_ []byt
 		return nil, fmt.Errorf("instantiate wac-loader: %s", err)
 	}
 	defer func() {
-		err = inst.Close(ctx)
+		if closeErr := inst.Close(ctx); err == nil {
+			err = closeErr
+		}
 	}()
 
 	socket := dependencies[0].Component
@@ -174,14 +191,48 @@ func WACPlug(ctx context.Context, dependencies []CompositionDependency) (_ []byt
 	}
 
 	var got []component.Value
-	got, err = inst.CallExport(ctx, "componentized:component/wac-loader@0.0.0-0", "plug", socket, plugs)
+	got, err = inst.CallExport(ctx, "componentized:component/wac-loader@0.1.0", "plug", socket, plugs)
 	if err != nil {
 		return nil, fmt.Errorf("call wac-loader plug: %w", err)
 	}
 	result := got[0].(component.ResultValue)
 	if result.IsErr {
-		err = fmt.Errorf("call wac-loader plug: %s", result.Payload)
-		return nil, err
+		return nil, fmt.Errorf("call wac-loader plug: %s", formatErrorCode(result.Payload))
 	}
 	return component.ListOf[byte](result.Payload)
+}
+
+// formatErrorCode renders a componentized:component/types@0.1.0 error-code variant
+func formatErrorCode(v component.Value) string {
+	code, ok := v.(component.VariantValue)
+	if !ok {
+		return fmt.Sprintf("%v", v)
+	}
+	switch code.Disc {
+	case 0:
+		// malformed(record {name: option<string>, message: string})
+		malformed, ok := code.Payload.([]component.Value)
+		if !ok || len(malformed) != 2 {
+			return fmt.Sprintf("malformed: %v", code.Payload)
+		}
+		if name, ok := malformed[0].(string); ok {
+			return fmt.Sprintf("malformed %s: %v", name, malformed[1])
+		}
+		return fmt.Sprintf("malformed: %v", malformed[1])
+	case 1:
+		return formatOptionalMessage("not component", code.Payload)
+	case 2:
+		return formatOptionalMessage("not found", code.Payload)
+	case 3:
+		return formatOptionalMessage("other", code.Payload)
+	default:
+		return fmt.Sprintf("unknown error code %d: %v", code.Disc, code.Payload)
+	}
+}
+
+func formatOptionalMessage(kind string, message component.Value) string {
+	if message == nil {
+		return kind
+	}
+	return fmt.Sprintf("%s: %v", kind, message)
 }

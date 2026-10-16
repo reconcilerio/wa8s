@@ -28,4 +28,5 @@ go.work
 .DS_Store
 
 *.wasm
+!components/testdata/*.wasm
 target/
