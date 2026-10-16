@@ -50,6 +50,8 @@ type GenericContainerSpec struct {
 // +die:field:name=Env,die=HostEnvDie,pointer=true
 // +die:field:name=Config,die=HostConfigDie,pointer=true
 // +die:field:name=Network,die=HostNetworkDie,pointer=true
+// +die:field:name=WasmOptions,die=HostOptionDie,listType=map
+// +die:field:name=WasiOptions,die=HostOptionDie,listType=map
 type HostCapabilities struct {
 	Env         *HostEnv     `json:"env,omitempty"`
 	Config      *HostConfig  `json:"config,omitempty"`
@@ -81,10 +83,10 @@ func (c *HostCapabilities) WasmtimeArgs() []string {
 	}
 
 	for _, opt := range c.WasiOptions {
-		args = append(args, opt.WasmtimeArgs("-S")...)
+		args = append(args, opt.WasmtimeArgs("--wasi")...)
 	}
 	for _, opt := range c.WasmOptions {
-		args = append(args, opt.WasmtimeArgs("-W")...)
+		args = append(args, opt.WasmtimeArgs("--wasm")...)
 	}
 
 	return args

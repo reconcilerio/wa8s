@@ -2490,6 +2490,42 @@ func (d *HostCapabilitiesDie) NetworkDie(fn func(d *HostNetworkDie)) *HostCapabi
 	})
 }
 
+// WasmOptionDie mutates a single item in WasmOptions matched by the nested field Name, appending a new item if no match is found.
+func (d *HostCapabilitiesDie) WasmOptionDie(v string, fn func(d *HostOptionDie)) *HostCapabilitiesDie {
+	return d.DieStamp(func(r *HostCapabilities) {
+		for i := range r.WasmOptions {
+			if v == r.WasmOptions[i].Name {
+				d := HostOptionBlank.DieImmutable(false).DieFeed(r.WasmOptions[i])
+				fn(d)
+				r.WasmOptions[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := HostOptionBlank.DieImmutable(false).DieFeed(HostOption{Name: v})
+		fn(d)
+		r.WasmOptions = append(r.WasmOptions, d.DieRelease())
+	})
+}
+
+// WasiOptionDie mutates a single item in WasiOptions matched by the nested field Name, appending a new item if no match is found.
+func (d *HostCapabilitiesDie) WasiOptionDie(v string, fn func(d *HostOptionDie)) *HostCapabilitiesDie {
+	return d.DieStamp(func(r *HostCapabilities) {
+		for i := range r.WasiOptions {
+			if v == r.WasiOptions[i].Name {
+				d := HostOptionBlank.DieImmutable(false).DieFeed(r.WasiOptions[i])
+				fn(d)
+				r.WasiOptions[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := HostOptionBlank.DieImmutable(false).DieFeed(HostOption{Name: v})
+		fn(d)
+		r.WasiOptions = append(r.WasiOptions, d.DieRelease())
+	})
+}
+
 func (d *HostCapabilitiesDie) Env(v *HostEnv) *HostCapabilitiesDie {
 	return d.DieStamp(func(r *HostCapabilities) {
 		r.Env = v
