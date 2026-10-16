@@ -186,6 +186,28 @@ spec:
                             ipNameLookup:
                               type: boolean
                           type: object
+                        wasiOptions:
+                          items:
+                            properties:
+                              name:
+                                type: string
+                              value:
+                                type: string
+                            required:
+                              - name
+                            type: object
+                          type: array
+                        wasmOptions:
+                          items:
+                            properties:
+                              name:
+                                type: string
+                              value:
+                                type: string
+                            required:
+                              - name
+                            type: object
+                          type: array
                       type: object
                     ref:
                       description: Ref references the component to convert to an image

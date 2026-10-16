@@ -50,10 +50,14 @@ type GenericContainerSpec struct {
 // +die:field:name=Env,die=HostEnvDie,pointer=true
 // +die:field:name=Config,die=HostConfigDie,pointer=true
 // +die:field:name=Network,die=HostNetworkDie,pointer=true
+// +die:field:name=WasmOptions,die=HostOptionDie,listType=map
+// +die:field:name=WasiOptions,die=HostOptionDie,listType=map
 type HostCapabilities struct {
-	Env     *HostEnv     `json:"env,omitempty"`
-	Config  *HostConfig  `json:"config,omitempty"`
-	Network *HostNetwork `json:"network,omitempty"`
+	Env         *HostEnv     `json:"env,omitempty"`
+	Config      *HostConfig  `json:"config,omitempty"`
+	Network     *HostNetwork `json:"network,omitempty"`
+	WasmOptions []HostOption `json:"wasmOptions,omitempty"`
+	WasiOptions []HostOption `json:"wasiOptions,omitempty"`
 }
 
 func (c *HostCapabilities) WrpcWasmtimeArgs() []string {
@@ -76,6 +80,13 @@ func (c *HostCapabilities) WasmtimeArgs() []string {
 	}
 	if c.Network != nil {
 		args = append(args, c.Network.WasmtimeArgs()...)
+	}
+
+	for _, opt := range c.WasiOptions {
+		args = append(args, opt.WasmtimeArgs("--wasi")...)
+	}
+	for _, opt := range c.WasmOptions {
+		args = append(args, opt.WasmtimeArgs("--wasm")...)
 	}
 
 	return args
@@ -163,6 +174,24 @@ func (c *HostNetwork) WasmtimeArgs() []string {
 	}
 
 	return args
+}
+
+// +die
+type HostOption struct {
+	Name  string `json:"name"`
+	Value string `json:"value,omitempty"`
+}
+
+func (c *HostOption) WasmtimeArgs(prefix string) []string {
+	if c.Value == "" {
+		return []string{
+			fmt.Sprintf("%s=%s", prefix, c.Name),
+		}
+	} else {
+		return []string{
+			fmt.Sprintf("%s=%s=%s", prefix, c.Name, c.Value),
+		}
+	}
 }
 
 // +die

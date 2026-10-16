@@ -144,6 +144,15 @@ func TestHostNetworkDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestHostOptionDie_MissingMethods(t *testingx.T) {
+	die := HostOptionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for HostOptionDie: %s", diff.List())
+	}
+}
+
 func TestGenericContainerStatusDie_MissingMethods(t *testingx.T) {
 	die := GenericContainerStatusBlank
 	ignore := []string{}
