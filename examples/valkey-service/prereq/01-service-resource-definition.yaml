@@ -22,12 +22,13 @@ spec:
     hostCapabilities:
       env:
         vars:
-        - name: RUST_BACKTRACE
-          value: "1"
+          - name: RUST_BACKTRACE
+            value: "1"
       network:
         inherit: true
         ipNameLookup: true
     clientRef:
+      kind: Composition
       name: valkey-client
       namespace: wa8s-service-valkey
 
@@ -39,35 +40,35 @@ metadata:
     services.wa8s.reconciler.io/manager: "true"
   name: wa8s-services-x-valkey
 rules:
-- apiGroups:
-  - x.services.wa8s.reconciler.io
-  resources:
-  - valkeys
-  - valkeyclients
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - x.services.wa8s.reconciler.io
-  resources:
-  - valkeys/status
-  - valkeyclients/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - x.services.wa8s.reconciler.io
-  resources:
-  - valkeys/finalizers
-  - valkeyclients/finalizers
-  verbs:
-  - update
+  - apiGroups:
+      - x.services.wa8s.reconciler.io
+    resources:
+      - valkeys
+      - valkeyclients
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - x.services.wa8s.reconciler.io
+    resources:
+      - valkeys/status
+      - valkeyclients/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - x.services.wa8s.reconciler.io
+    resources:
+      - valkeys/finalizers
+      - valkeyclients/finalizers
+    verbs:
+      - update
 
 ---
 apiVersion: wa8s.reconciler.io/v1alpha1
@@ -77,20 +78,63 @@ metadata:
   name: valkey-lifecycle
 spec:
   dependencies:
-  - component: componentized:lifecycle
-    oci:
-      image: ghcr.io/componentized/services/valkey-lifecycle:v0.0.4@sha256:00d667788f5cc5f70441ac709363fc0b06e648e9eb5d63f0e6f632e1c58ff25f
-  - component: componentized:config
-    config:
-      valuesFrom:
-      - name: valkey
+    - component: componentized:lifecycle
+      oci:
+        image: ghcr.io/componentized/services/valkey-lifecycle:v0.0.4@sha256:00d667788f5cc5f70441ac709363fc0b06e648e9eb5d63f0e6f632e1c58ff25f
+    - component: componentized:config
+      config:
+        valuesFrom:
+          - name: valkey
 
 ---
 apiVersion: wa8s.reconciler.io/v1alpha1
-kind: Component
+kind: Composition
 metadata:
   namespace: wa8s-service-valkey
   name: valkey-client
 spec:
-  oci:
-    image: ghcr.io/componentized/valkey/valkey-client:v0.2.1@sha256:c9672e1ce38df6635787cd9a832cf3b0392b0a5dc9c71016872b22fdf179d331
+  dependencies:
+    - component: local:client
+      oci:
+        image: ghcr.io/componentized/valkey/client:0.3.0-dev@sha256:4aa7107eb911cdea5546d00ad8c0a196998dadaa4903908cf959a339a746d6e4
+    - component: local:sockets-gate
+      oci:
+        image: ghcr.io/componentized/sockets/gate:0.1.0@sha256:91be0efd2190305e0e0ff44bd824c2426986b510ae78fcecc0bf60fe23660237
+    - component: local:tcp-connector-latch
+      oci:
+        image: ghcr.io/componentized/valkey/tcp-connector-latch:0.3.0-dev@sha256:997790dc39463e0d0df6665e0cb2ccf1bb6a661e3eb403441afb4cb3f2ade166
+    - component: local:logging
+      ref:
+        kind: ClusterComponent
+        name: wa8s-services-logging
+  wac: |
+    package wa8s-services:valkey;
+
+    // The gate, the latch and the logger see the host, wasi:sockets included, the interfaces they
+    // share with the components behind the gate are wired to the same imports.
+
+    // wasmtime does not provide wasi:logging, so the composition does, for the latch and the gate
+    let logging = new local:logging {
+        ...
+    };
+
+    // the latch, limiting sockets to the server in the tcp-connector's config
+    let latch = new local:tcp-connector-latch {
+        "wasi:logging/logging@0.1.0-draft": logging["wasi:logging/logging@0.1.0-draft"],
+        ...
+    };
+
+    // wasi:sockets, behind the gate, opened by the latch
+    let gate = new local:sockets-gate {
+        "componentized:sockets/latch@0.1.0": latch["componentized:sockets/latch@0.1.0"],
+        "wasi:logging/logging@0.1.0-draft": logging["wasi:logging/logging@0.1.0-draft"],
+        ...
+    };
+
+    let client = new local:client {
+        "wasi:sockets/types@0.3.0": gate["wasi:sockets/types@0.3.0"],
+        "wasi:sockets/ip-name-lookup@0.3.0": gate["wasi:sockets/ip-name-lookup@0.3.0"],
+        ...
+    };
+
+    export client...;

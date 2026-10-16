@@ -118,6 +118,28 @@ spec:
                       ipNameLookup:
                         type: boolean
                     type: object
+                  wasiOptions:
+                    items:
+                      properties:
+                        name:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  wasmOptions:
+                    items:
+                      properties:
+                        name:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
                 type: object
               ref:
                 description: Ref references the component to convert to an image
@@ -1003,6 +1025,28 @@ spec:
                       ipNameLookup:
                         type: boolean
                     type: object
+                  wasiOptions:
+                    items:
+                      properties:
+                        name:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  wasmOptions:
+                    items:
+                      properties:
+                        name:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
                 type: object
               ref:
                 description: Ref references the component to convert to an image
@@ -1359,6 +1403,28 @@ spec:
                           ipNameLookup:
                             type: boolean
                         type: object
+                      wasiOptions:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                          - name
+                          type: object
+                        type: array
+                      wasmOptions:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                          - name
+                          type: object
+                        type: array
                     type: object
                   ref:
                     description: Ref references the component to convert to an image
@@ -2004,7 +2070,7 @@ metadata:
   namespace: wa8s-system
 spec:
   oci:
-    image: ghcr.io/componentized/logging/to-stdout:v0.2.1@sha256:27ea8e5600ba2a8458925e5505077a925caf3d84528f474a3d24e3ab2dfcbe31
+    image: ghcr.io/componentized/logging/to-stdout:0.3.1@sha256:42a1c0ec26485ca4c566ad2346df1d16ffdb27d0f59ba876af4b1a8ce9c22bc0
     serviceAccountRef:
       name: default
       namespace: wa8s-system
