@@ -78,13 +78,13 @@ lint-fix: ## Run golangci-lint linter and perform fixes
 components: components/static-config.wasm components/wac.wasm components/wit-tools.wasm
 
 components/static-config.wasm: Makefile
-	wkg oci pull ghcr.io/componentized/static-config/factory:0.2.0 -o components/static-config.wasm
+	wkg oci pull ghcr.io/componentized/static-config/factory:0.3.0@sha256:1552b76ed86e4fa0cb54995ce38c6da8e20350388501c05398a7d8c12f0aedb3 -o components/static-config.wasm
 
 components/wac.wasm: Makefile
-	wkg oci pull ghcr.io/componentized/component/wac-loader:dev@sha256:1cb2867e5e333f33ae70fd97b06458ae915e269f5a48bf6159b7fdde7389a39d -o components/wac.wasm
+	wkg oci pull ghcr.io/componentized/component/wac-loader:0.1.0@sha256:5e2a1b686005fd639bbe5bef119ff3f6abc43a9b29a023a5aa66b62c63233f41 -o components/wac.wasm
 
 components/wit-tools.wasm: Makefile
-	wkg oci pull ghcr.io/componentized/component/extract-wit:dev@sha256:39df10cf0989b3cf651ed2494cd2bf8dd72f4f4d5f8c1e5e78b1efc963597465 -o components/wit-tools.wasm
+	wkg oci pull ghcr.io/componentized/component/wit-tools:0.1.0@sha256:b164d67630abc2aaff9912d2453eb1dfe3c7beae727f47462412785fc7938fa2 -o components/wit-tools.wasm
 
 ##@ Deployment
 
