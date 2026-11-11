@@ -1,0 +1,33 @@
+package root:component;
+
+world root {
+  import componentized:component/types@0.1.0;
+
+  export componentized:static-config/factory@0.3.0;
+}
+package componentized:component@0.1.0 {
+  interface types {
+    type wasm = list<u8>;
+
+    record malformed {
+      name: option<string>,
+      message: string,
+    }
+
+    variant error-code {
+      malformed(malformed),
+      not-component(option<string>),
+      not-found(option<string>),
+      other(option<string>),
+    }
+  }
+}
+
+
+package componentized:static-config@0.3.0 {
+  interface factory {
+    use componentized:component/types@0.1.0.{wasm, error-code};
+
+    create: func(values: list<tuple<string, string>>) -> result<wasm, error-code>;
+  }
+}

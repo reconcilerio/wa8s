@@ -34,13 +34,13 @@ import (
 //go:embed testdata/socket.wasm
 var socketWasm []byte
 
-//go:embed wit-tools.wasm
+//go:embed wit_tools/wit-tools.wasm
 var witToolsWasm []byte
 
-//go:embed wac.wasm
+//go:embed wac/wac.wasm
 var wacWasm []byte
 
-//go:embed static-config.wasm
+//go:embed static_config/static-config.wasm
 var staticConfigWasm []byte
 
 const configStoreInterface = "wasi:config/store@0.2.0-rc.1"

@@ -156,6 +156,8 @@ jobs:
       - parallel:
           - name: Install wkg
             run: cargo binstall --force wkg
+          - name: Install wkg
+            run: cargo binstall --force wasm-tools
           - *install-controller-gen
           - *install-diegen
           - *install-goimports
@@ -192,6 +194,8 @@ jobs:
       - parallel:
           - name: Install wkg
             run: cargo binstall --force wkg
+          - name: Install wkg
+            run: cargo binstall --force wasm-tools
           - *install-imgpkg
           - *install-kbld
           - *install-ko
