@@ -43,7 +43,7 @@ func ExtractWIT(ctx context.Context, bytes []byte) (imports []string, exports []
 	source := wit_tools.WitSourceWasm(bytes)
 
 	var result witgo.Result[wit_tools.Summary, wit_tools.ErrorCode]
-	result, err = component.Wit2().Summarize(ctx, source)
+	result, err = component.Wit().Summarize(ctx, source)
 	if err != nil {
 		return nil, nil, fmt.Errorf("call wit-tools summarize: %w", err)
 	}

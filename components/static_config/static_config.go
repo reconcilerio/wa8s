@@ -33,7 +33,7 @@ func init() {
 	compileCache = component.NewCompileCache()
 }
 
-//go:generate go tool wazy-bindgen -wit static-config.wit -world root -package static_config -o ./zz_generated.wazy_bindgen.go
+//go:generate go tool wazy-bindgen -wasm static-config.wasm -world root -package static_config -o ./zz_generated.wazy_bindgen.go
 
 //go:embed static-config.wasm
 var staticConfigWasm []byte

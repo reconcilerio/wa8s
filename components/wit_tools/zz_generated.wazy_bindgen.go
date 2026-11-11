@@ -2980,8 +2980,8 @@ func (x *Root) Close(ctx context.Context) error { return x.inst.Close(ctx) }
 // Wit2 is the export componentized:component/wit@0.1.0.
 type Wit2 struct{ inst *component.Instance }
 
-// Wit2 is the instance's export componentized:component/wit@0.1.0.
-func (x *Root) Wit2() Wit2 { return Wit2{x.inst} }
+// Wit is the instance's export componentized:component/wit@0.1.0.
+func (x *Root) Wit() Wit2 { return Wit2{x.inst} }
 
 // Parse calls the export parse.
 func (x Wit2) Parse(ctx context.Context, source WitSource) (witgo.Result[Wit, ErrorCode], error) {

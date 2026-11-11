@@ -33,7 +33,7 @@ func init() {
 	compileCache = component.NewCompileCache()
 }
 
-//go:generate go tool wazy-bindgen -wit wit-tools.wit -world root -package wit_tools -o ./zz_generated.wazy_bindgen.go
+//go:generate go tool wazy-bindgen -wasm wit-tools.wasm -world root -package wit_tools -o ./zz_generated.wazy_bindgen.go
 
 //go:embed wit-tools.wasm
 var witToolsWasm []byte
