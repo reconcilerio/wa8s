@@ -4,12 +4,14 @@ go 1.26.0
 
 toolchain go1.26.2
 
+tool github.com/samyfodil/wazy/cmd/wazy-bindgen
+
 require (
 	github.com/go-logr/logr v1.4.4
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.22.1
 	github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20250115185438-c4dd792fa06c
-	github.com/samyfodil/wazy v0.7.0
+	github.com/samyfodil/wazy v0.7.1-0.20261111164719-a22e939875e9
 	github.com/stoewer/go-strcase v1.3.1
 	k8s.io/api v0.37.2
 	k8s.io/apiextensions-apiserver v0.37.2

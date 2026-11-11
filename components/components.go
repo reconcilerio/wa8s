@@ -19,109 +19,64 @@ package components
 import (
 	"context"
 	_ "embed"
+	"errors"
 	"fmt"
 
 	"github.com/google/go-containerregistry/pkg/name"
-	"github.com/samyfodil/wazy"
-	"github.com/samyfodil/wazy/component"
+	"github.com/samyfodil/wazy/component/witgo"
 
 	componentsv1alpha1 "reconciler.io/wa8s/apis/components/v1alpha1"
+	"reconciler.io/wa8s/components/static_config"
+	"reconciler.io/wa8s/components/wac"
+	"reconciler.io/wa8s/components/wit_tools"
 )
 
-var runtime wazy.Runtime
-var compileCache *component.CompileCache
-
-func init() {
-	runtime = wazy.NewRuntime(context.Background())
-	compileCache = component.NewCompileCache()
-}
-
-//go:embed wit-tools.wasm
-var witToolsWasm []byte
-
 func ExtractWIT(ctx context.Context, bytes []byte) (imports []string, exports []string, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("panic calling ExtractWIT: %s", r)
-		}
-	}()
-
-	var inst *component.Instance
-	// inst, err = component.Instantiate(ctx, runtime, witToolsWasm, component.WithCompileCache(compileCache))
-	inst, err = component.Instantiate(ctx, runtime, witToolsWasm)
+	component, err := wit_tools.Component(ctx)
 	if err != nil {
 		return nil, nil, fmt.Errorf("instantiate wit-tools: %s", err)
 	}
 	defer func() {
-		if closeErr := inst.Close(ctx); err == nil {
-			err = closeErr
-		}
+		err = errors.Join(err, component.Close(ctx))
 	}()
 
-	var got []component.Value
-	// wit-source variant, case 0 is wasm(wasm)
-	source := component.VariantValue{Disc: 0, Payload: bytes}
-	got, err = inst.CallExport(ctx, "componentized:component/wit@0.1.0", "summarize", source)
+	source := wit_tools.WitSourceWasm(bytes)
+
+	var result witgo.Result[wit_tools.Summary, wit_tools.ErrorCode]
+	result, err = component.Wit().Summarize(ctx, source)
 	if err != nil {
 		return nil, nil, fmt.Errorf("call wit-tools summarize: %w", err)
 	}
-	result := got[0].(component.ResultValue)
 	if result.IsErr {
-		return nil, nil, fmt.Errorf("call wit-tools summarize: %s", formatErrorCode(result.Payload))
+		return nil, nil, fmt.Errorf("call wit-tools summarize: %s", wit_tools.FormatErrorCode(result.Err))
 	}
-
-	// summary record {imports: list<string>, exports: list<string>}
-	summary := result.Payload.([]component.Value)
-	if imports, err = component.ListOf[string](summary[0]); err != nil {
-		return nil, nil, fmt.Errorf("call wit-tools summarize: %w", err)
-	}
-	if exports, err = component.ListOf[string](summary[1]); err != nil {
-		return nil, nil, fmt.Errorf("call wit-tools summarize: %w", err)
-	}
-
-	return imports, exports, nil
+	summary := result.Ok
+	return summary.Imports, summary.Exports, nil
 }
 
-//go:embed static-config.wasm
-var staticConfigWasm []byte
-
 func ComponentizeConfigStore(ctx context.Context, config map[string]string) (_ []byte, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("panic calling ComponentizeConfigStore: %s", r)
-		}
-	}()
-
-	var inst *component.Instance
-	inst, err = component.Instantiate(ctx, runtime, staticConfigWasm, component.WithCompileCache(compileCache))
+	component, err := static_config.Component(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("instantiate static-config: %s", err)
 	}
 	defer func() {
-		if closeErr := inst.Close(ctx); err == nil {
-			err = closeErr
-		}
+		err = errors.Join(err, component.Close(ctx))
 	}()
 
-	values := []component.Value{}
+	values := []witgo.Tuple2[string, string]{}
 	for key, value := range config {
-		values = append(values, []component.Value{key, value})
+		values = append(values, witgo.Tuple2[string, string]{F0: key, F1: value})
 	}
 
-	var got []component.Value
-	got, err = inst.CallExport(ctx, "componentized:static-config/factory@0.3.0", "create", values)
+	result, err := component.Factory().Create(ctx, values)
 	if err != nil {
 		return nil, fmt.Errorf("call static-config create: %w", err)
 	}
-	result := got[0].(component.ResultValue)
 	if result.IsErr {
-		return nil, fmt.Errorf("call static-config create: %s", formatErrorCode(result.Payload))
+		return nil, fmt.Errorf("call static-config create: %s", static_config.FormatErrorCode(result.Err))
 	}
-	return component.ListOf[byte](result.Payload)
+	return result.Ok, nil
 }
-
-//go:embed wac.wasm
-var wacWasm []byte
 
 type CompositionDependency struct {
 	Name      string
@@ -130,109 +85,55 @@ type CompositionDependency struct {
 	WIT       componentsv1alpha1.WIT
 }
 
-func WACCompose(ctx context.Context, wac string, dependencies []CompositionDependency) (_ []byte, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("panic calling WACCompose: %s", r)
-		}
-	}()
-
-	var inst *component.Instance
-	inst, err = component.Instantiate(ctx, runtime, wacWasm, component.WithCompileCache(compileCache))
+func WACCompose(ctx context.Context, wac_script string, dependencies []CompositionDependency) (_ []byte, err error) {
+	component, err := wac.Component(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("instantiate wac-loader: %s", err)
 	}
 	defer func() {
-		if closeErr := inst.Close(ctx); err == nil {
-			err = closeErr
-		}
+		err = errors.Join(err, component.Close(ctx))
 	}()
 
-	plan := component.VariantValue{Disc: 0, Payload: wac}
-	deps := []component.Value{}
+	plan := wac.PlanWac(wac_script)
+	deps := []wac.Dependency{}
 	for _, dep := range dependencies {
-		deps = append(deps, []component.Value{dep.Name, dep.Component})
+		deps = append(deps, wac.Dependency{F0: dep.Name, F1: dep.Component})
 	}
 
-	var got []component.Value
-	got, err = inst.CallExport(ctx, "componentized:component/wac-loader@0.1.0", "compose", plan, deps)
+	var result witgo.Result[[]byte, wac.ErrorCode]
+	result, err = component.WacLoader().Compose(ctx, plan, deps)
 	if err != nil {
 		return nil, fmt.Errorf("call wac-loader compose: %w", err)
 	}
-	result := got[0].(component.ResultValue)
 	if result.IsErr {
-		return nil, fmt.Errorf("call wac-loader compose: %s", formatErrorCode(result.Payload))
+		return nil, fmt.Errorf("call wac-loader compose: %s", wac.FormatErrorCode(result.Err))
 	}
-	return component.ListOf[byte](result.Payload)
+	return result.Ok, nil
 }
 
 func WACPlug(ctx context.Context, dependencies []CompositionDependency) (_ []byte, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("panic calling WACPlug: %s", r)
-		}
-	}()
-
-	var inst *component.Instance
-	inst, err = component.Instantiate(ctx, runtime, wacWasm, component.WithCompileCache(compileCache))
+	component, err := wac.Component(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("instantiate wac-loader: %s", err)
 	}
 	defer func() {
-		if closeErr := inst.Close(ctx); err == nil {
-			err = closeErr
-		}
+		err = errors.Join(err, component.Close(ctx))
 	}()
 
 	socket := dependencies[0].Component
-	plugs := []component.Value{}
+	plugs := [][]byte{}
 	for _, plug := range dependencies[1:] {
 		plugs = append(plugs, plug.Component)
 	}
 
-	var got []component.Value
-	got, err = inst.CallExport(ctx, "componentized:component/wac-loader@0.1.0", "plug", socket, plugs)
+	var result witgo.Result[[]byte, wac.ErrorCode]
+	result, err = component.WacLoader().Plug(ctx, socket, plugs)
 	if err != nil {
 		return nil, fmt.Errorf("call wac-loader plug: %w", err)
 	}
-	result := got[0].(component.ResultValue)
+
 	if result.IsErr {
-		return nil, fmt.Errorf("call wac-loader plug: %s", formatErrorCode(result.Payload))
+		return nil, fmt.Errorf("call wac-loader plug: %s", wac.FormatErrorCode(result.Err))
 	}
-	return component.ListOf[byte](result.Payload)
-}
-
-// formatErrorCode renders a componentized:component/types@0.1.0 error-code variant
-func formatErrorCode(v component.Value) string {
-	code, ok := v.(component.VariantValue)
-	if !ok {
-		return fmt.Sprintf("%v", v)
-	}
-	switch code.Disc {
-	case 0:
-		// malformed(record {name: option<string>, message: string})
-		malformed, ok := code.Payload.([]component.Value)
-		if !ok || len(malformed) != 2 {
-			return fmt.Sprintf("malformed: %v", code.Payload)
-		}
-		if name, ok := malformed[0].(string); ok {
-			return fmt.Sprintf("malformed %s: %v", name, malformed[1])
-		}
-		return fmt.Sprintf("malformed: %v", malformed[1])
-	case 1:
-		return formatOptionalMessage("not component", code.Payload)
-	case 2:
-		return formatOptionalMessage("not found", code.Payload)
-	case 3:
-		return formatOptionalMessage("other", code.Payload)
-	default:
-		return fmt.Sprintf("unknown error code %d: %v", code.Disc, code.Payload)
-	}
-}
-
-func formatOptionalMessage(kind string, message component.Value) string {
-	if message == nil {
-		return kind
-	}
-	return fmt.Sprintf("%s: %v", kind, message)
+	return result.Ok, nil
 }
