@@ -1,8 +1,8 @@
 module reconciler.io/wa8s/hack/ytt
 
-go 1.26.4
+go 1.27.4
 
-require carvel.dev/ytt v0.55.4
+require carvel.dev/ytt v0.56.0
 
 require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
